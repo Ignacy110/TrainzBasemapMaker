@@ -1,0 +1,2 @@
+Primary=basemap.jpg
+Tile=st

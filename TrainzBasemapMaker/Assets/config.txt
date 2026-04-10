@@ -1,0 +1,22 @@
+﻿kuid <kuid:value1:value2>
+
+kind "scenery"
+light							0
+trainz-build						2,4
+rotstep							90
+snapgrid						1
+
+username "Basemap_designation_counter_lon_lat"
+description "Basemap_designation_counter_lon_lat_value1_value2"
+
+category-class "BR"
+category-region-0 "PL"
+
+mesh-table
+{
+  default
+  {
+    mesh "basemap.im"
+    auto-create 1
+  }
+}
