@@ -24,7 +24,7 @@ Aplikacja *Trainz Basemap Maker* umożliwia szybkie i proste tworzenie basemap (
 
 Aplikacja opiera się o system koordynatów EPSG:2180 i pobiera podkłady satelitarne z serwisu https://www.geoportal.gov.pl **tylko na terenie Polski**.
 
->[IMPORTANT]
+>[!IMPORTANT]
 >Ze względu na obciążenie strony georportalu, w pewnych godzinach (zazwyczaj z rana) oczekiwanie na pobranie podkładu może być znacznie wydłużone lub jego pobranie może być nie możliwe. Należy wtedy spróbować później najlepiej w godzinach popołudniowych lub wieczornych.
 
 <br>
@@ -59,7 +59,7 @@ Jeżeli znamy koordynaty w standardzie EPSG:2180, możemy pominąć tę sekcje i
 
 Wprowadzamy odpowiednio *szerokość* (latitude) i *długość* (longitude) geograficzną.
 
->[IMPORTANT]
+>[!IMPORTANT]
 >Należy pamiętać aby wpisywać tylko cyfry oraz ewentualnie kropkę jako część po przecinku.
 
 #### 1.2 Konwersja:
@@ -75,7 +75,7 @@ Sekcja konfiguracji jest przeznaczona do sprecyzowania parametrów pobieranych p
 
 Możemy skorzystać z [konwertera](#1-konwerter) lub ręcznie wprowadzić *szerokość* (latitude) i *długość* geograficzną (longitude).
 
->[IMPORTANT]
+>[!IMPORTANT]
 >Należy pamiętać aby wpisywać tylko cyfry - te pola przyjmują liczby całkowite.
 
 #### 2.2 Rozdzielczość podkładów satelitarnych:
@@ -84,7 +84,7 @@ Należy wybrać pożądaną rozdzielczość podkładów geograficznych. Im wyżs
 
 #### 2.3 Tworzenie plików Trainz:
 
->[TIP]
+>[!TIP]
 >Tej sekcji zdecydowanie warto poświęcić uwagę, zwłaszcza przy większych projektach. Dzięki umiejętnemu zarządzaniu wpisywanymi parametrami można bez większych problemów oraz konfliktów odnajdywać się pośród dziesiątek pobieranych podkładów.
 
 Jeżeli checkbox *Twórz foldery i pliki Trainz* został zaznaczony, to z każdym pobranym podkładem satelitarnym, podkład oraz pliki dla Trainz są zapisywane na dysku w **folderze *Kuids***. Folder ten tworzy się automatycznie w tej samej lokalizacji co uruchomiony plik *.exe*.
@@ -93,7 +93,7 @@ Jeżeli checkbox *Twórz foldery i pliki Trainz* został zaznaczony, to z każdy
 
 Lista *twoje foldery* pokazuje wszystkie foldery w katalogu *Kuids*.
 
->[NOTE]
+>[!NOTE]
 >Program został stworzony z myślą o możliwości segragacji pobieranych podkładów.
 >
 >Możemy segregować - dzielić podkłady na trasy, nadając im odpowiednie nazwy.
@@ -110,7 +110,7 @@ Jeżeli nie mamy żadnego folderu lub chcemy stworzyć nowy zobacz [kolejny podp
 
 W tym polu należy wpisać nazwę folderu, w którym będą się tworzyły pliki do gry Trainz. Po kliknięciu przycisku *Skonfiguruj i pobierz* folder o wpisanej nazwie utworzy się w katalogu *Kuids*, następnie do niego będą trafiały pobierane podkłady.
 
->[NOTE]
+>[!NOTE]
 >Przykład:
 >Ponieważ będziemy pobierać podkłady na trasie między Opolem, a Nysą to folder nazwiemy *Opole-Nysa*.
 
@@ -120,7 +120,7 @@ W tym polu najlepiej jest wpisać skróconą nazwę folderu.
 
 Oznaczenie to będzie widniało w nazwie podkładu satelitarnego w grze Trainz, co ma na celu ułatwić identyfikacje z jakiego folderu (grupy podkładów) korzystamy.
 
->[NOTE]
+>[!NOTE]
 >Przykład:
 >Jeżeli mamy folder *Opole-Nysa* to można wpisać na przykład w tym polu: *OpNy*. Napotykając w grze Trainz z takim oznaczeniem w nazwie będziemy wiedzieli że jest to podkład obejmujący teren na tej trasie kolejowej.
 
@@ -130,7 +130,7 @@ W tym polu należy wpisać numer dla podkładu.
 
 Numery podkładów dla ułatwienia korzystania powinny być unikatowe (nie powtarzające się).
 
->[NOTE]
+>[!NOTE]
 >W tym polu najczęściej wpisujemy tylko wartość od której chcemy zacząć naszą numerację podkładów, ponieważ pobierając kolejne podkłady korzystając z sekcji nawigacji, numer podkładu zwiększa się automatycznie.
 
 ##### 2.3.5 Oznaczenie kuidu:
