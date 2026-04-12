@@ -1,3 +1,22 @@
+
+// Trainz Basemap Maker
+// https://github.com/Ignacy110/TrainzBasemapMaker
+//
+// Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, see (http://www.gnu.org/licenses/).
+
 using System.Diagnostics;
 using System.Globalization;
 
@@ -50,7 +69,8 @@ namespace TrainzBasemapMaker
             textBoxDesignation.Text = basemapGroupDesignation;
             textBoxCounter.Text = counter.ToString();
             textBoxKuidPart1.Text = "0";
-            labelKuidPart2.Text = $": {counter}";
+
+            UpdateNextFreeKuidPart2();
 
             // refreshing lists
             KuidsInFolderListBoxRefresh();
@@ -68,7 +88,6 @@ namespace TrainzBasemapMaker
             textBoxY.Text = currentY.ToString();
 
             textBoxCounter.Text = counter.ToString();
-            labelKuidPart2.Text = $": {counter}";
 
             //var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
             //label1.Text = $"Lat: {lat:F6}, Lon: {lon:F6}";
@@ -105,6 +124,104 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Items.Clear();
             var groups = _fileManager.GetBasemapGroups();
             basemapFolderListBox.Items.AddRange(groups.ToArray());
+        }
+
+        private void UpdateNextFreeKuidPart2()
+        {
+            try
+            {
+                // Zak³adam, ¿e g³ówny folder to "Kuids" w katalogu aplikacji. 
+                // Jeœli TrainzFileManager przechowuje tê œcie¿kê inaczej, zaktualizuj poni¿sz¹ zmienn¹.
+                string baseKuidsPath = "Kuids";
+
+                if (!Directory.Exists(baseKuidsPath))
+                {
+                    textBoxKuidPart2.Text = "1"; // Jeœli katalog nie istnieje, zaczynamy od 1
+                    return;
+                }
+
+                // Szukamy wszystkich folderów we wszystkich podkatalogach, których nazwa zaczyna siê od "basemap_"
+                var allFolders = Directory.GetDirectories(baseKuidsPath, "basemap_*", SearchOption.AllDirectories);
+
+                HashSet<int> usedKuidsPart2 = new HashSet<int>();
+
+                foreach (var folder in allFolders)
+                {
+                    string folderName = new DirectoryInfo(folder).Name;
+                    string[] parts = folderName.Split('_');
+
+                    // Format: basemap_{basemapGroupDesignation}_{counter}_{x}_{y}_{kuidPart1}_{kuidPart2}
+                    // Indeksy: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
+                    if (parts.Length >= 7)
+                    {
+                        if (int.TryParse(parts[6], out int parsedKuidPart2))
+                        {
+                            usedKuidsPart2.Add(parsedKuidPart2);
+                        }
+                    }
+                }
+
+                // Szukanie najmniejszej wolnej wartoœci zaczynaj¹c od 1
+                int freeKuid = 1;
+                while (usedKuidsPart2.Contains(freeKuid))
+                {
+                    freeKuid++;
+                }
+
+                textBoxKuidPart2.Text = freeKuid.ToString();
+            }
+            catch (Exception ex)
+            {
+                // Fallback w razie b³êdu odczytu (np. brak uprawnieñ)
+                MessageBox.Show("Nie uda³o siê automatycznie wyznaczyæ kuidPart2:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                textBoxKuidPart2.Text = "1";
+            }
+        }
+
+        private void UpdateNextFreeCounter()
+        {
+            try
+            {
+                string baseKuidsPath = Path.Combine("Kuids", basemapGroup);
+
+                if (!Directory.Exists(baseKuidsPath))
+                {
+                    textBoxCounter.Text = "1";
+                    return;
+                }
+
+                var allFolders = Directory.GetDirectories(baseKuidsPath, "basemap_*", SearchOption.AllDirectories);
+
+                HashSet<int> usedCounter = new HashSet<int>();
+
+                foreach (var folder in allFolders)
+                {
+                    string folderName = new DirectoryInfo(folder).Name;
+                    string[] parts = folderName.Split('_');
+
+                    if (parts.Length >= 7)
+                    {
+                        if (int.TryParse(parts[2], out int parsedKuidPart2))
+                        {
+                            usedCounter.Add(parsedKuidPart2);
+                        }
+                    }
+                }
+
+                int freeKuid = 1;
+                while (usedCounter.Contains(freeKuid))
+                {
+                    freeKuid++;
+                }
+
+                textBoxCounter.Text = freeKuid.ToString();
+            }
+            catch (Exception ex)
+            {
+                // Fallback w razie b³êdu odczytu (np. brak uprawnieñ)
+                MessageBox.Show("Nie uda³o siê automatycznie wyznaczyæ Counter:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                textBoxCounter.Text = "1";
+            }
         }
 
         private async Task DownloadMap() // downloading satellite basemaps
@@ -161,12 +278,15 @@ namespace TrainzBasemapMaker
                             currentY,
                             basemapGroupDesignation,
                             counter,
-                            textBoxKuidPart1.Text
+                            textBoxKuidPart1.Text,
+                            textBoxKuidPart2.Text
                         );
 
                         if (success)
                         {
                             counter++;
+                            UpdateNextFreeKuidPart2();
+                            DataRefresh();
                             toolStripStatusLabel1.Text = "Zapisano pomyœlnie!";
                         }
                         else
@@ -324,8 +444,8 @@ namespace TrainzBasemapMaker
 
                     if (parts.Length >= 4)
                     {
-                        int clickedCounter = int.Parse(parts[2]);
-                        counter = clickedCounter + 1;
+                        //int clickedCounter = int.Parse(parts[2]);
+                        //counter = clickedCounter + 1;
 
                         currentX = long.Parse(parts[3]);
                         currentY = long.Parse(parts[4]);
@@ -354,7 +474,7 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                Process.Start(new ProcessStartInfo("*") { UseShellExecute = true });
+                Process.Start(new ProcessStartInfo("https://github.com/Ignacy110/TrainzBasemapMaker") { UseShellExecute = true });
             }
             catch (Exception ex)
             {
@@ -386,6 +506,7 @@ namespace TrainzBasemapMaker
         private void textBoxDestinationFolder_TextChanged(object sender, EventArgs e)
         {
             basemapGroup = textBoxDestinationFolder.Text;
+            UpdateNextFreeCounter();
             KuidsInFolderListBoxRefresh();
         }
 
@@ -416,6 +537,22 @@ namespace TrainzBasemapMaker
                     warningToolTip.Show("Tutaj mo¿esz wpisaæ tylko cyfry!", textBox, 50, -75, 2000);
                 }
             }
+        }
+
+        private void znajdŸNajmniejszyWolnyNrPodk³aduToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdateNextFreeCounter();
+        }
+
+        private void znajdŸWolnyKuidToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            UpdateNextFreeKuidPart2();
+        }
+
+        private void odœwierzListêFoldrówIPodk³adówToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            KuidsInFolderListBoxRefresh();
+            BasemapFolderListBoxRefresh();
         }
     }
 }

@@ -6,7 +6,7 @@ trainz-build						2,4
 rotstep							90
 snapgrid						1
 
-username "Basemap_designation_counter_lon_lat"
+username "Basemap_designation_counter_lon_lat_value1_value2"
 description "Basemap_designation_counter_lon_lat_value1_value2"
 
 category-class "BR"

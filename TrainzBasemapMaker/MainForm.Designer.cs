@@ -40,9 +40,10 @@
             label2 = new Label();
             groupBox2Configurator = new GroupBox();
             panel1 = new Panel();
+            textBoxKuidPart2 = new TextBox();
             label13 = new Label();
             textBoxDesignation = new TextBox();
-            labelKuidPart2 = new Label();
+            labelKuidSeparator = new Label();
             textBoxKuidPart1 = new TextBox();
             label12 = new Label();
             textBoxCounter = new TextBox();
@@ -72,11 +73,15 @@
             groupBox5BasemapViewer = new GroupBox();
             groupBox4KuidList = new GroupBox();
             menuStrip1 = new MenuStrip();
+            narzędziaToolStripMenuItem = new ToolStripMenuItem();
+            znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem = new ToolStripMenuItem();
             pomocToolStripMenuItem = new ToolStripMenuItem();
             stronaProgramuToolStripMenuItem = new ToolStripMenuItem();
             informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
+            odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
             groupBox2Configurator.SuspendLayout();
             panel1.SuspendLayout();
             groupBox3Navigator.SuspendLayout();
@@ -194,9 +199,10 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(textBoxKuidPart2);
             panel1.Controls.Add(label13);
             panel1.Controls.Add(textBoxDesignation);
-            panel1.Controls.Add(labelKuidPart2);
+            panel1.Controls.Add(labelKuidSeparator);
             panel1.Controls.Add(textBoxKuidPart1);
             panel1.Controls.Add(label12);
             panel1.Controls.Add(textBoxCounter);
@@ -209,6 +215,14 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(178, 268);
             panel1.TabIndex = 20;
+            // 
+            // textBoxKuidPart2
+            // 
+            textBoxKuidPart2.Location = new Point(97, 236);
+            textBoxKuidPart2.Name = "textBoxKuidPart2";
+            textBoxKuidPart2.Size = new Size(75, 23);
+            textBoxKuidPart2.TabIndex = 29;
+            textBoxKuidPart2.KeyPress += OnlyNumbers_KeyPress;
             // 
             // label13
             // 
@@ -223,24 +237,24 @@
             // 
             textBoxDesignation.Location = new Point(3, 188);
             textBoxDesignation.Name = "textBoxDesignation";
-            textBoxDesignation.Size = new Size(87, 23);
+            textBoxDesignation.Size = new Size(75, 23);
             textBoxDesignation.TabIndex = 27;
             textBoxDesignation.TextChanged += textBoxDesignation_TextChanged;
             // 
-            // labelKuidPart2
+            // labelKuidSeparator
             // 
-            labelKuidPart2.AutoSize = true;
-            labelKuidPart2.Location = new Point(96, 239);
-            labelKuidPart2.Name = "labelKuidPart2";
-            labelKuidPart2.Size = new Size(10, 15);
-            labelKuidPart2.TabIndex = 26;
-            labelKuidPart2.Text = ":";
+            labelKuidSeparator.AutoSize = true;
+            labelKuidSeparator.Location = new Point(84, 239);
+            labelKuidSeparator.Name = "labelKuidSeparator";
+            labelKuidSeparator.Size = new Size(10, 15);
+            labelKuidSeparator.TabIndex = 26;
+            labelKuidSeparator.Text = ":";
             // 
             // textBoxKuidPart1
             // 
             textBoxKuidPart1.Location = new Point(3, 236);
             textBoxKuidPart1.Name = "textBoxKuidPart1";
-            textBoxKuidPart1.Size = new Size(87, 23);
+            textBoxKuidPart1.Size = new Size(75, 23);
             textBoxKuidPart1.TabIndex = 25;
             textBoxKuidPart1.TextAlign = HorizontalAlignment.Right;
             textBoxKuidPart1.KeyPress += OnlyNumbers_KeyPress;
@@ -256,9 +270,9 @@
             // 
             // textBoxCounter
             // 
-            textBoxCounter.Location = new Point(102, 188);
+            textBoxCounter.Location = new Point(97, 188);
             textBoxCounter.Name = "textBoxCounter";
-            textBoxCounter.Size = new Size(70, 23);
+            textBoxCounter.Size = new Size(75, 23);
             textBoxCounter.TabIndex = 23;
             textBoxCounter.TextChanged += textBoxCounter_TextChanged;
             textBoxCounter.KeyPress += OnlyNumbers_KeyPress;
@@ -266,7 +280,7 @@
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(102, 170);
+            label11.Location = new Point(97, 170);
             label11.Name = "label11";
             label11.Size = new Size(76, 15);
             label11.TabIndex = 22;
@@ -517,12 +531,33 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { pomocToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { narzędziaToolStripMenuItem, pomocToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1125, 24);
             menuStrip1.TabIndex = 19;
             menuStrip1.Text = "menuStrip1";
+            // 
+            // narzędziaToolStripMenuItem
+            // 
+            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem });
+            narzędziaToolStripMenuItem.Name = "narzędziaToolStripMenuItem";
+            narzędziaToolStripMenuItem.Size = new Size(70, 20);
+            narzędziaToolStripMenuItem.Text = "&Narzędzia";
+            // 
+            // znajdźWolnyKuidToolStripMenuItem
+            // 
+            znajdźWolnyKuidToolStripMenuItem.Name = "znajdźWolnyKuidToolStripMenuItem";
+            znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
+            znajdźWolnyKuidToolStripMenuItem.Text = "Znajdź wolny &Kuid";
+            znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
+            // 
+            // znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem
+            // 
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Name = "znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem";
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Size = new Size(276, 22);
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Text = "Znajdź najmniejszy wolny nr &podkładu";
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Click += znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem_Click;
             // 
             // pomocToolStripMenuItem
             // 
@@ -561,7 +596,14 @@
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
             // 
-            // Form1
+            // odświerzListęFoldrówIPodkładówToolStripMenuItem
+            // 
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odświerz listę foldrów i podkładów";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświerzListęFoldrówIPodkładówToolStripMenuItem_Click;
+            // 
+            // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -577,7 +619,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
             MaximizeBox = false;
-            Name = "Form1";
+            Name = "MainForm";
             Text = "Trainz Basemap Maker";
             groupBox2Configurator.ResumeLayout(false);
             groupBox2Configurator.PerformLayout();
@@ -645,8 +687,13 @@
         private ToolStripStatusLabel toolStripStatusLabel1;
         private TextBox textBoxKuidPart1;
         private Label label12;
-        private Label labelKuidPart2;
+        private Label labelKuidSeparator;
         private TextBox textBoxDesignation;
         private Label label13;
+        private TextBox textBoxKuidPart2;
+        private ToolStripMenuItem narzędziaToolStripMenuItem;
+        private ToolStripMenuItem znajdźWolnyKuidToolStripMenuItem;
+        private ToolStripMenuItem znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem;
+        private ToolStripMenuItem odświerzListęFoldrówIPodkładówToolStripMenuItem;
     }
 }

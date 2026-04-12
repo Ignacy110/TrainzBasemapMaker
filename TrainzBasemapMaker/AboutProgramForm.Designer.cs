@@ -35,13 +35,14 @@
             label4 = new Label();
             pictureBox1 = new PictureBox();
             linkLabelGitHubAuthor = new LinkLabel();
-            label5 = new Label();
-            label6 = new Label();
+            labelVersion = new Label();
+            labelReleaseDate = new Label();
             label7 = new Label();
             label8 = new Label();
             label9 = new Label();
             linkLabelGitHubSite = new LinkLabel();
             label11 = new Label();
+            label5 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -105,23 +106,23 @@
             linkLabelGitHubAuthor.UseCompatibleTextRendering = true;
             linkLabelGitHubAuthor.LinkClicked += linkLabelGitHubAuthor_LinkClicked;
             // 
-            // label5
+            // labelVersion
             // 
-            label5.AutoSize = true;
-            label5.Location = new Point(189, 66);
-            label5.Name = "label5";
-            label5.Size = new Size(37, 15);
-            label5.TabIndex = 6;
-            label5.Text = "v0.0.1";
+            labelVersion.AutoSize = true;
+            labelVersion.Location = new Point(189, 66);
+            labelVersion.Name = "labelVersion";
+            labelVersion.Size = new Size(13, 15);
+            labelVersion.TabIndex = 6;
+            labelVersion.Text = "v";
             // 
-            // label6
+            // labelReleaseDate
             // 
-            label6.AutoSize = true;
-            label6.Location = new Point(189, 91);
-            label6.Name = "label6";
-            label6.Size = new Size(61, 15);
-            label6.TabIndex = 7;
-            label6.Text = "08.04.2026";
+            labelReleaseDate.AutoSize = true;
+            labelReleaseDate.Location = new Point(189, 91);
+            labelReleaseDate.Name = "labelReleaseDate";
+            labelReleaseDate.Size = new Size(65, 15);
+            labelReleaseDate.TabIndex = 7;
+            labelReleaseDate.Text = "dd.mm.rrrr";
             // 
             // label7
             // 
@@ -153,13 +154,13 @@
             // linkLabelGitHubSite
             // 
             linkLabelGitHubSite.AutoSize = true;
-            linkLabelGitHubSite.LinkArea = new LinkArea(1, 43);
+            linkLabelGitHubSite.LinkArea = new LinkArea(1, 47);
             linkLabelGitHubSite.Location = new Point(102, 192);
             linkLabelGitHubSite.Name = "linkLabelGitHubSite";
-            linkLabelGitHubSite.Size = new Size(17, 21);
+            linkLabelGitHubSite.Size = new Size(294, 21);
             linkLabelGitHubSite.TabIndex = 12;
             linkLabelGitHubSite.TabStop = true;
-            linkLabelGitHubSite.Text = "(*)";
+            linkLabelGitHubSite.Text = "(https://github.com/Ignacy110/TrainzBasemapMaker)";
             linkLabelGitHubSite.UseCompatibleTextRendering = true;
             linkLabelGitHubSite.LinkClicked += linkLabelGitHubSite_LinkClicked;
             // 
@@ -172,18 +173,28 @@
             label11.TabIndex = 11;
             label11.Text = "Strona programu - GitHub:";
             // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(102, 224);
+            label5.Name = "label5";
+            label5.Size = new Size(337, 15);
+            label5.TabIndex = 13;
+            label5.Text = "Program wykorzystuje bibliotekę ProjNET na licencji LGPL v2.1.";
+            // 
             // AboutProgramForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(440, 248);
+            ClientSize = new Size(454, 261);
+            Controls.Add(label5);
             Controls.Add(linkLabelGitHubSite);
             Controls.Add(label11);
             Controls.Add(label9);
             Controls.Add(label8);
             Controls.Add(label7);
-            Controls.Add(label6);
-            Controls.Add(label5);
+            Controls.Add(labelReleaseDate);
+            Controls.Add(labelVersion);
             Controls.Add(linkLabelGitHubAuthor);
             Controls.Add(pictureBox1);
             Controls.Add(label4);
@@ -210,12 +221,13 @@
         private Label label4;
         private PictureBox pictureBox1;
         private LinkLabel linkLabelGitHubAuthor;
-        private Label label5;
-        private Label label6;
+        private Label labelVersion;
+        private Label labelReleaseDate;
         private Label label7;
         private Label label8;
         private Label label9;
         private LinkLabel linkLabelGitHubSite;
         private Label label11;
+        private Label label5;
     }
 }
