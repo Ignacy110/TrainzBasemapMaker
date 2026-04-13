@@ -27,8 +27,8 @@ namespace TrainzBasemapMaker
         {
             InitializeComponent();
 
-            labelVersion.Text = "v0.1.0-alfa";
-            labelReleaseDate.Text = "12.04.2026";
+            labelVersion.Text = "v0.1.1-alfa";
+            labelReleaseDate.Text = "13.04.2026";
 
             var ms = new System.IO.MemoryStream(Properties.Resources.Icon);
             pictureBox1.Image = Image.FromStream(ms);

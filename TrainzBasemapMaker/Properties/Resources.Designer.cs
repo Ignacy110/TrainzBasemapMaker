@@ -99,5 +99,15 @@ namespace TrainzBasemapMaker.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Byte[].
+        /// </summary>
+        internal static byte[] thumbnail_jpg {
+            get {
+                object obj = ResourceManager.GetObject("thumbnail_jpg", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

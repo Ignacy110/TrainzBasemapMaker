@@ -1,8 +1,8 @@
 ﻿kuid <kuid:value1:value2>
 
-kind "scenery"
-light							0
-trainz-build						2,4
+kind							"scenery"
+trainz-build						3.3
+light							1
 rotstep							90
 snapgrid						1
 
@@ -10,7 +10,7 @@ username "Basemap_designation_counter_lon_lat_value1_value2"
 description "Basemap_designation_counter_lon_lat_value1_value2"
 
 category-class "BR"
-category-region-0 "PL"
+category-region "PL"
 
 mesh-table
 {
@@ -19,4 +19,12 @@ mesh-table
     mesh "basemap.im"
     auto-create 1
   }
+}
+
+thumbnails {
+	0 {
+		image					"thumbnail.jpg"
+		width					240
+		height					180
+	}
 }
