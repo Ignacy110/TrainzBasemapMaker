@@ -39,6 +39,8 @@
             buttonDown = new Button();
             label2 = new Label();
             groupBox2Configurator = new GroupBox();
+            textBoxBasemapDate = new TextBox();
+            label14 = new Label();
             panel1 = new Panel();
             textBoxKuidPart2 = new TextBox();
             label13 = new Label();
@@ -74,14 +76,14 @@
             groupBox4KuidList = new GroupBox();
             menuStrip1 = new MenuStrip();
             narzędziaToolStripMenuItem = new ToolStripMenuItem();
-            znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
+            odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem = new ToolStripMenuItem();
+            znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
             pomocToolStripMenuItem = new ToolStripMenuItem();
             stronaProgramuToolStripMenuItem = new ToolStripMenuItem();
             informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
-            odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
             groupBox2Configurator.SuspendLayout();
             panel1.SuspendLayout();
             groupBox3Navigator.SuspendLayout();
@@ -169,14 +171,16 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(6, 104);
+            label2.Location = new Point(6, 98);
             label2.Name = "label2";
-            label2.Size = new Size(168, 15);
+            label2.Size = new Size(93, 30);
             label2.TabIndex = 9;
-            label2.Text = "Rozdzielczość podkładów [px]:";
+            label2.Text = "Rozdzielczość\r\npodkładów [px]:";
             // 
             // groupBox2Configurator
             // 
+            groupBox2Configurator.Controls.Add(textBoxBasemapDate);
+            groupBox2Configurator.Controls.Add(label14);
             groupBox2Configurator.Controls.Add(panel1);
             groupBox2Configurator.Controls.Add(radioButton512);
             groupBox2Configurator.Controls.Add(checkBoxCreateFiles);
@@ -197,6 +201,24 @@
             groupBox2Configurator.TabStop = false;
             groupBox2Configurator.Text = "2. Konfiguracja";
             // 
+            // textBoxBasemapDate
+            // 
+            textBoxBasemapDate.Location = new Point(126, 131);
+            textBoxBasemapDate.Name = "textBoxBasemapDate";
+            textBoxBasemapDate.Size = new Size(59, 23);
+            textBoxBasemapDate.TabIndex = 30;
+            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
+            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Location = new Point(126, 98);
+            label14.Name = "label14";
+            label14.Size = new Size(69, 30);
+            label14.TabIndex = 21;
+            label14.Text = "Rok\r\npodkładów:";
+            // 
             // panel1
             // 
             panel1.Controls.Add(textBoxKuidPart2);
@@ -211,9 +233,9 @@
             panel1.Controls.Add(basemapFolderListBox);
             panel1.Controls.Add(textBoxDestinationFolder);
             panel1.Controls.Add(label4);
-            panel1.Location = new Point(16, 256);
+            panel1.Location = new Point(13, 261);
             panel1.Name = "panel1";
-            panel1.Size = new Size(178, 268);
+            panel1.Size = new Size(178, 263);
             panel1.TabIndex = 20;
             // 
             // textBoxKuidPart2
@@ -325,7 +347,7 @@
             // radioButton512
             // 
             radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(16, 197);
+            radioButton512.Location = new Point(13, 206);
             radioButton512.Name = "radioButton512";
             radioButton512.Size = new Size(73, 19);
             radioButton512.TabIndex = 19;
@@ -337,7 +359,7 @@
             // checkBoxCreateFiles
             // 
             checkBoxCreateFiles.AutoSize = true;
-            checkBoxCreateFiles.Location = new Point(6, 231);
+            checkBoxCreateFiles.Location = new Point(6, 236);
             checkBoxCreateFiles.Name = "checkBoxCreateFiles";
             checkBoxCreateFiles.Size = new Size(160, 19);
             checkBoxCreateFiles.TabIndex = 18;
@@ -348,7 +370,7 @@
             // radioButton1024
             // 
             radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(16, 172);
+            radioButton1024.Location = new Point(13, 181);
             radioButton1024.Name = "radioButton1024";
             radioButton1024.Size = new Size(85, 19);
             radioButton1024.TabIndex = 18;
@@ -369,7 +391,7 @@
             // radioButton2048
             // 
             radioButton2048.AutoSize = true;
-            radioButton2048.Location = new Point(16, 147);
+            radioButton2048.Location = new Point(13, 156);
             radioButton2048.Name = "radioButton2048";
             radioButton2048.Size = new Size(85, 19);
             radioButton2048.TabIndex = 17;
@@ -390,7 +412,7 @@
             // radioButton4096
             // 
             radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(16, 122);
+            radioButton4096.Location = new Point(13, 131);
             radioButton4096.Name = "radioButton4096";
             radioButton4096.Size = new Size(85, 19);
             radioButton4096.TabIndex = 16;
@@ -545,12 +567,12 @@
             narzędziaToolStripMenuItem.Size = new Size(70, 20);
             narzędziaToolStripMenuItem.Text = "&Narzędzia";
             // 
-            // znajdźWolnyKuidToolStripMenuItem
+            // odświerzListęFoldrówIPodkładówToolStripMenuItem
             // 
-            znajdźWolnyKuidToolStripMenuItem.Name = "znajdźWolnyKuidToolStripMenuItem";
-            znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
-            znajdźWolnyKuidToolStripMenuItem.Text = "Znajdź wolny &Kuid";
-            znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odświerz listę foldrów i podkładów";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświerzListęFoldrówIPodkładówToolStripMenuItem_Click;
             // 
             // znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem
             // 
@@ -558,6 +580,13 @@
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Size = new Size(276, 22);
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Text = "Znajdź najmniejszy wolny nr &podkładu";
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Click += znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem_Click;
+            // 
+            // znajdźWolnyKuidToolStripMenuItem
+            // 
+            znajdźWolnyKuidToolStripMenuItem.Name = "znajdźWolnyKuidToolStripMenuItem";
+            znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
+            znajdźWolnyKuidToolStripMenuItem.Text = "Znajdź wolny &Kuid";
+            znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
             // 
             // pomocToolStripMenuItem
             // 
@@ -595,13 +624,6 @@
             toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
-            // 
-            // odświerzListęFoldrówIPodkładówToolStripMenuItem
-            // 
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odświerz listę foldrów i podkładów";
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświerzListęFoldrówIPodkładówToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -695,5 +717,7 @@
         private ToolStripMenuItem znajdźWolnyKuidToolStripMenuItem;
         private ToolStripMenuItem znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem;
         private ToolStripMenuItem odświerzListęFoldrówIPodkładówToolStripMenuItem;
+        private TextBox textBoxBasemapDate;
+        private Label label14;
     }
 }

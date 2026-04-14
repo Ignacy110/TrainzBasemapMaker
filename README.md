@@ -42,7 +42,7 @@ Pełny tekst licencji LGPL dostępny jest tutaj: [https://www.gnu.org/licenses/o
 ## Szybki Start:
 1. Wpisz współrzędne (np. z Google Maps) w **Konwerterze**.
 2. Kliknij **Konwertuj**.
-3. Kliknij **Skonfiguruj i pobierz**. Gotowe - pobrałeś pierwszy podkłąd satelitarny do Trainz!
+3. Kliknij **Skonfiguruj i pobierz**. Gotowe - pobrałeś pierwszy podkład satelitarny do Trainz!
 4. Klikając przyciski w panelu *Nawigacja* możesz pobierać kolejne podkłady.
 
 <br>
@@ -80,16 +80,23 @@ Możemy skorzystać z [konwertera](#1-konwerter) lub ręcznie wprowadzić *szero
 
 #### 2.2 Rozdzielczość podkładów satelitarnych:
 
-Należy wybrać pożądaną rozdzielczość podkładów geograficznych. Im wyższa rozdzielczość tym więcej szczegółów, lecz jednocześnie dłuższy czas pobierania podkładów satelitarnych.
+Należy wybrać pożądaną rozdzielczość podkładów satelitarnych. Im wyższa rozdzielczość tym więcej szczegółów, lecz jednocześnie dłuższy czas pobierania podkładów satelitarnych.
 
-#### 2.3 Tworzenie plików Trainz:
+#### 2.3 Rok podkładów satelitarnych:
+
+Należy wpisać w polu rok (np. *2013*), z którego chcemy otrzymywać podkłady satelitarne.
+
+>[!IMPORTANT]
+>Jeżeli po pobraniu podkładu podgląd jest biały, należy wybrać późniejszy rok. Dzieje się tak ponieważ, dla wybranego roku nie wykonano do tej pory żadnych zdjęć lotniczych (dostępnych na geoportalu).
+
+#### 2.4 Tworzenie plików Trainz:
 
 >[!TIP]
 >Tej sekcji zdecydowanie warto poświęcić uwagę, zwłaszcza przy większych projektach. Dzięki umiejętnemu zarządzaniu wpisywanymi parametrami można bez większych problemów oraz konfliktów odnajdywać się pośród dziesiątek pobieranych podkładów.
 
 Jeżeli checkbox *Twórz foldery i pliki Trainz* został zaznaczony, to z każdym pobranym podkładem satelitarnym, podkład oraz pliki dla Trainz są zapisywane na dysku w **folderze *Kuids***. Folder ten tworzy się automatycznie w tej samej lokalizacji co uruchomiony plik *.exe*.
 
-##### 2.3.1 Lista folderów:
+##### 2.4.1 Lista folderów:
 
 Lista *twoje foldery* pokazuje wszystkie foldery w katalogu *Kuids*.
 
@@ -104,9 +111,9 @@ Lista *twoje foldery* pokazuje wszystkie foldery w katalogu *Kuids*.
 
 Jeżeli mamy jakiś folder z podkładami wyświetli się on na liście. Klikając na dany folder z listy, *nazwa docelowego folderu* jest uzupełniana automatycznie tę samą nazwą.
 
-Jeżeli nie mamy żadnego folderu lub chcemy stworzyć nowy zobacz [kolejny podpunkt](#232-nazwa-docelowego-folderu).
+Jeżeli nie mamy żadnego folderu lub chcemy stworzyć nowy zobacz [kolejny podpunkt](#242-nazwa-docelowego-folderu).
 
-##### 2.3.2 Nazwa docelowego folderu:
+##### 2.4.2 Nazwa docelowego folderu:
 
 W tym polu należy wpisać nazwę folderu, w którym będą się tworzyły pliki do gry Trainz. Po kliknięciu przycisku *Skonfiguruj i pobierz* folder o wpisanej nazwie utworzy się w katalogu *Kuids*, następnie do niego będą trafiały pobierane podkłady.
 
@@ -114,7 +121,7 @@ W tym polu należy wpisać nazwę folderu, w którym będą się tworzyły pliki
 >Przykład:
 >Ponieważ będziemy pobierać podkłady na trasie między Opolem, a Nysą to folder nazwiemy *Opole-Nysa*.
 
-##### 2.3.3 Oznaczenie podkładu:
+##### 2.4.3 Oznaczenie podkładu:
 
 W tym polu najlepiej jest wpisać skróconą nazwę folderu.
 
@@ -124,7 +131,7 @@ Oznaczenie to będzie widniało w nazwie podkładu satelitarnego w grze Trainz, 
 >Przykład:
 >Jeżeli mamy folder *Opole-Nysa* to można wpisać na przykład w tym polu: *OpNy*. Napotykając w grze Trainz z takim oznaczeniem w nazwie będziemy wiedzieli że jest to podkład obejmujący teren na tej trasie kolejowej.
 
-##### 2.3.4 Numer podkładu:
+##### 2.4.4 Numer podkładu:
 
 W tym polu należy wpisać numer dla podkładu.
 
@@ -133,7 +140,7 @@ Numery podkładów dla ułatwienia korzystania powinny być unikatowe (nie powta
 >[!NOTE]
 >W tym polu najczęściej wpisujemy tylko wartość od której chcemy zacząć naszą numerację podkładów, ponieważ pobierając kolejne podkłady korzystając z sekcji nawigacji, numer podkładu zwiększa się automatycznie.
 
-##### 2.3.5 Oznaczenie kuidu:
+##### 2.4.5 Oznaczenie kuidu:
 
 Te pole jest uzupełniane automatycznie przez program.
 
@@ -143,7 +150,7 @@ Wartości wpisane w tych (dwóch) polach nadają identyfikator tak zwanej zależ
 
 Po skonfigurowaniu i pobraniu pierwszego podkładu w zakładce [konfiguracja](#2-konfiguracja), kolejne możemy pobierać nawigując się przyciskami.
 
-Podczas nawigowania pola koordynatów, numeru podkłądu oraz oznaczenia oznaczenia kuidu są uzupełniane automatycznie.
+Podczas nawigowania pola koordynatów, numeru podkładu oraz oznaczenia oznaczenia kuidu są uzupełniane automatycznie.
 
 ### 4. Lista podkładów:
 

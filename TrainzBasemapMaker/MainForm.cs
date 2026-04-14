@@ -69,6 +69,7 @@ namespace TrainzBasemapMaker
             textBoxDesignation.Text = basemapGroupDesignation;
             textBoxCounter.Text = counter.ToString();
             textBoxKuidPart1.Text = "0";
+            textBoxBasemapDate.Text = "2026";
 
             UpdateNextFreeKuidPart2();
 
@@ -232,18 +233,32 @@ namespace TrainzBasemapMaker
             double yTop = currentY;
             double xRight = xLeft + TileSize;
             double yBottom = yTop - TileSize;
+            string year = textBoxBasemapDate.Text;
 
-            string url = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?" +
-                         "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap" +
-                         "&LAYERS=Raster" +
-                         "&SRS=EPSG:2180" +
-                         $"&BBOX={xLeft.ToString(CultureInfo.InvariantCulture)}," +
-                         $"{yBottom.ToString(CultureInfo.InvariantCulture)}," +
-                         $"{xRight.ToString(CultureInfo.InvariantCulture)}," +
-                         $"{yTop.ToString(CultureInfo.InvariantCulture)}" +
-                         $"&WIDTH={resolution.ToString()}&HEIGHT={resolution.ToString()}" +
-                         "&FORMAT=image/jpeg" +
-                         "&STYLES=";
+            //string url = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?" +
+            //"SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap" +
+            //             "&LAYERS=Raster" +
+            //             "&SRS=EPSG:2180" +
+            //             $"&BBOX={xLeft.ToString(CultureInfo.InvariantCulture)}," +
+            //             $"{yBottom.ToString(CultureInfo.InvariantCulture)}," +
+            //             $"{xRight.ToString(CultureInfo.InvariantCulture)}," +
+            //             $"{yTop.ToString(CultureInfo.InvariantCulture)}" +
+            //             $"&WIDTH={resolution.ToString()}&HEIGHT={resolution.ToString()}" +
+            //             "&FORMAT=image/jpeg" +
+            //             "&STYLES=";
+
+            string url = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?" +
+                              "SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1" +
+                              $"&LAYERS=Raster" +
+                              $"&TIME={year}" +
+                              "&SRS=EPSG:2180" +
+                              $"&BBOX={xLeft.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{yBottom.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{xRight.ToString(CultureInfo.InvariantCulture)}," +
+                              $"{yTop.ToString(CultureInfo.InvariantCulture)}" +
+                              $"&WIDTH={resolution.ToString()}&HEIGHT={resolution.ToString()}" +
+                              "&FORMAT=image/jpeg" +
+                              "&STYLES=";
 
             try
             {
