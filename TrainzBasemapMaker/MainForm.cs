@@ -68,7 +68,7 @@ namespace TrainzBasemapMaker
             textBoxDestinationFolder.Text = basemapGroup;
             textBoxDesignation.Text = basemapGroupDesignation;
             textBoxCounter.Text = counter.ToString();
-            textBoxKuidPart1.Text = "0";
+            textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart;
             textBoxBasemapDate.Text = "2026";
 
             UpdateNextFreeKuidPart2();
@@ -299,8 +299,14 @@ namespace TrainzBasemapMaker
 
                         if (success)
                         {
-                            counter++;
-                            UpdateNextFreeKuidPart2();
+                            if (Properties.Settings.Default.AutoCounterNumber)
+                            {
+                                counter++;
+                            }
+                            if (Properties.Settings.Default.AutoKuidNumber)
+                            {
+                                UpdateNextFreeKuidPart2();
+                            }
                             DataRefresh();
                             toolStripStatusLabel1.Text = "Zapisano pomyœlnie!";
                         }
@@ -568,6 +574,14 @@ namespace TrainzBasemapMaker
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
+        }
+
+        private void preferencjeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (PreferencesForm info = new PreferencesForm())
+            {
+                info.ShowDialog();
+            }
         }
     }
 }

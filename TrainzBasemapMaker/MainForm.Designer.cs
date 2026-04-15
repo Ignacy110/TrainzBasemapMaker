@@ -79,6 +79,7 @@
             odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem = new ToolStripMenuItem();
             znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
+            preferencjeToolStripMenuItem = new ToolStripMenuItem();
             pomocToolStripMenuItem = new ToolStripMenuItem();
             stronaProgramuToolStripMenuItem = new ToolStripMenuItem();
             informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
@@ -553,7 +554,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { narzędziaToolStripMenuItem, pomocToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { narzędziaToolStripMenuItem, preferencjeToolStripMenuItem, pomocToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1125, 24);
@@ -587,6 +588,13 @@
             znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
             znajdźWolnyKuidToolStripMenuItem.Text = "Znajdź wolny &Kuid";
             znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
+            // 
+            // preferencjeToolStripMenuItem
+            // 
+            preferencjeToolStripMenuItem.Name = "preferencjeToolStripMenuItem";
+            preferencjeToolStripMenuItem.Size = new Size(78, 20);
+            preferencjeToolStripMenuItem.Text = "P&referencje";
+            preferencjeToolStripMenuItem.Click += preferencjeToolStripMenuItem_Click;
             // 
             // pomocToolStripMenuItem
             // 
@@ -719,5 +727,6 @@
         private ToolStripMenuItem odświerzListęFoldrówIPodkładówToolStripMenuItem;
         private TextBox textBoxBasemapDate;
         private Label label14;
+        private ToolStripMenuItem preferencjeToolStripMenuItem;
     }
 }
