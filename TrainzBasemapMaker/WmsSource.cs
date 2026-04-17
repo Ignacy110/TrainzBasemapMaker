@@ -50,7 +50,7 @@ namespace TrainzBasemapMaker
             "Raster", false),
         };
 
-        public string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)
+    public string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)
         {
             var culture = CultureInfo.InvariantCulture;
 

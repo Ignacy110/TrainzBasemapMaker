@@ -574,6 +574,16 @@ namespace TrainzBasemapMaker
                 // W³¹czamy lub wy³¹czamy pole tekstowe roku w zale¿noœci od mapy
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
+
+                bool isOrto = selected.Name.Contains("Ortofotomapa");
+
+                radioButton4096.Enabled = isOrto;
+
+                // Jeœli 4096 zosta³o wy³¹czone, a by³o zaznaczone - prze³¹czamy na 2048
+                if (!isOrto && radioButton4096.Checked)
+                {
+                    radioButton2048.Checked = true;
+                }
             }
         }
     }
