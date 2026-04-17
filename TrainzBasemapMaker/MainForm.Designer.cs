@@ -39,6 +39,8 @@
             buttonDown = new Button();
             label2 = new Label();
             groupBox2Configurator = new GroupBox();
+            comboBoxMapType = new ComboBox();
+            label15 = new Label();
             textBoxBasemapDate = new TextBox();
             label14 = new Label();
             panel1 = new Panel();
@@ -180,6 +182,8 @@
             // 
             // groupBox2Configurator
             // 
+            groupBox2Configurator.Controls.Add(comboBoxMapType);
+            groupBox2Configurator.Controls.Add(label15);
             groupBox2Configurator.Controls.Add(textBoxBasemapDate);
             groupBox2Configurator.Controls.Add(label14);
             groupBox2Configurator.Controls.Add(panel1);
@@ -202,11 +206,30 @@
             groupBox2Configurator.TabStop = false;
             groupBox2Configurator.Text = "2. Konfiguracja";
             // 
+            // comboBoxMapType
+            // 
+            comboBoxMapType.DropDownWidth = 100;
+            comboBoxMapType.FormattingEnabled = true;
+            comboBoxMapType.Location = new Point(118, 131);
+            comboBoxMapType.Name = "comboBoxMapType";
+            comboBoxMapType.Size = new Size(67, 23);
+            comboBoxMapType.TabIndex = 32;
+            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(118, 98);
+            label15.Name = "label15";
+            label15.Size = new Size(69, 30);
+            label15.TabIndex = 31;
+            label15.Text = "Rodzaj\r\npodkładów:";
+            // 
             // textBoxBasemapDate
             // 
-            textBoxBasemapDate.Location = new Point(126, 131);
+            textBoxBasemapDate.Location = new Point(118, 205);
             textBoxBasemapDate.Name = "textBoxBasemapDate";
-            textBoxBasemapDate.Size = new Size(59, 23);
+            textBoxBasemapDate.Size = new Size(67, 23);
             textBoxBasemapDate.TabIndex = 30;
             textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
             textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
@@ -214,7 +237,7 @@
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(126, 98);
+            label14.Location = new Point(118, 170);
             label14.Name = "label14";
             label14.Size = new Size(69, 30);
             label14.TabIndex = 21;
@@ -332,7 +355,7 @@
             // 
             textBoxDestinationFolder.Location = new Point(3, 140);
             textBoxDestinationFolder.Name = "textBoxDestinationFolder";
-            textBoxDestinationFolder.Size = new Size(170, 23);
+            textBoxDestinationFolder.Size = new Size(169, 23);
             textBoxDestinationFolder.TabIndex = 20;
             textBoxDestinationFolder.TextChanged += textBoxDestinationFolder_TextChanged;
             // 
@@ -728,5 +751,7 @@
         private TextBox textBoxBasemapDate;
         private Label label14;
         private ToolStripMenuItem preferencjeToolStripMenuItem;
+        private Label label15;
+        private ComboBox comboBoxMapType;
     }
 }

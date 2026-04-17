@@ -71,6 +71,9 @@ namespace TrainzBasemapMaker
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart;
             textBoxBasemapDate.Text = "2026";
 
+            comboBoxMapType.DataSource = WmsSource.availableMaps;
+            comboBoxMapType.DisplayMember = "Name";
+
             UpdateNextFreeKuidPart2();
 
             // refreshing lists
@@ -235,30 +238,10 @@ namespace TrainzBasemapMaker
             double yBottom = yTop - TileSize;
             string year = textBoxBasemapDate.Text;
 
-            //string url = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution?" +
-            //"SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap" +
-            //             "&LAYERS=Raster" +
-            //             "&SRS=EPSG:2180" +
-            //             $"&BBOX={xLeft.ToString(CultureInfo.InvariantCulture)}," +
-            //             $"{yBottom.ToString(CultureInfo.InvariantCulture)}," +
-            //             $"{xRight.ToString(CultureInfo.InvariantCulture)}," +
-            //             $"{yTop.ToString(CultureInfo.InvariantCulture)}" +
-            //             $"&WIDTH={resolution.ToString()}&HEIGHT={resolution.ToString()}" +
-            //             "&FORMAT=image/jpeg" +
-            //             "&STYLES=";
 
-            string url = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?" +
-                              "SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1" +
-                              $"&LAYERS=Raster" +
-                              $"&TIME={year}" +
-                              "&SRS=EPSG:2180" +
-                              $"&BBOX={xLeft.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{yBottom.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{xRight.ToString(CultureInfo.InvariantCulture)}," +
-                              $"{yTop.ToString(CultureInfo.InvariantCulture)}" +
-                              $"&WIDTH={resolution.ToString()}&HEIGHT={resolution.ToString()}" +
-                              "&FORMAT=image/jpeg" +
-                              "&STYLES=";
+            WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
+
+            string url = selectedMap.BuildWmsUrl(year, xLeft, yBottom, xRight, yTop, resolution);
 
             try
             {
@@ -581,6 +564,16 @@ namespace TrainzBasemapMaker
             using (PreferencesForm info = new PreferencesForm())
             {
                 info.ShowDialog();
+            }
+        }
+
+        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxMapType.SelectedItem is WmsSource selected)
+            {
+                // W³¹czamy lub wy³¹czamy pole tekstowe roku w zale¿noœci od mapy
+                textBoxBasemapDate.Enabled = selected.SupportsTime;
+                label14.Enabled = selected.SupportsTime;
             }
         }
     }
