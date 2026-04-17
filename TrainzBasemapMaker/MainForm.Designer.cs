@@ -595,8 +595,8 @@
             // 
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odświerz listę foldrów i podkładów";
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświerzListęFoldrówIPodkładówToolStripMenuItem_Click;
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odśwież listę foldrów i podkładów";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświeżListęFoldrówIPodkładówToolStripMenuItem_Click;
             // 
             // znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem
             // 
