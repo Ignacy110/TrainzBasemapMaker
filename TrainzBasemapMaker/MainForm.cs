@@ -576,5 +576,13 @@ namespace TrainzBasemapMaker
                 label14.Enabled = selected.SupportsTime;
             }
         }
+
+        private void przetwarzanieSeryjneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (BatchToolForm info = new BatchToolForm())
+            {
+                info.ShowDialog();
+            }
+        }
     }
 }

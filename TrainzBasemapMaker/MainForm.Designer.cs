@@ -87,6 +87,7 @@
             informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
+            przetwarzanieSeryjneToolStripMenuItem = new ToolStripMenuItem();
             groupBox2Configurator.SuspendLayout();
             panel1.SuspendLayout();
             groupBox3Navigator.SuspendLayout();
@@ -586,7 +587,7 @@
             // 
             // narzędziaToolStripMenuItem
             // 
-            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem });
+            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem, przetwarzanieSeryjneToolStripMenuItem });
             narzędziaToolStripMenuItem.Name = "narzędziaToolStripMenuItem";
             narzędziaToolStripMenuItem.Size = new Size(70, 20);
             narzędziaToolStripMenuItem.Text = "&Narzędzia";
@@ -655,6 +656,13 @@
             toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
+            // 
+            // przetwarzanieSeryjneToolStripMenuItem
+            // 
+            przetwarzanieSeryjneToolStripMenuItem.Name = "przetwarzanieSeryjneToolStripMenuItem";
+            przetwarzanieSeryjneToolStripMenuItem.Size = new Size(276, 22);
+            przetwarzanieSeryjneToolStripMenuItem.Text = "Przetwarzanie seryjne";
+            przetwarzanieSeryjneToolStripMenuItem.Click += przetwarzanieSeryjneToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -753,5 +761,6 @@
         private ToolStripMenuItem preferencjeToolStripMenuItem;
         private Label label15;
         private ComboBox comboBoxMapType;
+        private ToolStripMenuItem przetwarzanieSeryjneToolStripMenuItem;
     }
 }
