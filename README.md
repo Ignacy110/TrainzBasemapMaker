@@ -82,14 +82,24 @@ Możemy skorzystać z [konwertera](#1-konwerter) lub ręcznie wprowadzić *szero
 
 Należy wybrać pożądaną rozdzielczość podkładów satelitarnych. Im wyższa rozdzielczość tym więcej szczegółów, lecz jednocześnie dłuższy czas pobierania podkładów satelitarnych.
 
-#### 2.3 Rok podkładów satelitarnych:
+#### 2.3 Rodzaj podkładów satelitarnych:
+
+Należy wybrać rodzaj otrzymywanych podkładów satelitarnych.
+Dostępne opcje:
+- ortofotomapa
+- cieniowanie
+
+>[!TIP]
+>Dla zlikwidowanych lub mocno zarośniętych lini kolejowych opcja pobierania podkładów typu *cieiowanie* może być lepsza.
+
+#### 2.4 Rok podkładów satelitarnych:
 
 Należy wpisać w polu rok (np. *2013*), z którego chcemy otrzymywać podkłady satelitarne.
 
 >[!IMPORTANT]
 >Jeżeli po pobraniu podkładu podgląd jest biały, należy wybrać późniejszy rok. Dzieje się tak ponieważ, dla wybranego roku nie wykonano do tej pory żadnych zdjęć lotniczych (dostępnych na geoportalu).
 
-#### 2.4 Tworzenie plików Trainz:
+#### 2.5 Tworzenie plików Trainz:
 
 >[!TIP]
 >Tej sekcji zdecydowanie warto poświęcić uwagę, zwłaszcza przy większych projektach. Dzięki umiejętnemu zarządzaniu wpisywanymi parametrami można bez większych problemów oraz konfliktów odnajdywać się pośród dziesiątek pobieranych podkładów.
