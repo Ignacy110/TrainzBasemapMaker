@@ -49,7 +49,7 @@ namespace TrainzBasemapMaker
             new WmsSource("Ortofotomapa",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
                 "Raster", true),
-            new WmsSource("Cieniowanie (LIDAR)",
+            new WmsSource("Cieniowanie",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMS/ShadedRelief?",
                 "Raster", false)
         };

@@ -46,21 +46,26 @@
             textBoxDestinationFolder = new TextBox();
             label4 = new Label();
             buttonConfAndDownload = new Button();
+            label1 = new Label();
+            groupBox1 = new GroupBox();
+            groupBox2 = new GroupBox();
+            groupBox1.SuspendLayout();
+            groupBox2.SuspendLayout();
             SuspendLayout();
             // 
             // basemapFolderListBox
             // 
             basemapFolderListBox.FormattingEnabled = true;
             basemapFolderListBox.ItemHeight = 15;
-            basemapFolderListBox.Location = new Point(12, 67);
+            basemapFolderListBox.Location = new Point(6, 41);
             basemapFolderListBox.Name = "basemapFolderListBox";
-            basemapFolderListBox.Size = new Size(169, 94);
+            basemapFolderListBox.Size = new Size(169, 109);
             basemapFolderListBox.TabIndex = 2;
             // 
             // label10
             // 
             label10.AutoSize = true;
-            label10.Location = new Point(12, 49);
+            label10.Location = new Point(6, 23);
             label10.Name = "label10";
             label10.Size = new Size(80, 15);
             label10.TabIndex = 3;
@@ -68,41 +73,42 @@
             // 
             // progressBar1
             // 
-            progressBar1.Location = new Point(12, 194);
+            progressBar1.Location = new Point(18, 238);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(169, 23);
+            progressBar1.Size = new Size(602, 23);
             progressBar1.TabIndex = 4;
             // 
             // comboBoxMapType
             // 
             comboBoxMapType.DropDownWidth = 100;
             comboBoxMapType.FormattingEnabled = true;
-            comboBoxMapType.Location = new Point(405, 67);
+            comboBoxMapType.Location = new Point(130, 58);
             comboBoxMapType.Name = "comboBoxMapType";
-            comboBoxMapType.Size = new Size(67, 23);
+            comboBoxMapType.Size = new Size(142, 23);
             comboBoxMapType.TabIndex = 41;
+            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
             // 
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(405, 34);
+            label15.Location = new Point(130, 38);
             label15.Name = "label15";
-            label15.Size = new Size(69, 30);
+            label15.Size = new Size(107, 15);
             label15.TabIndex = 40;
-            label15.Text = "Rodzaj\r\npodkładów:";
+            label15.Text = "Rodzaj podkładów:";
             // 
             // textBoxBasemapDate
             // 
-            textBoxBasemapDate.Location = new Point(405, 141);
+            textBoxBasemapDate.Location = new Point(303, 58);
             textBoxBasemapDate.Name = "textBoxBasemapDate";
-            textBoxBasemapDate.Size = new Size(67, 23);
+            textBoxBasemapDate.Size = new Size(75, 23);
             textBoxBasemapDate.TabIndex = 39;
             textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
             // 
             // label14
             // 
             label14.AutoSize = true;
-            label14.Location = new Point(405, 106);
+            label14.Location = new Point(303, 23);
             label14.Name = "label14";
             label14.Size = new Size(69, 30);
             label14.TabIndex = 38;
@@ -111,7 +117,7 @@
             // radioButton512
             // 
             radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(300, 142);
+            radioButton512.Location = new Point(13, 131);
             radioButton512.Name = "radioButton512";
             radioButton512.Size = new Size(73, 19);
             radioButton512.TabIndex = 37;
@@ -122,7 +128,7 @@
             // radioButton1024
             // 
             radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(300, 117);
+            radioButton1024.Location = new Point(13, 106);
             radioButton1024.Name = "radioButton1024";
             radioButton1024.Size = new Size(85, 19);
             radioButton1024.TabIndex = 36;
@@ -133,7 +139,7 @@
             // radioButton2048
             // 
             radioButton2048.AutoSize = true;
-            radioButton2048.Location = new Point(300, 92);
+            radioButton2048.Location = new Point(13, 81);
             radioButton2048.Name = "radioButton2048";
             radioButton2048.Size = new Size(85, 19);
             radioButton2048.TabIndex = 35;
@@ -144,7 +150,7 @@
             // radioButton4096
             // 
             radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(300, 67);
+            radioButton4096.Location = new Point(13, 56);
             radioButton4096.Name = "radioButton4096";
             radioButton4096.Size = new Size(85, 19);
             radioButton4096.TabIndex = 34;
@@ -155,7 +161,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(293, 34);
+            label2.Location = new Point(6, 23);
             label2.Name = "label2";
             label2.Size = new Size(93, 30);
             label2.TabIndex = 33;
@@ -164,7 +170,7 @@
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(293, 242);
+            label13.Location = new Point(303, 106);
             label13.Name = "label13";
             label13.Size = new Size(87, 15);
             label13.TabIndex = 45;
@@ -172,22 +178,22 @@
             // 
             // textBoxDesignation
             // 
-            textBoxDesignation.Location = new Point(293, 260);
+            textBoxDesignation.Location = new Point(303, 124);
             textBoxDesignation.Name = "textBoxDesignation";
             textBoxDesignation.Size = new Size(75, 23);
             textBoxDesignation.TabIndex = 44;
             // 
             // textBoxDestinationFolder
             // 
-            textBoxDestinationFolder.Location = new Point(293, 212);
+            textBoxDestinationFolder.Location = new Point(130, 124);
             textBoxDestinationFolder.Name = "textBoxDestinationFolder";
-            textBoxDestinationFolder.Size = new Size(169, 23);
+            textBoxDestinationFolder.Size = new Size(142, 23);
             textBoxDestinationFolder.TabIndex = 42;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(293, 194);
+            label4.Location = new Point(128, 106);
             label4.Name = "label4";
             label4.Size = new Size(154, 15);
             label4.TabIndex = 43;
@@ -195,7 +201,7 @@
             // 
             // buttonConfAndDownload
             // 
-            buttonConfAndDownload.Location = new Point(286, 349);
+            buttonConfAndDownload.Location = new Point(213, 279);
             buttonConfAndDownload.Name = "buttonConfAndDownload";
             buttonConfAndDownload.Size = new Size(188, 23);
             buttonConfAndDownload.TabIndex = 46;
@@ -203,32 +209,67 @@
             buttonConfAndDownload.UseVisualStyleBackColor = true;
             buttonConfAndDownload.Click += buttonConfAndDownload_Click;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI Semibold", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 238);
+            label1.Location = new Point(12, 9);
+            label1.Name = "label1";
+            label1.Size = new Size(225, 30);
+            label1.TabIndex = 47;
+            label1.Text = "Przetwarzanie seryjne:";
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(basemapFolderListBox);
+            groupBox1.Controls.Add(label10);
+            groupBox1.Location = new Point(12, 56);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(207, 163);
+            groupBox1.TabIndex = 48;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "1. Wybierz folder do przetworzenia";
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(label2);
+            groupBox2.Controls.Add(radioButton4096);
+            groupBox2.Controls.Add(radioButton2048);
+            groupBox2.Controls.Add(radioButton1024);
+            groupBox2.Controls.Add(label13);
+            groupBox2.Controls.Add(radioButton512);
+            groupBox2.Controls.Add(textBoxDesignation);
+            groupBox2.Controls.Add(label14);
+            groupBox2.Controls.Add(textBoxDestinationFolder);
+            groupBox2.Controls.Add(textBoxBasemapDate);
+            groupBox2.Controls.Add(label4);
+            groupBox2.Controls.Add(label15);
+            groupBox2.Controls.Add(comboBoxMapType);
+            groupBox2.Location = new Point(225, 56);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(395, 163);
+            groupBox2.TabIndex = 49;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "2. Ustaw parametry docelowe";
+            // 
             // BatchToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(635, 322);
+            Controls.Add(groupBox2);
+            Controls.Add(groupBox1);
+            Controls.Add(label1);
             Controls.Add(buttonConfAndDownload);
-            Controls.Add(label13);
-            Controls.Add(textBoxDesignation);
-            Controls.Add(textBoxDestinationFolder);
-            Controls.Add(label4);
-            Controls.Add(comboBoxMapType);
-            Controls.Add(label15);
-            Controls.Add(textBoxBasemapDate);
-            Controls.Add(label14);
-            Controls.Add(radioButton512);
-            Controls.Add(radioButton1024);
-            Controls.Add(radioButton2048);
-            Controls.Add(radioButton4096);
-            Controls.Add(label2);
             Controls.Add(progressBar1);
-            Controls.Add(label10);
-            Controls.Add(basemapFolderListBox);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "BatchToolForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Przetwarzanie seryjne";
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            groupBox2.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -252,5 +293,8 @@
         private TextBox textBoxDestinationFolder;
         private Label label4;
         private Button buttonConfAndDownload;
+        private Label label1;
+        private GroupBox groupBox1;
+        private GroupBox groupBox2;
     }
 }
