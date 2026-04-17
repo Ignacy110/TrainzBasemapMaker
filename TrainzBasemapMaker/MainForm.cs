@@ -32,8 +32,6 @@ namespace TrainzBasemapMaker
         private long currentX; // variables to store the current position of X (lat)
         private long currentY; // variables to store the current position of Y (lon)
 
-        private const long TileSize = 500; // a constant defining the size of the downloaded area
-
         private int resolution = 2048; // a variable that stores the selected resolution (default 2048px at the start)
 
         private int counter = 1; // a variable storing the current basemap number (default 1 to start)
@@ -43,8 +41,6 @@ namespace TrainzBasemapMaker
         string basemapGroupDesignation = "P";
 
         private TrainzFileManager _fileManager = new TrainzFileManager();
-
-        private static readonly HttpClient _httpClient = new HttpClient();
 
         // Initializes a private ToolTip instance with balloon styling and a custom title for warnings.
         private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "B³¹d wprowadzania" };
@@ -232,26 +228,14 @@ namespace TrainzBasemapMaker
         {
             UiEnabled(false);
 
-            double xLeft = currentX;
-            double yTop = currentY;
-            double xRight = xLeft + TileSize;
-            double yBottom = yTop - TileSize;
-            string year = textBoxBasemapDate.Text;
-
-
-            WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
-
-            string url = selectedMap.BuildWmsUrl(year, xLeft, yBottom, xRight, yTop, resolution);
-
             try
             {
                 toolStripStatusLabel1.Text = $"Pobieranie podk³adu...";
 
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
+                WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
 
-                // downloading the image to memory
-                byte[] imageBytes = await response.Content.ReadAsByteArrayAsync();
+                // Przekazujesz tylko to, co masz pod rêk¹
+                byte[] imageBytes = await selectedMap.GetMapImageAsync(textBoxBasemapDate.Text, currentX, currentY, resolution);
 
                 // preview image
                 using (var ms = new MemoryStream(imageBytes))
@@ -401,28 +385,28 @@ namespace TrainzBasemapMaker
 
         private async void buttonRight_Click(object sender, EventArgs e)
         {
-            currentX += TileSize;
+            currentX += WmsSource.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonLeft_Click(object sender, EventArgs e)
         {
-            currentX -= TileSize;
+            currentX -= WmsSource.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonUp_Click(object sender, EventArgs e)
         {
-            currentY += TileSize;
+            currentY += WmsSource.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonDown_Click(object sender, EventArgs e)
         {
-            currentY -= TileSize;
+            currentY -= WmsSource.TileSize;
             DataRefresh();
             await DownloadMap();
         }
@@ -553,7 +537,7 @@ namespace TrainzBasemapMaker
             UpdateNextFreeKuidPart2();
         }
 
-        private void odœwierzListêFoldrówIPodk³adówToolStripMenuItem_Click(object sender, EventArgs e)
+        private void odœwie¿ListêFoldrówIPodk³adówToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
@@ -574,6 +558,16 @@ namespace TrainzBasemapMaker
                 // W³¹czamy lub wy³¹czamy pole tekstowe roku w zale¿noœci od mapy
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
+
+                bool isOrto = selected.Name.Contains("Ortofotomapa");
+
+                radioButton4096.Enabled = isOrto;
+
+                // Jeœli 4096 zosta³o wy³¹czone, a by³o zaznaczone - prze³¹czamy na 2048
+                if (!isOrto && radioButton4096.Checked)
+                {
+                    radioButton2048.Checked = true;
+                }
             }
         }
 
