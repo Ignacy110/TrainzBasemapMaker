@@ -79,15 +79,17 @@
             menuStrip1 = new MenuStrip();
             narzędziaToolStripMenuItem = new ToolStripMenuItem();
             odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem2 = new ToolStripSeparator();
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem = new ToolStripMenuItem();
             znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripSeparator();
+            przetwarzanieSeryjneToolStripMenuItem = new ToolStripMenuItem();
             preferencjeToolStripMenuItem = new ToolStripMenuItem();
             pomocToolStripMenuItem = new ToolStripMenuItem();
             stronaProgramuToolStripMenuItem = new ToolStripMenuItem();
             informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
-            przetwarzanieSeryjneToolStripMenuItem = new ToolStripMenuItem();
             groupBox2Configurator.SuspendLayout();
             panel1.SuspendLayout();
             groupBox3Navigator.SuspendLayout();
@@ -229,6 +231,7 @@
             // textBoxBasemapDate
             // 
             textBoxBasemapDate.Location = new Point(118, 205);
+            textBoxBasemapDate.MaxLength = 4;
             textBoxBasemapDate.Name = "textBoxBasemapDate";
             textBoxBasemapDate.Size = new Size(67, 23);
             textBoxBasemapDate.TabIndex = 30;
@@ -587,7 +590,7 @@
             // 
             // narzędziaToolStripMenuItem
             // 
-            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem, przetwarzanieSeryjneToolStripMenuItem });
+            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, toolStripMenuItem2, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem, toolStripMenuItem1, przetwarzanieSeryjneToolStripMenuItem });
             narzędziaToolStripMenuItem.Name = "narzędziaToolStripMenuItem";
             narzędziaToolStripMenuItem.Size = new Size(70, 20);
             narzędziaToolStripMenuItem.Text = "&Narzędzia";
@@ -599,19 +602,36 @@
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odśwież listę foldrów i podkładów";
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświeżListęFoldrówIPodkładówToolStripMenuItem_Click;
             // 
+            // toolStripMenuItem2
+            // 
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            toolStripMenuItem2.Size = new Size(273, 6);
+            // 
             // znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem
             // 
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Name = "znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem";
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Size = new Size(276, 22);
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Text = "Znajdź najmniejszy wolny nr &podkładu";
+            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Text = "&Znajdź najmniejszy wolny nr podkładu";
             znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Click += znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem_Click;
             // 
             // znajdźWolnyKuidToolStripMenuItem
             // 
             znajdźWolnyKuidToolStripMenuItem.Name = "znajdźWolnyKuidToolStripMenuItem";
             znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
-            znajdźWolnyKuidToolStripMenuItem.Text = "Znajdź wolny &Kuid";
+            znajdźWolnyKuidToolStripMenuItem.Text = "Z&najdź wolny Kuid";
             znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem1
+            // 
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(273, 6);
+            // 
+            // przetwarzanieSeryjneToolStripMenuItem
+            // 
+            przetwarzanieSeryjneToolStripMenuItem.Name = "przetwarzanieSeryjneToolStripMenuItem";
+            przetwarzanieSeryjneToolStripMenuItem.Size = new Size(276, 22);
+            przetwarzanieSeryjneToolStripMenuItem.Text = "&Przetwarzanie seryjne";
+            przetwarzanieSeryjneToolStripMenuItem.Click += przetwarzanieSeryjneToolStripMenuItem_Click;
             // 
             // preferencjeToolStripMenuItem
             // 
@@ -656,13 +676,6 @@
             toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
-            // 
-            // przetwarzanieSeryjneToolStripMenuItem
-            // 
-            przetwarzanieSeryjneToolStripMenuItem.Name = "przetwarzanieSeryjneToolStripMenuItem";
-            przetwarzanieSeryjneToolStripMenuItem.Size = new Size(276, 22);
-            przetwarzanieSeryjneToolStripMenuItem.Text = "Przetwarzanie seryjne";
-            przetwarzanieSeryjneToolStripMenuItem.Click += przetwarzanieSeryjneToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -762,5 +775,7 @@
         private Label label15;
         private ComboBox comboBoxMapType;
         private ToolStripMenuItem przetwarzanieSeryjneToolStripMenuItem;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripSeparator toolStripMenuItem2;
     }
 }

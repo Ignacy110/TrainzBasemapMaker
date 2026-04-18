@@ -67,6 +67,16 @@ namespace TrainzBasemapMaker
             return true;
         }
 
+        public void DeleteGroupFolder(string basemapGroup)
+        {
+            string groupPath = Path.Combine(RootFolder, basemapGroup);
+
+            if (Directory.Exists(groupPath))
+            {
+                Directory.Delete(groupPath, true);
+            }
+        }
+
         public List<string> GetBasemapGroups()
         {
             if (!Directory.Exists(RootFolder)) return new List<string>();

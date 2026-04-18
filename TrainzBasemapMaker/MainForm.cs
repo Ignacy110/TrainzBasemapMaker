@@ -576,6 +576,8 @@ namespace TrainzBasemapMaker
             using (BatchToolForm info = new BatchToolForm())
             {
                 info.ShowDialog();
+
+                BasemapFolderListBoxRefresh();
             }
         }
     }

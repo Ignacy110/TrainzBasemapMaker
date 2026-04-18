@@ -24,11 +24,14 @@ namespace TrainzBasemapMaker
     public partial class BatchToolForm : Form
     {
         private TrainzFileManager _fileManager = new TrainzFileManager();
+
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
         public BatchToolForm()
         {
             InitializeComponent();
 
             radioButton2048.Checked = true;
+            textBoxBasemapDate.Text = "2026";
 
             comboBoxMapType.DataSource = WmsSource.availableMaps;
             comboBoxMapType.DisplayMember = "Name";
@@ -58,6 +61,12 @@ namespace TrainzBasemapMaker
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(textBoxDesignation.Text))
+            {
+                MessageBox.Show("Wpisz nazwę oznaczenia podkładów!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // 2. Pobranie ustawień z UI
             string sourceGroup = basemapFolderListBox.SelectedItem.ToString();
             string targetGroup = textBoxDestinationFolder.Text;
@@ -66,10 +75,18 @@ namespace TrainzBasemapMaker
             WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
             int res = GetSelectedResolution();
 
+            if(sourceGroup == targetGroup)
+            {
+                MessageBox.Show("Nazwa docelowego folderu musi być inna nić nazwa folderu źródłowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             UiEnabled(false);
 
             try
             {
+                _fileManager.DeleteGroupFolder(targetGroup);
+
                 var folders = _fileManager.GetKuidsInGroup(sourceGroup);
                 int total = folders.Count;
                 int current = 0;
@@ -77,6 +94,9 @@ namespace TrainzBasemapMaker
                 progressBar1.Minimum = 0;
                 progressBar1.Maximum = total;
                 progressBar1.Value = 0;
+
+                labelProgress.Text = $"Przetworzono: {current} z {total}";
+                labelProgress.Visible = true;
 
                 foreach (var folder in folders)
                 {
@@ -115,6 +135,7 @@ namespace TrainzBasemapMaker
                         }
                     }
                     progressBar1.Value = current;
+                    labelProgress.Text = $"Przetworzono: {current} z {total}";
                 }
 
                 MessageBox.Show("Przetwarzanie seryjne zakończone pomyślnie!", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -145,6 +166,8 @@ namespace TrainzBasemapMaker
             Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
             buttonConfAndDownload.Enabled = enabled;
             basemapFolderListBox.Enabled = enabled;
+            groupBox1.Enabled = enabled;
+            groupBox2.Enabled = enabled;
         }
 
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
@@ -163,6 +186,22 @@ namespace TrainzBasemapMaker
                 if (!isOrto && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
+                }
+            }
+        }
+
+        private void OnlyNumbers_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // if the character is not a number or control key (e.g. Backspace)
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+
+                if (sender is TextBox textBox)
+                {
+                    // showing information in balloon (cloud) to the user
+                    warningToolTip.Hide(textBox);
+                    warningToolTip.Show("Tutaj możesz wpisać tylko cyfry!", textBox, 50, -75, 2000);
                 }
             }
         }

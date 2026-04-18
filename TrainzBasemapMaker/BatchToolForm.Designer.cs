@@ -49,6 +49,7 @@
             label1 = new Label();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
+            labelProgress = new Label();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             SuspendLayout();
@@ -100,10 +101,11 @@
             // textBoxBasemapDate
             // 
             textBoxBasemapDate.Location = new Point(303, 58);
+            textBoxBasemapDate.MaxLength = 4;
             textBoxBasemapDate.Name = "textBoxBasemapDate";
             textBoxBasemapDate.Size = new Size(75, 23);
             textBoxBasemapDate.TabIndex = 39;
-            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
+            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
             // 
             // label14
             // 
@@ -252,18 +254,32 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "2. Ustaw parametry docelowe";
             // 
+            // labelProgress
+            // 
+            labelProgress.AutoSize = true;
+            labelProgress.Location = new Point(18, 279);
+            labelProgress.Name = "labelProgress";
+            labelProgress.Size = new Size(82, 15);
+            labelProgress.TabIndex = 50;
+            labelProgress.Text = "Przetworzono:";
+            labelProgress.Visible = false;
+            // 
             // BatchToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(635, 322);
+            Controls.Add(labelProgress);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
             Controls.Add(label1);
             Controls.Add(buttonConfAndDownload);
             Controls.Add(progressBar1);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "BatchToolForm";
+            ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "Przetwarzanie seryjne";
             groupBox1.ResumeLayout(false);
@@ -296,5 +312,6 @@
         private Label label1;
         private GroupBox groupBox1;
         private GroupBox groupBox2;
+        private Label labelProgress;
     }
 }
