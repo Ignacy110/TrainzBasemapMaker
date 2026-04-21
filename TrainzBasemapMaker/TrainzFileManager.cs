@@ -100,5 +100,81 @@ namespace TrainzBasemapMaker
         {
             return Path.Combine(RootFolder, groupName, folderName, "basemap.jpg");
         }
+
+        public int GetNextFreeKuidPart2()
+        {
+            if (!Directory.Exists(RootFolder))
+            {
+                return 1;
+            }
+
+            // Szukamy wszystkich folderów we wszystkich podkatalogach, których nazwa zaczyna się od "basemap_"
+            var allFolders = Directory.GetDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories);
+
+            HashSet<int> usedKuidsPart2 = new HashSet<int>();
+
+            foreach (var folder in allFolders)
+            {
+                string folderName = new DirectoryInfo(folder).Name;
+                string[] parts = folderName.Split('_');
+
+                // Format: basemap_{basemapGroupDesignation}_{counter}_{x}_{y}_{kuidPart1}_{kuidPart2}
+                // Indeksy: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
+                if (parts.Length >= 7)
+                {
+                    if (int.TryParse(parts[6], out int parsedKuidPart2))
+                    {
+                        usedKuidsPart2.Add(parsedKuidPart2);
+                    }
+                }
+            }
+
+            // Szukanie najmniejszej wolnej wartości zaczynając od 1
+            int freeKuid = 1;
+            while (usedKuidsPart2.Contains(freeKuid))
+            {
+                freeKuid++;
+            }
+
+            return freeKuid;
+        }
+
+        public int GetNextFreeCounter(string basemapGroup)
+        {
+            if (string.IsNullOrWhiteSpace(basemapGroup)) return 1;
+
+            string groupPath = Path.Combine(RootFolder, basemapGroup);
+
+            if (!Directory.Exists(groupPath))
+            {
+                return 1;
+            }
+
+            var allFolders = Directory.GetDirectories(groupPath, "basemap_*", SearchOption.AllDirectories);
+
+            HashSet<int> usedCounter = new HashSet<int>();
+
+            foreach (var folder in allFolders)
+            {
+                string folderName = new DirectoryInfo(folder).Name;
+                string[] parts = folderName.Split('_');
+
+                if (parts.Length >= 7)
+                {
+                    if (int.TryParse(parts[2], out int parsedCounter))
+                    {
+                        usedCounter.Add(parsedCounter);
+                    }
+                }
+            }
+
+            int freeCounter = 1;
+            while (usedCounter.Contains(freeCounter))
+            {
+                freeCounter++;
+            }
+
+            return freeCounter;
+        }
     }
 }

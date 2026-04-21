@@ -65,7 +65,7 @@ namespace TrainzBasemapMaker
             textBoxDesignation.Text = basemapGroupDesignation;
             textBoxCounter.Text = counter.ToString();
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart;
-            textBoxBasemapDate.Text = "2026";
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             comboBoxMapType.DataSource = WmsSource.availableMaps;
             comboBoxMapType.DisplayMember = "Name";
@@ -130,51 +130,14 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                // Zak³adam, ¿e g³ówny folder to "Kuids" w katalogu aplikacji. 
-                // Jeœli TrainzFileManager przechowuje tê œcie¿kê inaczej, zaktualizuj poni¿sz¹ zmienn¹.
-                string baseKuidsPath = "Kuids";
-
-                if (!Directory.Exists(baseKuidsPath))
-                {
-                    textBoxKuidPart2.Text = "1"; // Jeœli katalog nie istnieje, zaczynamy od 1
-                    return;
-                }
-
-                // Szukamy wszystkich folderów we wszystkich podkatalogach, których nazwa zaczyna siê od "basemap_"
-                var allFolders = Directory.GetDirectories(baseKuidsPath, "basemap_*", SearchOption.AllDirectories);
-
-                HashSet<int> usedKuidsPart2 = new HashSet<int>();
-
-                foreach (var folder in allFolders)
-                {
-                    string folderName = new DirectoryInfo(folder).Name;
-                    string[] parts = folderName.Split('_');
-
-                    // Format: basemap_{basemapGroupDesignation}_{counter}_{x}_{y}_{kuidPart1}_{kuidPart2}
-                    // Indeksy: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
-                    if (parts.Length >= 7)
-                    {
-                        if (int.TryParse(parts[6], out int parsedKuidPart2))
-                        {
-                            usedKuidsPart2.Add(parsedKuidPart2);
-                        }
-                    }
-                }
-
-                // Szukanie najmniejszej wolnej wartoœci zaczynaj¹c od 1
-                int freeKuid = 1;
-                while (usedKuidsPart2.Contains(freeKuid))
-                {
-                    freeKuid++;
-                }
-
-                textBoxKuidPart2.Text = freeKuid.ToString();
+                int nextKuid = _fileManager.GetNextFreeKuidPart2();
+                textBoxKuidPart2.Text = nextKuid.ToString();
             }
             catch (Exception ex)
             {
-                // Fallback w razie b³êdu odczytu (np. brak uprawnieñ)
-                MessageBox.Show("Nie uda³o siê automatycznie wyznaczyæ kuidPart2:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textBoxKuidPart2.Text = "1";
+                toolStripStatusLabel1.Text = "B³¹d automatycznego wyznaczania oznaczenia kuidu (czêœæ 2)";
+                MessageBox.Show("B³¹d automatycznego wyznaczania oznaczenia kuidu (czêœæ 2):\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -182,45 +145,17 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                string baseKuidsPath = Path.Combine("Kuids", basemapGroup);
+                // Zak³adam, ¿e masz zmienn¹ lub w³aœciwoœæ okreœlaj¹c¹ obecn¹ grupê (np. textBoxBasemapGroup.Text)
+                string currentGroup = basemapGroup;
 
-                if (!Directory.Exists(baseKuidsPath))
-                {
-                    textBoxCounter.Text = "1";
-                    return;
-                }
-
-                var allFolders = Directory.GetDirectories(baseKuidsPath, "basemap_*", SearchOption.AllDirectories);
-
-                HashSet<int> usedCounter = new HashSet<int>();
-
-                foreach (var folder in allFolders)
-                {
-                    string folderName = new DirectoryInfo(folder).Name;
-                    string[] parts = folderName.Split('_');
-
-                    if (parts.Length >= 7)
-                    {
-                        if (int.TryParse(parts[2], out int parsedKuidPart2))
-                        {
-                            usedCounter.Add(parsedKuidPart2);
-                        }
-                    }
-                }
-
-                int freeKuid = 1;
-                while (usedCounter.Contains(freeKuid))
-                {
-                    freeKuid++;
-                }
-
-                textBoxCounter.Text = freeKuid.ToString();
+                int nextCounter = _fileManager.GetNextFreeCounter(currentGroup);
+                textBoxCounter.Text = nextCounter.ToString();
             }
             catch (Exception ex)
             {
-                // Fallback w razie b³êdu odczytu (np. brak uprawnieñ)
-                MessageBox.Show("Nie uda³o siê automatycznie wyznaczyæ Counter:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 textBoxCounter.Text = "1";
+                toolStripStatusLabel1.Text = "B³¹d automatycznego wyznaczania numeru podk³adu";
+                MessageBox.Show("B³¹d automatycznego wyznaczania numeru podk³adu:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -245,7 +180,7 @@ namespace TrainzBasemapMaker
                     oldImage?.Dispose(); // deleting the previous image from memory
                 }
 
-                toolStripStatusLabel1.Text = $"Pobrano podk³ad w pamiêci: {currentX}_{currentY}";
+                toolStripStatusLabel1.Text = $"Pobrano podk³ad do pamiêci: {currentX}_{currentY}";
 
                 if (checkBoxCreateFiles.Checked)
                 {
@@ -275,7 +210,7 @@ namespace TrainzBasemapMaker
                                 UpdateNextFreeKuidPart2();
                             }
                             DataRefresh();
-                            toolStripStatusLabel1.Text = "Zapisano pomyœlnie!";
+                            toolStripStatusLabel1.Text = $"Pobrano podk³ad i utworzono pliki dla Trainz: {currentX}, {currentY}";
                         }
                         else
                         {
@@ -284,9 +219,8 @@ namespace TrainzBasemapMaker
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("B³¹d zapisu plików:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
                         toolStripStatusLabel1.Text = "B³¹d zapisu plików!";
+                        MessageBox.Show("B³¹d zapisu plików:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
                     KuidsInFolderListBoxRefresh();
@@ -295,9 +229,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
+                toolStripStatusLabel1.Text = $"B³¹d pobierania mapy: {currentX}_{currentY}";
                 MessageBox.Show("B³¹d pobierania mapy:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                toolStripStatusLabel1.Text = $"Nieudana próba pobrania podk³adu: {currentX}_{currentY}";
             }
             finally
             {
@@ -341,9 +274,11 @@ namespace TrainzBasemapMaker
                 currentX = (long)Math.Round(x);
                 currentY = (long)Math.Round(y);
                 DataRefresh();
+                toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
             }
             else
             {
+                toolStripStatusLabel1.Text = $"Próba konwersji wspó³rzêdnych: {latText}, {lonText} nieudana";
                 MessageBox.Show("Wprowadzono nieprawid³owe wspó³rzêdne geograficzne. Upewnij siê, ¿e u¿ywasz tylko cyfr i kropek.", "B³¹d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -378,8 +313,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Wprowadzono nieprawid³owe wspó³rzêdne geograficzne (EPSG2180). Upewnij siê, ¿e u¿ywasz tylko cyfr i kropek.\n\n" + ex.Message, "B³¹d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 toolStripStatusLabel1.Text = $"B³¹d danych startowych (b³¹d konfiguracji)";
+                MessageBox.Show("B³¹d danych startowych (b³¹d konfiguracji). Upewnij siê, ¿e u¿ywasz tylko cyfr i ewentualnie kropki.\n\n" + ex.Message, "B³¹d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -435,10 +370,17 @@ namespace TrainzBasemapMaker
                         //int clickedCounter = int.Parse(parts[2]);
                         //counter = clickedCounter + 1;
 
-                        currentX = long.Parse(parts[3]);
-                        currentY = long.Parse(parts[4]);
-
-                        DataRefresh();
+                        if (long.TryParse(parts[3], out long parsedX) && long.TryParse(parts[4], out long parsedY))
+                        {
+                            currentX = parsedX;
+                            currentY = parsedY;
+                            DataRefresh();
+                        }
+                        else
+                        {
+                            toolStripStatusLabel1.Text = $"B³¹d nazwy podk³adu";
+                            MessageBox.Show("B³¹d nazwy podk³adu.", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
                     }
                 }
             }
@@ -466,6 +408,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
+                toolStripStatusLabel1.Text = $"B³¹d otwarcia strony internetowej";
                 MessageBox.Show("B³¹d otwarcia strony:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -530,17 +473,20 @@ namespace TrainzBasemapMaker
         private void znajdŸNajmniejszyWolnyNrPodk³aduToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeCounter();
+            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer podk³adu: {textBoxCounter.Text}";
         }
 
         private void znajdŸWolnyKuidToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeKuidPart2();
+            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer kuidu (czêœæ 2): {textBoxKuidPart2.Text}";
         }
 
         private void odœwie¿ListêFoldrówIPodk³adówToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
+            toolStripStatusLabel1.Text = $"Odœwie¿ono listê folderów";
         }
 
         private void preferencjeToolStripMenuItem_Click(object sender, EventArgs e)

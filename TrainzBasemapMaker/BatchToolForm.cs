@@ -31,7 +31,7 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             radioButton2048.Checked = true;
-            textBoxBasemapDate.Text = "2026";
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             comboBoxMapType.DataSource = WmsSource.availableMaps;
             comboBoxMapType.DisplayMember = "Name";
@@ -96,6 +96,7 @@ namespace TrainzBasemapMaker
                 progressBar1.Value = 0;
 
                 labelProgress.Text = $"Przetworzono: {current} z {total}";
+                labelProgress.Refresh();
                 labelProgress.Visible = true;
 
                 foreach (var folder in folders)
@@ -142,7 +143,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd krytyczny: " + ex.Message);
+                MessageBox.Show("Błąd krytyczny: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
