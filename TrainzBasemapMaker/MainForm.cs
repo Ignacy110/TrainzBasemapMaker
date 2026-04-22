@@ -258,11 +258,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        // --------------------------
-        //  Events
-        // --------------------------
-
-        private void buttonConvert_Click(object sender, EventArgs e)
+        private void PerformConversion()
         {
             string latText = textBoxLat.Text.Replace(',', '.');
             string lonText = textBoxLon.Text.Replace(',', '.');
@@ -278,9 +274,18 @@ namespace TrainzBasemapMaker
             }
             else
             {
-                toolStripStatusLabel1.Text = $"Próba konwersji wspó³rzêdnych: {latText}, {lonText} nieudana";
-                MessageBox.Show("Wprowadzono nieprawid³owe wspó³rzêdne geograficzne. Upewnij siê, ¿e u¿ywasz tylko cyfr i kropek.", "B³¹d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = $"B³¹d konwersji: {latText}, {lonText}";
+                // Tutaj opcjonalnie MessageBox, jeœli wywo³anie idzie z przycisku
             }
+        }
+
+        // --------------------------
+        //  Events
+        // --------------------------
+
+        private void buttonConvert_Click(object sender, EventArgs e)
+        {
+            PerformConversion();
         }
 
         private void radioButtons_CheckedChanged(object sender, EventArgs e)
@@ -527,7 +532,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void webMapViewToolStripMenuItem_Click(object sender, EventArgs e)
+        private void buttonMarkPointMap_Click(object sender, EventArgs e)
         {
             using (var mapPicker = new MapPickerForm())
             {
@@ -537,6 +542,7 @@ namespace TrainzBasemapMaker
                     // Tylko jeœli klikniêto buttonConfirm:
                     textBoxLat.Text = mapPicker.SelectedLat.ToString(CultureInfo.InvariantCulture);
                     textBoxLon.Text = mapPicker.SelectedLon.ToString(CultureInfo.InvariantCulture);
+                    PerformConversion();
                 }
             }
         }

@@ -16,6 +16,20 @@
 //
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
+//
+//
+// This form utilizes the Microsoft.Web.WebView2 library
+// for embedding web content and rendering the map interface.
+// Microsoft.Web.WebView2 is authored by Microsoft Corporation
+// and is licensed under the Microsoft Software License.
+//
+// This form also utilizes the Leaflet.js library (version 1.9.4)
+// for interactive map functionality and coordinate retrieval.
+// Leaflet.js is authored by Volodymyr Agafonkin and contributors
+// and is licensed under the BSD 2-Clause License.
+//
+// Map data is provided by OpenStreetMap
+// and is licensed under the Open Data Commons Open Database License (ODbL).
 
 using Microsoft.Web.WebView2.Core;
 using System.Diagnostics;
@@ -39,7 +53,7 @@ namespace TrainzBasemapMaker
         {
             await webView21.EnsureCoreWebView2Async(null);
 
-            webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker";
+            webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.5.0-aplha (https://github.com/Ignacy110/TrainzBasemapMaker)";
 
             // Budujemy ścieżkę do pliku
             string indexPath = Path.Combine(Application.StartupPath, "Web", "map.html");
