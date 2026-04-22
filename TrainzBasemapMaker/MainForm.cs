@@ -526,5 +526,19 @@ namespace TrainzBasemapMaker
                 BasemapFolderListBoxRefresh();
             }
         }
+
+        private void webMapViewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var mapPicker = new MapPickerForm())
+            {
+                // Okno otwiera siê i czeka na DialogResult
+                if (mapPicker.ShowDialog() == DialogResult.OK)
+                {
+                    // Tylko jeœli klikniêto buttonConfirm:
+                    textBoxLat.Text = mapPicker.SelectedLat.ToString(CultureInfo.InvariantCulture);
+                    textBoxLon.Text = mapPicker.SelectedLon.ToString(CultureInfo.InvariantCulture);
+                }
+            }
+        }
     }
 }
