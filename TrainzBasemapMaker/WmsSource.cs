@@ -69,6 +69,11 @@ namespace TrainzBasemapMaker
 
         private string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)
         {
+            xLeft = xLeft - (TileSize / 2);
+            yBottom = yBottom + (TileSize / 2);
+            xRight = xRight - (TileSize / 2);
+            yTop = yTop + (TileSize / 2);
+
             var culture = CultureInfo.InvariantCulture;
 
             string url = $"{BaseUrl}" +
