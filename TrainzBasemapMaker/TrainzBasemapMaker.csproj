@@ -47,16 +47,16 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Update="Web\map.html">
+    <None Update="Forms\MapPickerForm\Web\map.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Web\map_script.js">
+    <None Update="Forms\MapPickerForm\Web\map_script.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Web\" />
+    <Folder Include="Forms\MapPickerForm\Web\" />
   </ItemGroup>
 
 </Project>

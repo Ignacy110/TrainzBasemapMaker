@@ -25,7 +25,7 @@
 using ProjNet.CoordinateSystems;
 using ProjNet.CoordinateSystems.Transformations;
 
-namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker.Classes
 {
     // a class that uses the ProjNET library to convert to the EPSG:2180 coordinate system
     internal class GeoHelperEPSG2180

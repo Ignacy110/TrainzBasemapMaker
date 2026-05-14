@@ -40,7 +40,7 @@ namespace TrainzBasemapMaker
 {
     public partial class MapPickerForm : Form
     {
-        // Tu zapiszemy wynik, który odczytasz w MainForm
+        // Public properties to store and retrieve the selected coordinates from MainForm
         public double SelectedLat { get; private set; }
         public double SelectedLon { get; private set; }
 
@@ -49,23 +49,30 @@ namespace TrainzBasemapMaker
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Initializes the WebView2 browser, configures the User-Agent, 
+        /// and loads the local HTML map file.
+        /// </summary>
         public async Task InitBrowser()
         {
             await webView21.EnsureCoreWebView2Async(null);
 
-            webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.5.0-aplha (https://github.com/Ignacy110/TrainzBasemapMaker)";
+            // Set a custom User-Agent to comply with OpenStreetMap Tile Usage Policy
+            webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.5.0-alpha (https://github.com/Ignacy110/TrainzBasemapMaker)";
 
-            // Budujemy ścieżkę do pliku
-            string indexPath = Path.Combine(Application.StartupPath, "Web", "map.html");
+            // Build the absolute path to the HTML file within the project folder structure
+            string indexPath = Path.Combine(Application.StartupPath, "Forms", "MapPickerForm", "Web", "map.html");
 
-            // Ładujemy plik (może wymagać file:/// na początku)
+            // Navigate to the local file using the file:/// protocol
             webView21.CoreWebView2.Navigate("file:///" + indexPath);
 
-            // TO BYŁO PODKREŚLONE - teraz metoda poniżej musi istnieć
+            // Subscribe to the event that receives messages sent from JavaScript
             webView21.CoreWebView2.WebMessageReceived += WebView21_WebMessageReceived;
         }
 
-        // TA METODA NAPRAWIA BŁĄD:
+        /// <summary>
+        /// Handles coordinate data sent from the Leaflet map via window.chrome.webview.postMessage.
+        /// </summary>
         private void WebView21_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             string json = e.WebMessageAsJson;
@@ -77,35 +84,33 @@ namespace TrainzBasemapMaker
                     double lat = doc.RootElement.GetProperty("lat").GetDouble();
                     double lon = doc.RootElement.GetProperty("lon").GetDouble();
 
-                    // Wpisujemy współrzędne do TextBoxów wewnątrz MapPickerForm
-                    // Używamy InvariantCulture, aby zawsze mieć kropkę jako separator
+                    // Update UI text boxes with coordinates using InvariantCulture (dot separator)
                     textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
                     textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Błąd odbioru danych z mapy: " + ex.Message);
+                Debug.WriteLine("Error receiving data from the map: " + ex.Message);
             }
         }
 
         private async void MapPickerForm_Load(object sender, EventArgs e)
         {
-            // Dodaj await, żeby przeglądarka zdążyła się zainicjować
             await InitBrowser();
         }
 
-        // PRZYCISK ZATWIERDŹ
+        // Validates input and returns the result to the calling form
         private void buttonConfirm_Click(object sender, EventArgs e)
         {
-            // Próbujemy pobrać wartości z pól tekstowych (na wypadek, gdyby użytkownik coś tam wpisał ręcznie)
+            // Ensure input is valid before closing the dialog
             if (double.TryParse(textBoxLat.Text, CultureInfo.InvariantCulture, out double lat) &&
                 double.TryParse(textBoxLon.Text, CultureInfo.InvariantCulture, out double lon))
             {
                 SelectedLat = lat;
                 SelectedLon = lon;
 
-                this.DialogResult = DialogResult.OK; // To sygnalizuje sukces
+                this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             else
@@ -114,10 +119,9 @@ namespace TrainzBasemapMaker
             }
         }
 
-        // PRZYCISK ANULUJ
         private void buttonCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel; // To sygnalizuje przerwanie
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
     }

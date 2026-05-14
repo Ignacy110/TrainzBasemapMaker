@@ -19,6 +19,7 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
@@ -28,21 +29,23 @@ namespace TrainzBasemapMaker
         //  Declaration of variables
         // --------------------------
 
-        // variables for storing the current top-left position in the EPSG:2180 standard
-        private long currentX; // variables to store the current position of X (lat)
-        private long currentY; // variables to store the current position of Y (lon)
+        // Current top-left position coordinates in the EPSG:2180 projection
+        private long currentX;
+        private long currentY;
 
-        private int resolution = 2048; // a variable that stores the selected resolution (default 2048px at the start)
+        // Selected map resolution in pixels (default is 2048x2048)
+        private int resolution = 2048;
 
-        private int counter = 1; // a variable storing the current basemap number (default 1 to start)
+        // Current basemap sequence number
+        private int counter = 1;
 
-        string basemapGroup = "Podk³ady"; // a variable storing the name of the group (folder) to which we are currently saving the backgrounds (by default, "Podk³ady")
-
+        // Target directory and designation prefix for generating basemap files
+        string basemapGroup = "Podk³ady";
         string basemapGroupDesignation = "P";
 
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
-        // Initializes a private ToolTip instance with balloon styling and a custom title for warnings.
+        // Custom tooltip for displaying input validation warnings
         private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "B³¹d wprowadzania" };
 
 
@@ -54,11 +57,11 @@ namespace TrainzBasemapMaker
         {
             InitializeComponent();
 
-            // setting sample default values
-            textBoxLat.Text = "50.6633297"; // lat
-            textBoxLon.Text = "17.923025";  // lon
+            // Set sample default geographic coordinates
+            textBoxLat.Text = "50.6633297";
+            textBoxLon.Text = "17.923025";
 
-            // default settings
+            // Apply default UI settings
             radioButton2048.Checked = true;
             checkBoxCreateFiles.Checked = true;
             textBoxDestinationFolder.Text = basemapGroup;
@@ -67,12 +70,12 @@ namespace TrainzBasemapMaker
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
+            // Bind available map providers to the dropdown list
             comboBoxMapType.DataSource = WmsSource.availableMaps;
             comboBoxMapType.DisplayMember = "Name";
 
+            // Initialize dynamic data and lists
             UpdateNextFreeKuidPart2();
-
-            // refreshing lists
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
         }
@@ -82,17 +85,15 @@ namespace TrainzBasemapMaker
         //  Auxiliary methods
         // --------------------------
 
-        private void DataRefresh() // refreshing the displayed data
+        // Updates the UI text boxes with the current internal values
+        private void DataRefresh()
         {
             textBoxX.Text = currentX.ToString();
             textBoxY.Text = currentY.ToString();
-
             textBoxCounter.Text = counter.ToString();
-
-            //var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
-            //label1.Text = $"Lat: {lat:F6}, Lon: {lon:F6}";
         }
 
+        // Loads and displays a previously saved basemap image in the picture box
         private void OpenImageFromFile(string folderName)
         {
             string fullPath = _fileManager.GetImagePath(basemapGroup, folderName);
@@ -108,9 +109,7 @@ namespace TrainzBasemapMaker
             try
             {
                 kuidsInFolderListBox.Items.Clear();
-
                 var kuids = _fileManager.GetKuidsInGroup(basemapGroup);
-
                 kuidsInFolderListBox.Items.AddRange(kuids.ToArray());
             }
             catch (Exception ex)
@@ -126,6 +125,7 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Items.AddRange(groups.ToArray());
         }
 
+        // Automatically finds and sets the next available KUID part 2 to avoid overwriting existing assets
         private void UpdateNextFreeKuidPart2()
         {
             try
@@ -141,13 +141,12 @@ namespace TrainzBasemapMaker
             }
         }
 
+        // Automatically finds and sets the next available sequence number for the current basemap group
         private void UpdateNextFreeCounter()
         {
             try
             {
-                // Zak³adam, ¿e masz zmienn¹ lub w³aœciwoœæ okreœlaj¹c¹ obecn¹ grupê (np. textBoxBasemapGroup.Text)
                 string currentGroup = basemapGroup;
-
                 int nextCounter = _fileManager.GetNextFreeCounter(currentGroup);
                 textBoxCounter.Text = nextCounter.ToString();
             }
@@ -159,7 +158,8 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private async Task DownloadMap() // downloading satellite basemaps
+        // Core method: Downloads the map image from the WMS server and optionally creates Trainz asset files
+        private async Task DownloadMap()
         {
             UiEnabled(false);
 
@@ -168,20 +168,19 @@ namespace TrainzBasemapMaker
                 toolStripStatusLabel1.Text = $"Pobieranie podk³adu...";
 
                 WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
-
-                // Przekazujesz tylko to, co masz pod rêk¹
                 byte[] imageBytes = await selectedMap.GetMapImageAsync(textBoxBasemapDate.Text, currentX, currentY, resolution);
 
-                // preview image
+                // Update the preview image and dispose of the old one to prevent memory leaks
                 using (var ms = new MemoryStream(imageBytes))
                 {
                     var oldImage = pictureBox1.Image;
                     pictureBox1.Image = Image.FromStream(ms);
-                    oldImage?.Dispose(); // deleting the previous image from memory
+                    oldImage?.Dispose();
                 }
 
                 toolStripStatusLabel1.Text = $"Pobrano podk³ad do pamiêci: {currentX}_{currentY}";
 
+                // Proceed with file creation if the user enabled this option
                 if (checkBoxCreateFiles.Checked)
                 {
                     try
@@ -201,6 +200,7 @@ namespace TrainzBasemapMaker
 
                         if (success)
                         {
+                            // Auto-increment counters based on user preferences
                             if (Properties.Settings.Default.AutoCounterNumber)
                             {
                                 counter++;
@@ -238,26 +238,17 @@ namespace TrainzBasemapMaker
             }
         }
 
+        // Toggles UI elements to prevent user interactions during asynchronous background operations
         private void UiEnabled(bool enabled)
         {
-            if (enabled)
-            {
-                Cursor = Cursors.Default;
-                groupBox1Converter.Enabled = true;
-                groupBox2Configurator.Enabled = true;
-                groupBox3Navigator.Enabled = true;
-                groupBox4KuidList.Enabled = true;
-            }
-            else
-            {
-                Cursor = Cursors.WaitCursor;
-                groupBox1Converter.Enabled = false;
-                groupBox2Configurator.Enabled = false;
-                groupBox3Navigator.Enabled = false;
-                groupBox4KuidList.Enabled = false;
-            }
+            Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
+            groupBox1Converter.Enabled = enabled;
+            groupBox2Configurator.Enabled = enabled;
+            groupBox3Navigator.Enabled = enabled;
+            groupBox4KuidList.Enabled = enabled;
         }
 
+        // Converts standard geographic coordinates (Lat/Lon) to the EPSG:2180 projection
         private void PerformConversion()
         {
             string latText = textBoxLat.Text.Replace(',', '.');
@@ -269,13 +260,13 @@ namespace TrainzBasemapMaker
                 var (x, y) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
                 currentX = (long)Math.Round(x);
                 currentY = (long)Math.Round(y);
+
                 DataRefresh();
                 toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
             }
             else
             {
                 toolStripStatusLabel1.Text = $"B³¹d konwersji: {latText}, {lonText}";
-                // Tutaj opcjonalnie MessageBox, jeœli wywo³anie idzie z przycisku
             }
         }
 
@@ -290,22 +281,10 @@ namespace TrainzBasemapMaker
 
         private void radioButtons_CheckedChanged(object sender, EventArgs e)
         {
-            if (radioButton4096.Checked)
-            {
-                resolution = 4096;
-            }
-            else if (radioButton2048.Checked)
-            {
-                resolution = 2048;
-            }
-            else if (radioButton1024.Checked)
-            {
-                resolution = 1024;
-            }
-            else if (radioButton512.Checked)
-            {
-                resolution = 512;
-            }
+            if (radioButton4096.Checked) resolution = 4096;
+            else if (radioButton2048.Checked) resolution = 2048;
+            else if (radioButton1024.Checked) resolution = 1024;
+            else if (radioButton512.Checked) resolution = 512;
         }
 
         private async void buttonConfAndDownload_Click(object sender, EventArgs e)
@@ -323,6 +302,7 @@ namespace TrainzBasemapMaker
             }
         }
 
+        // Navigation controls: Shift the map by exactly one tile size in the specified direction
         private async void buttonRight_Click(object sender, EventArgs e)
         {
             currentX += WmsSource.TileSize;
@@ -360,6 +340,7 @@ namespace TrainzBasemapMaker
             }
         }
 
+        // Parses the folder name of a double-clicked item to extract its coordinates and load it
         private void kuidsInFolderListBox_DoubleClick(object sender, EventArgs e)
         {
             try
@@ -367,14 +348,10 @@ namespace TrainzBasemapMaker
                 if (kuidsInFolderListBox.SelectedItem != null)
                 {
                     string zaznaczonyElement = kuidsInFolderListBox.SelectedItem.ToString();
-
                     string[] parts = zaznaczonyElement.Split('_');
 
                     if (parts.Length >= 4)
                     {
-                        //int clickedCounter = int.Parse(parts[2]);
-                        //counter = clickedCounter + 1;
-
                         if (long.TryParse(parts[3], out long parsedX) && long.TryParse(parts[4], out long parsedY))
                         {
                             currentX = parsedX;
@@ -400,7 +377,6 @@ namespace TrainzBasemapMaker
             if (basemapFolderListBox.SelectedItem != null)
             {
                 string zaznaczonyElement = basemapFolderListBox.SelectedItem.ToString();
-
                 textBoxDestinationFolder.Text = zaznaczonyElement;
             }
         }
@@ -429,14 +405,7 @@ namespace TrainzBasemapMaker
         private void checkBoxCreateFiles_CheckedChanged(object sender, EventArgs e)
         {
             BasemapFolderListBoxRefresh();
-            if (checkBoxCreateFiles.Checked)
-            {
-                panel1.Enabled = true;
-            }
-            else
-            {
-                panel1.Enabled = false;
-            }
+            panel1.Enabled = checkBoxCreateFiles.Checked;
         }
 
         private void textBoxDestinationFolder_TextChanged(object sender, EventArgs e)
@@ -459,16 +428,16 @@ namespace TrainzBasemapMaker
             }
         }
 
+        // Input validation: Ensures the user can only type digits and control characters (like Backspace)
         private void OnlyNumbers_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // if the character is not a number or control key (e.g. Backspace)
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;
 
                 if (sender is TextBox textBox)
                 {
-                    // showing information in balloon (cloud) to the user
+                    // Show a balloon tooltip to inform the user about invalid input
                     warningToolTip.Hide(textBox);
                     warningToolTip.Show("Tutaj mo¿esz wpisaæ tylko cyfry!", textBox, 50, -75, 2000);
                 }
@@ -506,15 +475,16 @@ namespace TrainzBasemapMaker
         {
             if (comboBoxMapType.SelectedItem is WmsSource selected)
             {
-                // W³¹czamy lub wy³¹czamy pole tekstowe roku w zale¿noœci od mapy
+                // Enable or disable the year text box depending on the map provider's capabilities
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
                 bool isOrto = selected.Name.Contains("Ortofotomapa");
 
+                // 4096px resolution is restricted to orthophotomaps
                 radioButton4096.Enabled = isOrto;
 
-                // Jeœli 4096 zosta³o wy³¹czone, a by³o zaznaczone - prze³¹czamy na 2048
+                // Fallback to 2048px if the unsupported 4096px was currently selected
                 if (!isOrto && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
@@ -527,7 +497,6 @@ namespace TrainzBasemapMaker
             using (BatchToolForm info = new BatchToolForm())
             {
                 info.ShowDialog();
-
                 BasemapFolderListBoxRefresh();
             }
         }
@@ -536,10 +505,10 @@ namespace TrainzBasemapMaker
         {
             using (var mapPicker = new MapPickerForm())
             {
-                // Okno otwiera siê i czeka na DialogResult
+                // The map picker dialog pauses execution until the user makes a selection
                 if (mapPicker.ShowDialog() == DialogResult.OK)
                 {
-                    // Tylko jeœli klikniêto buttonConfirm:
+                    // Apply coordinates only if the user confirmed the selection
                     textBoxLat.Text = mapPicker.SelectedLat.ToString(CultureInfo.InvariantCulture);
                     textBoxLon.Text = mapPicker.SelectedLon.ToString(CultureInfo.InvariantCulture);
                     PerformConversion();

@@ -18,27 +18,36 @@
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
 using System.Diagnostics;
+using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
     public partial class BatchToolForm : Form
     {
+        // Handles file and directory operations for Trainz assets
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
+        // ToolTip used to provide visual feedback for input validation errors
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Input Error" };
+
         public BatchToolForm()
         {
             InitializeComponent();
 
+            // Set default UI states
             radioButton2048.Checked = true;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
+            // Bind available map sources to the dropdown list
             comboBoxMapType.DataSource = WmsSource.availableMaps;
             comboBoxMapType.DisplayMember = "Name";
 
             BasemapFolderListBoxRefresh();
         }
 
+        /// <summary>
+        /// Clears and repopulates the ListBox with available basemap group folders.
+        /// </summary>
         private void BasemapFolderListBoxRefresh()
         {
             basemapFolderListBox.Items.Clear();
@@ -46,9 +55,13 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Items.AddRange(groups.ToArray());
         }
 
+        /// <summary>
+        /// Handles the batch processing of basemaps. Validates input, iterates over existing
+        /// tiles in the source group, downloads new imagery, and creates new Trainz assets.
+        /// </summary>
         private async void buttonConfAndDownload_Click(object sender, EventArgs e)
         {
-            // 1. Walidacja
+            // 1. Input Validation
             if (basemapFolderListBox.SelectedItem == null)
             {
                 MessageBox.Show("Wybierz źródłową grupę podkładów!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -67,7 +80,7 @@ namespace TrainzBasemapMaker
                 return;
             }
 
-            // 2. Pobranie ustawień z UI
+            // 2. Retrieve settings from the UI
             string sourceGroup = basemapFolderListBox.SelectedItem.ToString();
             string targetGroup = textBoxDestinationFolder.Text;
             string targetDesignation = textBoxDesignation.Text;
@@ -75,22 +88,25 @@ namespace TrainzBasemapMaker
             WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
             int res = GetSelectedResolution();
 
-            if(sourceGroup == targetGroup)
+            if (sourceGroup == targetGroup)
             {
                 MessageBox.Show("Nazwa docelowego folderu musi być inna nić nazwa folderu źródłowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            // Lock UI during asynchronous processing
             UiEnabled(false);
 
             try
             {
+                // Clean up the target directory if it already exists
                 _fileManager.DeleteGroupFolder(targetGroup);
 
                 var folders = _fileManager.GetKuidsInGroup(sourceGroup);
                 int total = folders.Count;
                 int current = 0;
 
+                // Initialize progress bar
                 progressBar1.Minimum = 0;
                 progressBar1.Maximum = total;
                 progressBar1.Value = 0;
@@ -99,27 +115,29 @@ namespace TrainzBasemapMaker
                 labelProgress.Refresh();
                 labelProgress.Visible = true;
 
+                // Process each tile folder found in the source group
                 foreach (var folder in folders)
                 {
                     current++;
 
+                    // Extract parameters encoded in the folder name (e.g., coordinates, original KUID)
                     string[] parts = folder.Split('_');
 
                     if (parts.Length >= 7)
                     {
                         try
                         {
-                            // Pobieramy dane ze starej nazwy folderu
+                            // Parse data from the old folder name
                             int counter = int.Parse(parts[2]);
                             long x = long.Parse(parts[3]);
                             long y = long.Parse(parts[4]);
-                            string kuid1 = parts[5]; // Zachowujemy oryginalny KUID cz. 1
-                            string kuid2 = parts[6]; // Zachowujemy oryginalny KUID cz. 2
+                            string kuid1 = parts[5]; // Retain original KUID part 1
+                            string kuid2 = parts[6]; // Retain original KUID part 2
 
-                            // Pobieranie obrazu
+                            // Download the new map image based on selected parameters
                             byte[] imageBytes = await selectedMap.GetMapImageAsync(year, x, y, res);
 
-                            // Tworzenie plików w NOWEJ grupie
+                            // Generate new Trainz files in the target group folder
                             _fileManager.CreateTrainzFiles(
                                 imageBytes,
                                 targetGroup,
@@ -132,9 +150,11 @@ namespace TrainzBasemapMaker
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine($"Błąd kafelka {folder}: {ex.Message}");
+                            Debug.WriteLine($"Error processing tile {folder}: {ex.Message}");
                         }
                     }
+
+                    // Update UI progress indicators
                     progressBar1.Value = current;
                     labelProgress.Text = $"Przetworzono: {current} z {total}";
                 }
@@ -147,21 +167,26 @@ namespace TrainzBasemapMaker
             }
             finally
             {
+                // Restore UI interactivity and refresh the folder list to show the newly created group
                 UiEnabled(true);
-                BasemapFolderListBoxRefresh(); // Odśwież listę, żeby zobaczyć nowy folder
+                BasemapFolderListBoxRefresh();
             }
         }
 
-        // Pomocnicza metoda do rozdzielczości
+        /// <summary>
+        /// Helper method to determine the requested image resolution from the radio buttons.
+        /// </summary>
         private int GetSelectedResolution()
         {
             if (radioButton4096.Checked) return 4096;
             if (radioButton1024.Checked) return 1024;
             if (radioButton512.Checked) return 512;
-            return 2048; // domyślny
+            return 2048; // Default fallback resolution
         }
 
-        // Prosta metoda do blokowania UI
+        /// <summary>
+        /// Toggles the interactive state of UI elements and changes the cursor.
+        /// </summary>
         private void UiEnabled(bool enabled)
         {
             Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
@@ -171,19 +196,23 @@ namespace TrainzBasemapMaker
             groupBox2.Enabled = enabled;
         }
 
+        /// <summary>
+        /// Adjusts available UI options dynamically based on the capabilities of the selected map source.
+        /// </summary>
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBoxMapType.SelectedItem is WmsSource selected)
             {
-                // Włączamy lub wyłączamy pole tekstowe roku w zależności od mapy
+                // Enable or disable the year input based on whether the source supports historical data
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
                 bool isOrto = selected.Name.Contains("Ortofotomapa");
 
+                // 4096px resolution is restricted to orthophotomaps
                 radioButton4096.Enabled = isOrto;
 
-                // Jeśli 4096 zostało wyłączone, a było zaznaczone - przełączamy na 2048
+                // Fallback to 2048px if 4096px was selected but is no longer supported
                 if (!isOrto && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
@@ -191,16 +220,18 @@ namespace TrainzBasemapMaker
             }
         }
 
+        /// <summary>
+        /// Validates key presses to ensure only numeric digits and control keys are entered.
+        /// Shows a balloon tooltip if an invalid character is pressed.
+        /// </summary>
         private void OnlyNumbers_KeyPress(object sender, KeyPressEventArgs e)
         {
-            // if the character is not a number or control key (e.g. Backspace)
             if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
             {
                 e.Handled = true;
 
                 if (sender is TextBox textBox)
                 {
-                    // showing information in balloon (cloud) to the user
                     warningToolTip.Hide(textBox);
                     warningToolTip.Show("Tutaj możesz wpisać tylko cyfry!", textBox, 50, -75, 2000);
                 }

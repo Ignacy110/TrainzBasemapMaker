@@ -178,15 +178,15 @@
             label5.AutoSize = true;
             label5.Location = new Point(102, 224);
             label5.Name = "label5";
-            label5.Size = new Size(337, 15);
+            label5.Size = new Size(259, 60);
             label5.TabIndex = 13;
-            label5.Text = "Program wykorzystuje bibliotekę ProjNET na licencji LGPL v2.1.";
+            label5.Text = "Program wykorzystuje biblioteki:\r\n- Microsoft.Web.WebView2 - licencja: Microsoft\r\n- Leaflet - licencja: BSD 2-Clause License\r\n- ProjNET -  licencja: LGPL v2.1";
             // 
             // AboutProgramForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(454, 261);
+            ClientSize = new Size(454, 311);
             Controls.Add(label5);
             Controls.Add(linkLabelGitHubSite);
             Controls.Add(label11);
