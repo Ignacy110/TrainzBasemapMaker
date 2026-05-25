@@ -62,6 +62,11 @@ Wprowadzamy odpowiednio *szerokość* (latitude) i *długość* (longitude) geog
 >[!IMPORTANT]
 >Należy pamiętać aby wpisywać tylko cyfry oraz ewentualnie kropkę jako część po przecinku.
 
+>[!TIP]
+> Do wprowadzenia współrzędnych możemy użyć narzędzia ***Wybież na mapie***.
+
+Narzędzie ***Wybież na mapie*** pozwala odszukać porządaną lokalizację oraz wskazać dokładny punkt na mapie, z którego mają zostac pobrane współrzędne geograficzne do konwertera. Po wskazaniu punktu, pomarańczowy kwadrat wskazuje obszar, który będzie objęty na podkładzie satelitarnym.
+
 #### 1.2 Konwersja:
 
 Po wprowadzeniu współrzędnych klikamy przycisk *Konwertuj na EPSG:2180*, co powoduje automatyczne wpisanie odpowiednich wartości do [sekcji konfiguracja](#2-konfiguracja).
