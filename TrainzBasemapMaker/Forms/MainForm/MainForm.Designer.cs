@@ -212,7 +212,7 @@
             // 
             // comboBoxMapType
             // 
-            comboBoxMapType.DropDownWidth = 100;
+            comboBoxMapType.DropDownWidth = 200;
             comboBoxMapType.FormattingEnabled = true;
             comboBoxMapType.Location = new Point(118, 131);
             comboBoxMapType.Name = "comboBoxMapType";
