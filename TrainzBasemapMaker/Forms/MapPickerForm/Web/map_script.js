@@ -26,8 +26,7 @@
 // Map tiles are provided by OpenStreetMap
 // and are licensed under the Creative Commons Attribution-ShareAlike 2.0 (CC BY-SA).
 
-
-// Skonfigurowanie mapy
+// Initialize map tile layers
 var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 });
@@ -36,6 +35,7 @@ var geoportal = L.tileLayer('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORT
     attribution: 'Dane: <a href="https://www.gov.pl/web/gugik">GUGiK</a> / <a href="https://www.geoportal.gov.pl">geoportal.gov.pl</a>'
 });
 
+// Configure the main map instance centered over Poland by default
 var map = L.map('map', {
     center: [52.12, 19.11],
     zoom: 6,
@@ -47,60 +47,68 @@ var baseMaps = {
     "Geoportal Orto": geoportal
 };
 
-L.control.scale({imperial: false, metric: true}).addTo(map);
+// Add metric scale indicator to the bottom-left corner
+L.control.scale({ imperial: false, metric: true }).addTo(map);
 
-// Dodaje menu w prawym górnym rogu do zmiany mapy
+// Add the layer selection switcher menu to the top-right corner
 L.control.layers(baseMaps).addTo(map);
 
 var marker;
 var basemapSquare;
 
+// Global map click event listener
 map.on('click', function(e) {
     var lat = e.latlng.lat;
     var lon = e.latlng.lng;
-    var tileSize = 500;
+    var tileSize = 500; // Target basemap dimensions in meters (e.g., 500m x 500m)
 
+    // Update existing marker position or create a new one on initial click
     if (marker) {
         marker.setLatLng(e.latlng);
     } else {
         marker = L.marker(e.latlng).addTo(map);
     }
 
+    // Draw the preview boundary box representing the actual C# download footprint
     drawBasemapSquare(lat, lon, tileSize);
 
-    // Wysy³anie do C#
+    // Transmit coordinates asynchronously back to the hosting WinForms C# WebView2 environment
     var message = { lat: lat, lon: lon };
     if (window.chrome && window.chrome.webview) {
         window.chrome.webview.postMessage(message);
     }
 });
 
+/**
+ * Calculates and renders a precise geographic square boundary scaled in meters.
+ * Handles Earth curvature distortion adjustments by accounting for latitude shrinkage.
+ */
 function drawBasemapSquare(lat, lon, sizeInMeters) {
-    // Jeœli kwadrat ju¿ istnieje, usuwamy go przed narysowaniem nowego
+    // Clear the previous bounding box layer if it already exists on the map viewport
     if (basemapSquare) {
         map.removeLayer(basemapSquare);
     }
 
     var halfSize = sizeInMeters / 2;
 
-    // Przeliczniki (uproszczone, ale bardzo dok³adne dla ma³ych obszarów)
-    // 1 stopieñ szerokoœci to ok. 111 320 metrów
+    // Conversion metrics (simplified projection, highly accurate for local bounding areas)
+    // 1 degree of latitude remains roughly static at ~111,320 meters
     var latOffset = halfSize / 111320;
     
-    // D³ugoœæ stopnia d³ugoœci geograficznej zale¿y od szerokoœci (cosinus)
+    // 1 degree of longitude shrinks toward the poles; scaled dynamically using the cosine of the current latitude
     var lonOffset = halfSize / (111320 * Math.cos(lat * Math.PI / 180));
 
-    // Obliczamy naro¿niki kwadratu
+    // Determine the exact geographic corners for the bounding box matrix
     var southWest = L.latLng(lat - latOffset, lon - lonOffset);
     var northEast = L.latLng(lat + latOffset, lon + lonOffset);
     var bounds = L.latLngBounds(southWest, northEast);
 
-    // Tworzymy kwadrat (Rectangle)
+    // Create and style the interactive preview overlay rectangle
     basemapSquare = L.rectangle(bounds, {
-        color: "#ff7800",      // Kolor linii
-        weight: 2,             // Gruboœæ linii
-        fillOpacity: 0.2,      // Przezroczystoœæ wype³nienia
-        dashArray: '5, 5',     // Linia przerywana
-        interactive: false     // Klikniêcia przechodz¹ "przez" kwadrat do mapy
+        color: "#ff7800",       // Boundary stroke color
+        weight: 2,              // Boundary stroke thickness in pixels
+        fillOpacity: 0.2,       // Background fill transparency
+        dashArray: '5, 5',      // Dotted/dashed stroke layout style
+        interactive: false      // Disables pointer events so map click triggers pass right through the geometry
     }).addTo(map);
 }

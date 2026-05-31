@@ -72,6 +72,7 @@
             // 
             // textBoxLat
             // 
+            textBoxLat.Enabled = false;
             textBoxLat.Location = new Point(45, 576);
             textBoxLat.Name = "textBoxLat";
             textBoxLat.Size = new Size(115, 23);
@@ -88,6 +89,7 @@
             // 
             // textBoxLon
             // 
+            textBoxLon.Enabled = false;
             textBoxLon.Location = new Point(272, 576);
             textBoxLon.Name = "textBoxLon";
             textBoxLon.Size = new Size(115, 23);

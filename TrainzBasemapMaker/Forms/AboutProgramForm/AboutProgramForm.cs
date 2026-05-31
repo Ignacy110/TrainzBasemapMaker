@@ -27,14 +27,19 @@ namespace TrainzBasemapMaker
         {
             InitializeComponent();
 
-            labelVersion.Text = "v0.4.0-alpha";
-            labelReleaseDate.Text = "18.04.2026";
+            // Set build metadata info
+            labelVersion.Text = "v0.5.0-alpha";
+            labelReleaseDate.Text = "31.05.2026";
 
+            // Load the application icon from embedded resources using a memory stream
             var ms = new System.IO.MemoryStream(Properties.Resources.Icon);
             pictureBox1.Image = Image.FromStream(ms);
-
         }
 
+        /// <summary>
+        /// Custom paint handler to force crisp pixel-art scaling (Nearest Neighbor).
+        /// This prevents the application icon from becoming blurry when rendered.
+        /// </summary>
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
@@ -50,6 +55,7 @@ namespace TrainzBasemapMaker
         {
             try
             {
+                // Open the author's GitHub profile in the default system browser
                 Process.Start(new ProcessStartInfo("https://github.com/Ignacy110") { UseShellExecute = true });
             }
             catch (Exception ex)
@@ -62,6 +68,7 @@ namespace TrainzBasemapMaker
         {
             try
             {
+                // Open the project repository in the default system browser
                 Process.Start(new ProcessStartInfo("https://github.com/Ignacy110/TrainzBasemapMaker") { UseShellExecute = true });
             }
             catch (Exception ex)
