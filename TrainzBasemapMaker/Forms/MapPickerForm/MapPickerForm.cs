@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Handles coordinate data sent from the Leaflet map via window.chrome.webview.postMessage.
         /// </summary>
-        private void WebView21_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             string json = e.WebMessageAsJson;
 
@@ -115,7 +115,7 @@ namespace TrainzBasemapMaker
             }
             else
             {
-                MessageBox.Show("Współrzędne mają nieprawidłowy format!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("WspĂłĹ‚rzÄ™dne majÄ… nieprawidĹ‚owy format!", "BĹ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

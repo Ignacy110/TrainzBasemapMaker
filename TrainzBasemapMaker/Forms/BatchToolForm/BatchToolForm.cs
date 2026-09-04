@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -81,11 +81,12 @@ namespace TrainzBasemapMaker
             }
 
             // 2. Retrieve settings from the UI
-            string sourceGroup = basemapFolderListBox.SelectedItem.ToString();
+            if (basemapFolderListBox.SelectedItem is not string sourceGroup) return;
+            if (comboBoxMapType.SelectedItem is not WmsSource selectedMap) return;
+
             string targetGroup = textBoxDestinationFolder.Text;
             string targetDesignation = textBoxDesignation.Text;
             string year = textBoxBasemapDate.Text;
-            WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
             int res = GetSelectedResolution();
 
             if (sourceGroup == targetGroup)

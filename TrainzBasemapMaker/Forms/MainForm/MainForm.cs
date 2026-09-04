@@ -40,13 +40,13 @@ namespace TrainzBasemapMaker
         private int counter = 1;
 
         // Target directory and designation prefix for generating basemap files
-        string basemapGroup = "Podk³ady";
+        string basemapGroup = "PodkÅ‚ady";
         string basemapGroupDesignation = "P";
 
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
         // Custom tooltip for displaying input validation warnings
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "B³¹d wprowadzania" };
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "BÅ‚Ä…d wprowadzania" };
 
 
         // --------------------------
@@ -114,7 +114,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("B³¹d odœwie¿ania listy podk³adów:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("BÅ‚Ä…d odÅ›wieÅ¼ania listy podkÅ‚adÃ³w:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -136,8 +136,8 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxKuidPart2.Text = "1";
-                toolStripStatusLabel1.Text = "B³¹d automatycznego wyznaczania oznaczenia kuidu (czêœæ 2)";
-                MessageBox.Show("B³¹d automatycznego wyznaczania oznaczenia kuidu (czêœæ 2):\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = "BÅ‚Ä…d automatycznego wyznaczania oznaczenia kuidu (czÄ™Å›Ä‡ 2)";
+                MessageBox.Show("BÅ‚Ä…d automatycznego wyznaczania oznaczenia kuidu (czÄ™Å›Ä‡ 2):\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -153,8 +153,8 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxCounter.Text = "1";
-                toolStripStatusLabel1.Text = "B³¹d automatycznego wyznaczania numeru podk³adu";
-                MessageBox.Show("B³¹d automatycznego wyznaczania numeru podk³adu:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = "BÅ‚Ä…d automatycznego wyznaczania numeru podkÅ‚adu";
+                MessageBox.Show("BÅ‚Ä…d automatycznego wyznaczania numeru podkÅ‚adu:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -165,9 +165,9 @@ namespace TrainzBasemapMaker
 
             try
             {
-                toolStripStatusLabel1.Text = $"Pobieranie podk³adu...";
+                toolStripStatusLabel1.Text = $"Pobieranie podkÅ‚adu...";
 
-                WmsSource selectedMap = (WmsSource)comboBoxMapType.SelectedItem;
+                if (comboBoxMapType.SelectedItem is not WmsSource selectedMap) return;
                 byte[] imageBytes = await selectedMap.GetMapImageAsync(textBoxBasemapDate.Text, currentX, currentY, resolution);
 
                 // Update the preview image and dispose of the old one to prevent memory leaks
@@ -178,7 +178,7 @@ namespace TrainzBasemapMaker
                     oldImage?.Dispose();
                 }
 
-                toolStripStatusLabel1.Text = $"Pobrano podk³ad do pamiêci: {currentX}_{currentY}";
+                toolStripStatusLabel1.Text = $"Pobrano podkÅ‚ad do pamiÄ™ci: {currentX}_{currentY}";
 
                 // Proceed with file creation if the user enabled this option
                 if (checkBoxCreateFiles.Checked)
@@ -210,17 +210,17 @@ namespace TrainzBasemapMaker
                                 UpdateNextFreeKuidPart2();
                             }
                             DataRefresh();
-                            toolStripStatusLabel1.Text = $"Pobrano podk³ad i utworzono pliki dla Trainz: {currentX}, {currentY}";
+                            toolStripStatusLabel1.Text = $"Pobrano podkÅ‚ad i utworzono pliki dla Trainz: {currentX}, {currentY}";
                         }
                         else
                         {
-                            toolStripStatusLabel1.Text = "Podk³ad ju¿ istnieje – pominiêto.";
+                            toolStripStatusLabel1.Text = "PodkÅ‚ad juÅ¼ istnieje â€“ pominiÄ™to.";
                         }
                     }
                     catch (Exception ex)
                     {
-                        toolStripStatusLabel1.Text = "B³¹d zapisu plików!";
-                        MessageBox.Show("B³¹d zapisu plików:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        toolStripStatusLabel1.Text = "BÅ‚Ä…d zapisu plikÃ³w!";
+                        MessageBox.Show("BÅ‚Ä…d zapisu plikÃ³w:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
                     KuidsInFolderListBoxRefresh();
@@ -229,8 +229,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = $"B³¹d pobierania mapy: {currentX}_{currentY}";
-                MessageBox.Show("B³¹d pobierania mapy:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = $"BÅ‚Ä…d pobierania mapy: {currentX}_{currentY}";
+                MessageBox.Show("BÅ‚Ä…d pobierania mapy:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -266,7 +266,7 @@ namespace TrainzBasemapMaker
             }
             else
             {
-                toolStripStatusLabel1.Text = $"B³¹d konwersji: {latText}, {lonText}";
+                toolStripStatusLabel1.Text = $"BÅ‚Ä…d konwersji: {latText}, {lonText}";
             }
         }
 
@@ -297,8 +297,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = $"B³¹d danych startowych (b³¹d konfiguracji)";
-                MessageBox.Show("B³¹d danych startowych (b³¹d konfiguracji). Upewnij siê, ¿e u¿ywasz tylko cyfr i ewentualnie kropki.\n\n" + ex.Message, "B³¹d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = $"BÅ‚Ä…d danych startowych (bÅ‚Ä…d konfiguracji)";
+                MessageBox.Show("BÅ‚Ä…d danych startowych (bÅ‚Ä…d konfiguracji). Upewnij siÄ™, Å¼e uÅ¼ywasz tylko cyfr i ewentualnie kropki.\n\n" + ex.Message, "BÅ‚Ä…d formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -333,9 +333,8 @@ namespace TrainzBasemapMaker
 
         private void kuidsInFolderListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (kuidsInFolderListBox.SelectedItem != null)
+            if (kuidsInFolderListBox.SelectedItem is string zaznaczonyElement)
             {
-                string zaznaczonyElement = kuidsInFolderListBox.SelectedItem.ToString();
                 OpenImageFromFile(zaznaczonyElement);
             }
         }
@@ -345,9 +344,8 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                if (kuidsInFolderListBox.SelectedItem != null)
+                if (kuidsInFolderListBox.SelectedItem is string zaznaczonyElement)
                 {
-                    string zaznaczonyElement = kuidsInFolderListBox.SelectedItem.ToString();
                     string[] parts = zaznaczonyElement.Split('_');
 
                     if (parts.Length >= 4)
@@ -360,23 +358,22 @@ namespace TrainzBasemapMaker
                         }
                         else
                         {
-                            toolStripStatusLabel1.Text = $"B³¹d nazwy podk³adu";
-                            MessageBox.Show("B³¹d nazwy podk³adu.", "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            toolStripStatusLabel1.Text = $"BÅ‚Ä…d nazwy podkÅ‚adu";
+                            MessageBox.Show("BÅ‚Ä…d nazwy podkÅ‚adu.", "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("B³¹d nazwy podk³adu:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("BÅ‚Ä…d nazwy podkÅ‚adu:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void basemapFolderListBox_Click(object sender, EventArgs e)
         {
-            if (basemapFolderListBox.SelectedItem != null)
+            if (basemapFolderListBox.SelectedItem is string zaznaczonyElement)
             {
-                string zaznaczonyElement = basemapFolderListBox.SelectedItem.ToString();
                 textBoxDestinationFolder.Text = zaznaczonyElement;
             }
         }
@@ -389,8 +386,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = $"B³¹d otwarcia strony internetowej";
-                MessageBox.Show("B³¹d otwarcia strony:\n\n" + ex.Message, "B³¹d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                toolStripStatusLabel1.Text = $"BÅ‚Ä…d otwarcia strony internetowej";
+                MessageBox.Show("BÅ‚Ä…d otwarcia strony:\n\n" + ex.Message, "BÅ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -439,28 +436,28 @@ namespace TrainzBasemapMaker
                 {
                     // Show a balloon tooltip to inform the user about invalid input
                     warningToolTip.Hide(textBox);
-                    warningToolTip.Show("Tutaj mo¿esz wpisaæ tylko cyfry!", textBox, 50, -75, 2000);
+                    warningToolTip.Show("Tutaj moÅ¼esz wpisaÄ‡ tylko cyfry!", textBox, 50, -75, 2000);
                 }
             }
         }
 
-        private void znajdŸNajmniejszyWolnyNrPodk³aduToolStripMenuItem_Click(object sender, EventArgs e)
+        private void znajdÅºNajmniejszyWolnyNrPodkÅ‚aduToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeCounter();
-            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer podk³adu: {textBoxCounter.Text}";
+            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer podkÅ‚adu: {textBoxCounter.Text}";
         }
 
-        private void znajdŸWolnyKuidToolStripMenuItem_Click(object sender, EventArgs e)
+        private void znajdÅºWolnyKuidToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer kuidu (czêœæ 2): {textBoxKuidPart2.Text}";
+            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer kuidu (czÄ™Å›Ä‡ 2): {textBoxKuidPart2.Text}";
         }
 
-        private void odœwie¿ListêFoldrówIPodk³adówToolStripMenuItem_Click(object sender, EventArgs e)
+        private void odÅ›wieÅ¼ListÄ™FoldrÃ³wIPodkÅ‚adÃ³wToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
-            toolStripStatusLabel1.Text = $"Odœwie¿ono listê folderów";
+            toolStripStatusLabel1.Text = $"OdÅ›wieÅ¼ono listÄ™ folderÃ³w";
         }
 
         private void preferencjeToolStripMenuItem_Click(object sender, EventArgs e)

@@ -49,7 +49,7 @@ namespace TrainzBasemapMaker.Classes
             new WmsSource("Ortofotomapa",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
                 "Raster", true),
-            new WmsSource("Ortofotomapa wysoka rozdzielczość",
+            new WmsSource("Ortofotomapa wysoka rozdzielczoĹ›Ä‡",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
                 "Image", true),
             new WmsSource("Cieniowanie",
@@ -57,17 +57,54 @@ namespace TrainzBasemapMaker.Classes
                 "Raster", false)
         };
 
-        public async Task<byte[]> GetMapImageAsync(string year, double xLeft, double yTop, int resolution)
+        public async Task<byte[]> GetMapImageAsync(string year, double xLeft, double yTop, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
             double xRight = xLeft + TileSize;
             double yBottom = yTop - TileSize;
 
             string url = BuildWmsUrl(year, xLeft, yBottom, xRight, yTop, resolution);
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            int maxAttempts = Math.Max(1, maxRetries);
 
-            return await response.Content.ReadAsByteArrayAsync();
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    HttpResponseMessage response = await _httpClient.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+
+                    // WMS czasami zwraca status 200 OK z komunikatem bĹ‚Ä™du XML zamiast obrazu
+                    if (IsWmsXmlException(bytes))
+                    {
+                        throw new HttpRequestException("Serwer WMS zwrĂłciĹ‚ komunikat bĹ‚Ä™du XML zamiast obrazu.");
+                    }
+
+                    return bytes;
+                }
+                catch (Exception ex)
+                {
+                    if (attempt == maxAttempts)
+                    {
+                        throw new Exception($"Pobieranie podkĹ‚adu nie powiodĹ‚o siÄ™ po {maxAttempts} prĂłbach: {ex.Message}", ex);
+                    }
+
+                    // Odczekanie okreĹ›lonego czasu (np. 3 sekundy) przed kolejnÄ… prĂłbÄ…
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+                }
+            }
+
+            throw new Exception("Pobieranie podkĹ‚adu nie powiodĹ‚o siÄ™.");
+        }
+
+        private static bool IsWmsXmlException(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 10) return false;
+
+            // Sprawdzenie nagĹ‚Ăłwka pliku pod kÄ…tem deklaracji XML lub ServiceExceptionReport
+            string prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 200));
+            return prefix.Contains("<ServiceException") || prefix.Contains("<?xml");
         }
 
         private string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)
