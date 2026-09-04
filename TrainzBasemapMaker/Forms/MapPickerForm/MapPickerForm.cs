@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -115,7 +115,7 @@ namespace TrainzBasemapMaker
             }
             else
             {
-                MessageBox.Show("WspĂłĹ‚rzÄ™dne majÄ… nieprawidĹ‚owy format!", "BĹ‚Ä…d", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Współrzędne mają nieprawidłowy format!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

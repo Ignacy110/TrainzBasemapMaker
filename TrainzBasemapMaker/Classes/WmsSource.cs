@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -49,7 +49,7 @@ namespace TrainzBasemapMaker.Classes
             new WmsSource("Ortofotomapa",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
                 "Raster", true),
-            new WmsSource("Ortofotomapa wysoka rozdzielczoĹ›Ä‡",
+            new WmsSource("Ortofotomapa wysoka rozdzielczość",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
                 "Image", true),
             new WmsSource("Cieniowanie",
@@ -75,10 +75,10 @@ namespace TrainzBasemapMaker.Classes
 
                     byte[] bytes = await response.Content.ReadAsByteArrayAsync();
 
-                    // WMS czasami zwraca status 200 OK z komunikatem bĹ‚Ä™du XML zamiast obrazu
+                    // WMS czasami zwraca status 200 OK z komunikatem błędu XML zamiast obrazu
                     if (IsWmsXmlException(bytes))
                     {
-                        throw new HttpRequestException("Serwer WMS zwrĂłciĹ‚ komunikat bĹ‚Ä™du XML zamiast obrazu.");
+                        throw new HttpRequestException("Serwer WMS zwrócił komunikat błędu XML zamiast obrazu.");
                     }
 
                     return bytes;
@@ -87,22 +87,22 @@ namespace TrainzBasemapMaker.Classes
                 {
                     if (attempt == maxAttempts)
                     {
-                        throw new Exception($"Pobieranie podkĹ‚adu nie powiodĹ‚o siÄ™ po {maxAttempts} prĂłbach: {ex.Message}", ex);
+                        throw new Exception($"Pobieranie podkładu nie powiodło się po {maxAttempts} próbach: {ex.Message}", ex);
                     }
 
-                    // Odczekanie okreĹ›lonego czasu (np. 3 sekundy) przed kolejnÄ… prĂłbÄ…
+                    // Odczekanie określonego czasu (np. 3 sekundy) przed kolejną próbą
                     await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
                 }
             }
 
-            throw new Exception("Pobieranie podkĹ‚adu nie powiodĹ‚o siÄ™.");
+            throw new Exception("Pobieranie podkładu nie powiodło się.");
         }
 
         private static bool IsWmsXmlException(byte[] bytes)
         {
             if (bytes == null || bytes.Length < 10) return false;
 
-            // Sprawdzenie nagĹ‚Ăłwka pliku pod kÄ…tem deklaracji XML lub ServiceExceptionReport
+            // Sprawdzenie nagłówka pliku pod kątem deklaracji XML lub ServiceExceptionReport
             string prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 200));
             return prefix.Contains("<ServiceException") || prefix.Contains("<?xml");
         }

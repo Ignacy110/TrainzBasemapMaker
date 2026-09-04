@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class MainForm
     {
@@ -612,7 +612,7 @@
             // 
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odśwież listę foldrów i podkładów";
+            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odśwież listę folderów i podkładów";
             odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświeżListęFoldrówIPodkładówToolStripMenuItem_Click;
             // 
             // toolStripMenuItem2

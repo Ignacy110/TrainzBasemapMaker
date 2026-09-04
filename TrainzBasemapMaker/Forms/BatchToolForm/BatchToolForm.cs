@@ -91,7 +91,7 @@ namespace TrainzBasemapMaker
 
             if (sourceGroup == targetGroup)
             {
-                MessageBox.Show("Nazwa docelowego folderu musi być inna nić nazwa folderu źródłowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Nazwa docelowego folderu musi być inna niż nazwa folderu źródłowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
