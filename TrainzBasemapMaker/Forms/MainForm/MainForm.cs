@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -476,13 +476,13 @@ namespace TrainzBasemapMaker
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
-                bool isOrto = selected.Name.Contains("Ortofotomapa");
+                bool isHighResAllowed = selected.Name.Contains("Ortofotomapa") || selected.Name.Contains("OpenRailwayMap");
 
-                // 4096px resolution is restricted to orthophotomaps
-                radioButton4096.Enabled = isOrto;
+                // 4096px resolution is restricted to orthophotomaps and OpenRailwayMap
+                radioButton4096.Enabled = isHighResAllowed;
 
                 // Fallback to 2048px if the unsupported 4096px was currently selected
-                if (!isOrto && radioButton4096.Checked)
+                if (!isHighResAllowed && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
                 }

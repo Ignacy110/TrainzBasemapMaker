@@ -35,6 +35,16 @@ var geoportal = L.tileLayer('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORT
     attribution: 'Dane: <a href="https://www.gov.pl/web/gugik">GUGiK</a> / <a href="https://www.geoportal.gov.pl">geoportal.gov.pl</a>'
 });
 
+var openRailwayMapOverlay = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: 'Dane: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Styl: &copy; <a href="https://www.openrailwaymap.org">OpenRailwayMap</a>'
+});
+
+var openRailwayMapGroup = L.layerGroup([
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }),
+    openRailwayMapOverlay
+]);
+
 // Configure the main map instance centered over Poland by default
 var map = L.map('map', {
     center: [52.12, 19.11],
@@ -44,7 +54,8 @@ var map = L.map('map', {
 
 var baseMaps = {
     "OpenStreetMap": osm,
-    "Geoportal Orto": geoportal
+    "Geoportal Orto": geoportal,
+    "OpenRailwayMap": openRailwayMapGroup
 };
 
 // Add metric scale indicator to the bottom-left corner
