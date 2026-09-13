@@ -75,7 +75,7 @@ namespace TrainzBasemapMaker.Classes
 
                     byte[] bytes = await response.Content.ReadAsByteArrayAsync();
 
-                    // WMS czasami zwraca status 200 OK z komunikatem błędu XML zamiast obrazu
+                    // WMS servers sometimes return HTTP 200 OK with an XML error message instead of an image
                     if (IsWmsXmlException(bytes))
                     {
                         throw new HttpRequestException("Serwer WMS zwrócił komunikat błędu XML zamiast obrazu.");
@@ -90,7 +90,7 @@ namespace TrainzBasemapMaker.Classes
                         throw new Exception($"Pobieranie podkładu nie powiodło się po {maxAttempts} próbach: {ex.Message}", ex);
                     }
 
-                    // Odczekanie określonego czasu (np. 3 sekundy) przed kolejną próbą
+                    // Delay for specified time (e.g., 3 seconds) before next attempt
                     await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
                 }
             }
@@ -102,7 +102,7 @@ namespace TrainzBasemapMaker.Classes
         {
             if (bytes == null || bytes.Length < 10) return false;
 
-            // Sprawdzenie nagłówka pliku pod kątem deklaracji XML lub ServiceExceptionReport
+            // Inspect file header for XML declaration or ServiceExceptionReport
             string prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 200));
             return prefix.Contains("<ServiceException") || prefix.Contains("<?xml");
         }

@@ -1,4 +1,4 @@
-
+﻿
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -333,9 +333,9 @@ namespace TrainzBasemapMaker
 
         private void kuidsInFolderListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (kuidsInFolderListBox.SelectedItem is string zaznaczonyElement)
+            if (kuidsInFolderListBox.SelectedItem is string selectedItem)
             {
-                OpenImageFromFile(zaznaczonyElement);
+                OpenImageFromFile(selectedItem);
             }
         }
 
@@ -344,9 +344,9 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                if (kuidsInFolderListBox.SelectedItem is string zaznaczonyElement)
+                if (kuidsInFolderListBox.SelectedItem is string selectedItem)
                 {
-                    string[] parts = zaznaczonyElement.Split('_');
+                    string[] parts = selectedItem.Split('_');
 
                     if (parts.Length >= 4)
                     {
@@ -372,13 +372,13 @@ namespace TrainzBasemapMaker
 
         private void basemapFolderListBox_Click(object sender, EventArgs e)
         {
-            if (basemapFolderListBox.SelectedItem is string zaznaczonyElement)
+            if (basemapFolderListBox.SelectedItem is string selectedItem)
             {
-                textBoxDestinationFolder.Text = zaznaczonyElement;
+                textBoxDestinationFolder.Text = selectedItem;
             }
         }
 
-        private void stronaProgramuToolStripMenuItem_Click(object sender, EventArgs e)
+        private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
@@ -391,7 +391,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void informacjeOProgramieToolStripMenuItem_Click(object sender, EventArgs e)
+        private void aboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (AboutProgramForm info = new AboutProgramForm())
             {
@@ -441,26 +441,26 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem_Click(object sender, EventArgs e)
+        private void findSmallestFreeBasemapNumberToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeCounter();
             toolStripStatusLabel1.Text = $"Automatycznie dobrano numer podkładu: {textBoxCounter.Text}";
         }
 
-        private void znajdźWolnyKuidToolStripMenuItem_Click(object sender, EventArgs e)
+        private void findFreeKuidToolStripMenuItem_Click(object sender, EventArgs e)
         {
             UpdateNextFreeKuidPart2();
             toolStripStatusLabel1.Text = $"Automatycznie dobrano numer kuidu (część 2): {textBoxKuidPart2.Text}";
         }
 
-        private void odświeżListęFoldrówIPodkładówToolStripMenuItem_Click(object sender, EventArgs e)
+        private void refreshFolderAndBasemapListToolStripMenuItem_Click(object sender, EventArgs e)
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
             toolStripStatusLabel1.Text = $"Odświeżono listę folderów";
         }
 
-        private void preferencjeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (PreferencesForm info = new PreferencesForm())
             {
@@ -489,7 +489,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void przetwarzanieSeryjneToolStripMenuItem_Click(object sender, EventArgs e)
+        private void batchProcessingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (BatchToolForm info = new BatchToolForm())
             {

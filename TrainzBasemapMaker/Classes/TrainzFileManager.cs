@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -109,7 +109,7 @@ namespace TrainzBasemapMaker.Classes
                 return 1;
             }
 
-            // Szukamy wszystkich folderów we wszystkich podkatalogach, których nazwa zaczyna się od "basemap_"
+            // Find all folders in all subdirectories whose name starts with "basemap_"
             var allFolders = Directory.GetDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories);
 
             HashSet<int> usedKuidsPart2 = new HashSet<int>();
@@ -120,7 +120,7 @@ namespace TrainzBasemapMaker.Classes
                 string[] parts = folderName.Split('_');
 
                 // Format: basemap_{basemapGroupDesignation}_{counter}_{x}_{y}_{kuidPart1}_{kuidPart2}
-                // Indeksy: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
+                // Indices: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
                 if (parts.Length >= 7)
                 {
                     if (int.TryParse(parts[6], out int parsedKuidPart2))
@@ -130,7 +130,7 @@ namespace TrainzBasemapMaker.Classes
                 }
             }
 
-            // Szukanie najmniejszej wolnej wartości zaczynając od 1
+            // Find the smallest unused value starting from 1
             int freeKuid = 1;
             while (usedKuidsPart2.Contains(freeKuid))
             {

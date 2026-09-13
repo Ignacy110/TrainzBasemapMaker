@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -22,7 +22,7 @@ namespace TrainzBasemapMaker
     public partial class PreferencesForm : Form
     {
         // ToolTip used to provide visual feedback for input validation errors
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Input Error" };
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
 
         public PreferencesForm()
         {

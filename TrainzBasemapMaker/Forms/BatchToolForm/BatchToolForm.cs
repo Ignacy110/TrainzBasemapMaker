@@ -28,7 +28,7 @@ namespace TrainzBasemapMaker
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
         // ToolTip used to provide visual feedback for input validation errors
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Input Error" };
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
 
         public BatchToolForm()
         {

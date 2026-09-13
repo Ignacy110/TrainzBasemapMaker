@@ -1,4 +1,4 @@
-namespace TrainzBasemapMaker
+﻿namespace TrainzBasemapMaker
 {
     partial class MainForm
     {
@@ -78,17 +78,17 @@ namespace TrainzBasemapMaker
             groupBox5BasemapViewer = new GroupBox();
             groupBox4KuidList = new GroupBox();
             menuStrip1 = new MenuStrip();
-            narzędziaToolStripMenuItem = new ToolStripMenuItem();
-            odświerzListęFoldrówIPodkładówToolStripMenuItem = new ToolStripMenuItem();
+            toolsToolStripMenuItem = new ToolStripMenuItem();
+            refreshFolderAndBasemapListToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem2 = new ToolStripSeparator();
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem = new ToolStripMenuItem();
-            znajdźWolnyKuidToolStripMenuItem = new ToolStripMenuItem();
+            findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
+            findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
-            przetwarzanieSeryjneToolStripMenuItem = new ToolStripMenuItem();
-            preferencjeToolStripMenuItem = new ToolStripMenuItem();
-            pomocToolStripMenuItem = new ToolStripMenuItem();
-            stronaProgramuToolStripMenuItem = new ToolStripMenuItem();
-            informacjeOProgramieToolStripMenuItem = new ToolStripMenuItem();
+            batchProcessingToolStripMenuItem = new ToolStripMenuItem();
+            preferencesToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            websiteToolStripMenuItem = new ToolStripMenuItem();
+            aboutProgramToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             groupBox2Configurator.SuspendLayout();
@@ -594,85 +594,85 @@ namespace TrainzBasemapMaker
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { narzędziaToolStripMenuItem, preferencjeToolStripMenuItem, pomocToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolsToolStripMenuItem, preferencesToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1184, 24);
             menuStrip1.TabIndex = 19;
             menuStrip1.Text = "menuStrip1";
             // 
-            // narzędziaToolStripMenuItem
+            // narządziaToolStripMenuItem
             // 
-            narzędziaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { odświerzListęFoldrówIPodkładówToolStripMenuItem, toolStripMenuItem2, znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem, znajdźWolnyKuidToolStripMenuItem, toolStripMenuItem1, przetwarzanieSeryjneToolStripMenuItem });
-            narzędziaToolStripMenuItem.Name = "narzędziaToolStripMenuItem";
-            narzędziaToolStripMenuItem.Size = new Size(70, 20);
-            narzędziaToolStripMenuItem.Text = "&Narzędzia";
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, batchProcessingToolStripMenuItem });
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            toolsToolStripMenuItem.Size = new Size(70, 20);
+            toolsToolStripMenuItem.Text = "&Narzędzia";
             // 
-            // odświerzListęFoldrówIPodkładówToolStripMenuItem
+            // refreshFolderAndBasemapListToolStripMenuItem
             // 
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Name = "odświerzListęFoldrówIPodkładówToolStripMenuItem";
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Size = new Size(276, 22);
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Text = "&Odśwież listę folderów i podkładów";
-            odświerzListęFoldrówIPodkładówToolStripMenuItem.Click += odświeżListęFoldrówIPodkładówToolStripMenuItem_Click;
+            refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
+            refreshFolderAndBasemapListToolStripMenuItem.Size = new Size(276, 22);
+            refreshFolderAndBasemapListToolStripMenuItem.Text = "&Odśwież listę folderów i podkładów";
+            refreshFolderAndBasemapListToolStripMenuItem.Click += refreshFolderAndBasemapListToolStripMenuItem_Click;
             // 
             // toolStripMenuItem2
             // 
             toolStripMenuItem2.Name = "toolStripMenuItem2";
             toolStripMenuItem2.Size = new Size(273, 6);
             // 
-            // znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem
+            // findSmallestFreeBasemapNumberToolStripMenuItem
             // 
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Name = "znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem";
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Size = new Size(276, 22);
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Text = "&Znajdź najmniejszy wolny nr podkładu";
-            znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem.Click += znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem_Click;
+            findSmallestFreeBasemapNumberToolStripMenuItem.Name = "findSmallestFreeBasemapNumberToolStripMenuItem";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Size = new Size(276, 22);
+            findSmallestFreeBasemapNumberToolStripMenuItem.Text = "&Znajdź najmniejszy wolny nr podkładu";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Click += findSmallestFreeBasemapNumberToolStripMenuItem_Click;
             // 
-            // znajdźWolnyKuidToolStripMenuItem
+            // findFreeKuidToolStripMenuItem
             // 
-            znajdźWolnyKuidToolStripMenuItem.Name = "znajdźWolnyKuidToolStripMenuItem";
-            znajdźWolnyKuidToolStripMenuItem.Size = new Size(276, 22);
-            znajdźWolnyKuidToolStripMenuItem.Text = "Z&najdź wolny Kuid";
-            znajdźWolnyKuidToolStripMenuItem.Click += znajdźWolnyKuidToolStripMenuItem_Click;
+            findFreeKuidToolStripMenuItem.Name = "findFreeKuidToolStripMenuItem";
+            findFreeKuidToolStripMenuItem.Size = new Size(276, 22);
+            findFreeKuidToolStripMenuItem.Text = "Z&najdź wolny Kuid";
+            findFreeKuidToolStripMenuItem.Click += findFreeKuidToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
             toolStripMenuItem1.Size = new Size(273, 6);
             // 
-            // przetwarzanieSeryjneToolStripMenuItem
+            // batchProcessingToolStripMenuItem
             // 
-            przetwarzanieSeryjneToolStripMenuItem.Name = "przetwarzanieSeryjneToolStripMenuItem";
-            przetwarzanieSeryjneToolStripMenuItem.Size = new Size(276, 22);
-            przetwarzanieSeryjneToolStripMenuItem.Text = "&Przetwarzanie seryjne";
-            przetwarzanieSeryjneToolStripMenuItem.Click += przetwarzanieSeryjneToolStripMenuItem_Click;
+            batchProcessingToolStripMenuItem.Name = "batchProcessingToolStripMenuItem";
+            batchProcessingToolStripMenuItem.Size = new Size(276, 22);
+            batchProcessingToolStripMenuItem.Text = "&Przetwarzanie seryjne";
+            batchProcessingToolStripMenuItem.Click += batchProcessingToolStripMenuItem_Click;
             // 
-            // preferencjeToolStripMenuItem
+            // preferencesToolStripMenuItem
             // 
-            preferencjeToolStripMenuItem.Name = "preferencjeToolStripMenuItem";
-            preferencjeToolStripMenuItem.Size = new Size(78, 20);
-            preferencjeToolStripMenuItem.Text = "P&referencje";
-            preferencjeToolStripMenuItem.Click += preferencjeToolStripMenuItem_Click;
+            preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            preferencesToolStripMenuItem.Size = new Size(78, 20);
+            preferencesToolStripMenuItem.Text = "P&referencje";
+            preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
-            // pomocToolStripMenuItem
+            // helpToolStripMenuItem
             // 
-            pomocToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { stronaProgramuToolStripMenuItem, informacjeOProgramieToolStripMenuItem });
-            pomocToolStripMenuItem.Name = "pomocToolStripMenuItem";
-            pomocToolStripMenuItem.Size = new Size(57, 20);
-            pomocToolStripMenuItem.Text = "&Pomoc";
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { websiteToolStripMenuItem, aboutProgramToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(57, 20);
+            helpToolStripMenuItem.Text = "&Pomoc";
             // 
-            // stronaProgramuToolStripMenuItem
+            // websiteToolStripMenuItem
             // 
-            stronaProgramuToolStripMenuItem.Name = "stronaProgramuToolStripMenuItem";
-            stronaProgramuToolStripMenuItem.Size = new Size(213, 22);
-            stronaProgramuToolStripMenuItem.Text = "&Strona programu - GitHub";
-            stronaProgramuToolStripMenuItem.Click += stronaProgramuToolStripMenuItem_Click;
+            websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
+            websiteToolStripMenuItem.Size = new Size(213, 22);
+            websiteToolStripMenuItem.Text = "&Strona programu - GitHub";
+            websiteToolStripMenuItem.Click += websiteToolStripMenuItem_Click;
             // 
-            // informacjeOProgramieToolStripMenuItem
+            // aboutProgramToolStripMenuItem
             // 
-            informacjeOProgramieToolStripMenuItem.Name = "informacjeOProgramieToolStripMenuItem";
-            informacjeOProgramieToolStripMenuItem.Size = new Size(213, 22);
-            informacjeOProgramieToolStripMenuItem.Text = "&O programie";
-            informacjeOProgramieToolStripMenuItem.Click += informacjeOProgramieToolStripMenuItem_Click;
+            aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
+            aboutProgramToolStripMenuItem.Size = new Size(213, 22);
+            aboutProgramToolStripMenuItem.Text = "&O programie";
+            aboutProgramToolStripMenuItem.Click += aboutProgramToolStripMenuItem_Click;
             // 
             // statusStrip1
             // 
@@ -761,9 +761,9 @@ namespace TrainzBasemapMaker
         private GroupBox groupBox5BasemapViewer;
         private GroupBox groupBox4KuidList;
         private MenuStrip menuStrip1;
-        private ToolStripMenuItem pomocToolStripMenuItem;
-        private ToolStripMenuItem stronaProgramuToolStripMenuItem;
-        private ToolStripMenuItem informacjeOProgramieToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem websiteToolStripMenuItem;
+        private ToolStripMenuItem aboutProgramToolStripMenuItem;
         private Label label4;
         private TextBox textBoxDestinationFolder;
         private Label label10;
@@ -779,16 +779,16 @@ namespace TrainzBasemapMaker
         private TextBox textBoxDesignation;
         private Label label13;
         private TextBox textBoxKuidPart2;
-        private ToolStripMenuItem narzędziaToolStripMenuItem;
-        private ToolStripMenuItem znajdźWolnyKuidToolStripMenuItem;
-        private ToolStripMenuItem znajdźNajmniejszyWolnyNrPodkładuToolStripMenuItem;
-        private ToolStripMenuItem odświerzListęFoldrówIPodkładówToolStripMenuItem;
+        private ToolStripMenuItem toolsToolStripMenuItem;
+        private ToolStripMenuItem findFreeKuidToolStripMenuItem;
+        private ToolStripMenuItem findSmallestFreeBasemapNumberToolStripMenuItem;
+        private ToolStripMenuItem refreshFolderAndBasemapListToolStripMenuItem;
         private TextBox textBoxBasemapDate;
         private Label label14;
-        private ToolStripMenuItem preferencjeToolStripMenuItem;
+        private ToolStripMenuItem preferencesToolStripMenuItem;
         private Label label15;
         private ComboBox comboBoxMapType;
-        private ToolStripMenuItem przetwarzanieSeryjneToolStripMenuItem;
+        private ToolStripMenuItem batchProcessingToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;
