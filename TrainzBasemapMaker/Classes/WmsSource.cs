@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -57,17 +57,54 @@ namespace TrainzBasemapMaker.Classes
                 "Raster", false)
         };
 
-        public async Task<byte[]> GetMapImageAsync(string year, double xLeft, double yTop, int resolution)
+        public async Task<byte[]> GetMapImageAsync(string year, double xLeft, double yTop, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
             double xRight = xLeft + TileSize;
             double yBottom = yTop - TileSize;
 
             string url = BuildWmsUrl(year, xLeft, yBottom, xRight, yTop, resolution);
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            int maxAttempts = Math.Max(1, maxRetries);
 
-            return await response.Content.ReadAsByteArrayAsync();
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    HttpResponseMessage response = await _httpClient.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+
+                    // WMS czasami zwraca status 200 OK z komunikatem błędu XML zamiast obrazu
+                    if (IsWmsXmlException(bytes))
+                    {
+                        throw new HttpRequestException("Serwer WMS zwrócił komunikat błędu XML zamiast obrazu.");
+                    }
+
+                    return bytes;
+                }
+                catch (Exception ex)
+                {
+                    if (attempt == maxAttempts)
+                    {
+                        throw new Exception($"Pobieranie podkładu nie powiodło się po {maxAttempts} próbach: {ex.Message}", ex);
+                    }
+
+                    // Odczekanie określonego czasu (np. 3 sekundy) przed kolejną próbą
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+                }
+            }
+
+            throw new Exception("Pobieranie podkładu nie powiodło się.");
+        }
+
+        private static bool IsWmsXmlException(byte[] bytes)
+        {
+            if (bytes == null || bytes.Length < 10) return false;
+
+            // Sprawdzenie nagłówka pliku pod kątem deklaracji XML lub ServiceExceptionReport
+            string prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 200));
+            return prefix.Contains("<ServiceException") || prefix.Contains("<?xml");
         }
 
         private string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)

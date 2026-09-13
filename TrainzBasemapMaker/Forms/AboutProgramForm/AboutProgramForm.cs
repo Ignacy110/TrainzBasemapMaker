@@ -28,8 +28,8 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             // Set build metadata info
-            labelVersion.Text = "v0.5.1-alpha";
-            labelReleaseDate.Text = "31.05.2026";
+            labelVersion.Text = "v0.5.2-alpha";
+            labelReleaseDate.Text = "13.09.2026";
 
             // Load the application icon from embedded resources using a memory stream
             var ms = new System.IO.MemoryStream(Properties.Resources.Icon);

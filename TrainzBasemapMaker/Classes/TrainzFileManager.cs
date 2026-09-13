@@ -82,6 +82,7 @@ namespace TrainzBasemapMaker.Classes
 
             return Directory.GetDirectories(RootFolder)
                             .Select(Path.GetFileName)
+                            .OfType<string>()
                             .ToList();
         }
 
@@ -92,6 +93,7 @@ namespace TrainzBasemapMaker.Classes
 
             return Directory.GetDirectories(groupPath)
                             .Select(Path.GetFileName)
+                            .OfType<string>()
                             .ToList();
         }
 

@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Handles coordinate data sent from the Leaflet map via window.chrome.webview.postMessage.
         /// </summary>
-        private void WebView21_WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             string json = e.WebMessageAsJson;
 
