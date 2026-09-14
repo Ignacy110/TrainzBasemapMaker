@@ -174,7 +174,8 @@ function renderSelectedTiles(shouldNotify) {
     selectedLayerGroup.clearLayers();
 
     var sorted = getSortedTiles();
-    document.getElementById("badgeCount").innerText = "Kafle: " + sorted.length;
+    var badge = document.getElementById("badgeCount");
+    if (badge) badge.innerText = "Kafle: " + sorted.length;
 
     sorted.forEach(function(tile, index) {
         var orderNum = index + 1;
@@ -333,8 +334,10 @@ map.on('moveend zoomend', function() {
 // Selection modes
 function setSelectionMode(mode) {
     selectionMode = mode;
-    document.getElementById("btnModeClick").className = (mode === "click") ? "active" : "";
-    document.getElementById("btnModeBox").className = (mode === "box") ? "active" : "";
+    var btnClick = document.getElementById("btnModeClick");
+    if (btnClick) btnClick.className = (mode === "click") ? "active" : "";
+    var btnBox = document.getElementById("btnModeBox");
+    if (btnBox) btnBox.className = (mode === "box") ? "active" : "";
 
     if (mode === "box") {
         map.dragging.disable();

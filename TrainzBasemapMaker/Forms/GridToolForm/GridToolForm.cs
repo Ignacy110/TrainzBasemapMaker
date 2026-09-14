@@ -52,6 +52,10 @@ namespace TrainzBasemapMaker
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
 
+            radioButton2048.Checked = true;
+            radioButtonEpsg2180.Checked = true;
+            radioButtonModeClick.Checked = true;
+
             // Bind map providers
             comboBoxMapType.DataSource = MapSources.AvailableMaps;
             comboBoxMapType.DisplayMember = "Name";
@@ -60,6 +64,7 @@ namespace TrainzBasemapMaker
 
             comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
 
+            BasemapFolderListBoxRefresh();
             UpdateNextFreeKuidPart2();
             UpdateNextFreeCounter();
         }
@@ -85,6 +90,21 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 MessageBox.Show("Błąd inicjalizacji komponentu mapy:\n\n" + ex.Message, "Błąd WebView2", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BasemapFolderListBoxRefresh()
+        {
+            basemapFolderListBox.Items.Clear();
+            var groups = _fileManager.GetBasemapGroups();
+            basemapFolderListBox.Items.AddRange(groups.ToArray());
+        }
+
+        private void basemapFolderListBox_Click(object? sender, EventArgs e)
+        {
+            if (basemapFolderListBox.SelectedItem is string selectedItem)
+            {
+                textBoxDestinationFolder.Text = selectedItem;
             }
         }
 
@@ -130,9 +150,12 @@ namespace TrainzBasemapMaker
                         labelTileCount.Text = $"Zaznaczono kafli: {count}";
                         labelArea.Text = $"Powierzchnia: {(count * 0.25):F2} km²";
 
-                        labelProgress.Text = count > 0
-                            ? $"Gotowy do pobrania {count} kafli."
+                        string statusMsg = count > 0
+                            ? $"Zaznaczono {count} kafli (obszar {(count * 0.25):F2} km²)."
                             : "Zaznacz kafle na mapie.";
+
+                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} kafli." : "Gotowy do zaznaczania.";
+                        toolStripStatusLabel1.Text = statusMsg;
                     }
                 }
             }
@@ -140,6 +163,14 @@ namespace TrainzBasemapMaker
             {
                 Debug.WriteLine("Error processing web message: " + ex.Message);
             }
+        }
+
+        private async void RadioButtonMode_CheckedChanged(object? sender, EventArgs e)
+        {
+            if (webView21.CoreWebView2 == null) return;
+
+            string mode = radioButtonModeBox.Checked ? "box" : "click";
+            await webView21.CoreWebView2.ExecuteScriptAsync($"setSelectionMode('{mode}')");
         }
 
         private async void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
@@ -278,7 +309,9 @@ namespace TrainzBasemapMaker
                     int currentCounter = startCounter + (current - 1);
                     string currentKuid2 = (startKuid2 + (current - 1)).ToString();
 
-                    labelProgress.Text = $"Pobieranie: {current} z {total} (Kafel {tile.Order})...";
+                    labelProgress.Text = $"Pobieranie: {current} z {total}";
+                    toolStripStatusLabel1.Text = $"Pobieranie podkładu {current} z {total} (Kafel {tile.Order} / {tile.X}, {tile.Y})...";
+
                     if (webView21.CoreWebView2 != null)
                     {
                         await webView21.CoreWebView2.ExecuteScriptAsync($"highlightTile({tile.Order}, 'downloading')");
@@ -329,35 +362,41 @@ namespace TrainzBasemapMaker
 
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    labelProgress.Text = $"Pobieranie anulowane. Utworzono {successCount} z {total} podkładów.";
+                    labelProgress.Text = $"Pobieranie anulowane.";
+                    toolStripStatusLabel1.Text = $"Pobieranie anulowane przez użytkownika. Utworzono {successCount} z {total} podkładów.";
                     MessageBox.Show($"Pobieranie zostało przerwane przez użytkownika.\n\nPomyślnie utworzono {successCount} z {total} podkładów.", "Pobieranie anulowane", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (failureDetails.Count == 0)
                 {
-                    labelProgress.Text = $"Zakończono sukcesem! Utworzono {successCount} podkładów.";
+                    labelProgress.Text = $"Zakończono sukcesem!";
+                    toolStripStatusLabel1.Text = $"Pomyślnie utworzono wszystkie podkłady ({successCount} z {total}).";
                     MessageBox.Show($"Pobieranie obszarowe zakończone sukcesem!\n\nPomyślnie utworzono wszystkie zaznaczone podkłady ({successCount} z {total}).", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (successCount > 0)
                 {
-                    labelProgress.Text = $"Zakończono z ostrzeżeniami: {successCount} z {total}.";
+                    labelProgress.Text = $"Zakończono z ostrzeżeniami.";
+                    toolStripStatusLabel1.Text = $"Utworzono podkładów: {successCount} z {total}. Niepowodzenia: {failureDetails.Count}.";
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
                     if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
                     MessageBox.Show($"Pobieranie obszarowe zakończone z ostrzeżeniami.\n\nUtworzono podkładów: {successCount} z {total}.\nNiepowodzenia ({failureDetails.Count}):\n{errorsPreview}", "Ostrzeżenie", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
-                    labelProgress.Text = $"Pobieranie nie powiodło się dla żadnego podkładu.";
+                    labelProgress.Text = $"Pobieranie nie powiodło się.";
+                    toolStripStatusLabel1.Text = "Pobieranie nie powiodło się dla żadnego podkładu.";
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
                     MessageBox.Show($"Pobieranie nie powiodło się dla żadnego podkładu.\n\nSzczegóły błędów:\n{errorsPreview}", "Błąd pobierania", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
+                toolStripStatusLabel1.Text = "Błąd krytyczny podczas pobierania!";
                 MessageBox.Show("Błąd krytyczny podczas pobierania:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
                 SetUiDownloadingState(false);
+                BasemapFolderListBoxRefresh();
                 UpdateNextFreeCounter();
                 UpdateNextFreeKuidPart2();
             }
@@ -367,7 +406,8 @@ namespace TrainzBasemapMaker
         {
             _cancellationTokenSource?.Cancel();
             buttonCancel.Enabled = false;
-            labelProgress.Text = "Anulowanie pobierania...";
+            labelProgress.Text = "Anulowanie...";
+            toolStripStatusLabel1.Text = "Anulowanie pobierania...";
         }
 
         private void SetUiDownloadingState(bool downloading)
@@ -375,12 +415,9 @@ namespace TrainzBasemapMaker
             _isDownloading = downloading;
             buttonStartDownload.Enabled = !downloading;
             buttonCancel.Enabled = downloading;
-            groupBoxCoordSystem.Enabled = !downloading;
-            groupBoxParams.Enabled = !downloading;
-            groupBoxTrainz.Enabled = !downloading;
-            buttonSelectViewport.Enabled = !downloading;
-            buttonClearSelection.Enabled = !downloading;
-            buttonResetAnchor.Enabled = !downloading;
+            groupBox1Selection.Enabled = !downloading;
+            groupBox2CoordSystem.Enabled = !downloading;
+            groupBox3Config.Enabled = !downloading;
             Cursor = downloading ? Cursors.WaitCursor : Cursors.Default;
         }
 
@@ -397,7 +434,7 @@ namespace TrainzBasemapMaker
             if (comboBoxMapType.SelectedItem is IMapSource selected)
             {
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
-                labelDate.Enabled = selected.SupportsTime;
+                label14.Enabled = selected.SupportsTime;
 
                 radioButton4096.Enabled = selected.AllowsHighResolution;
                 if (!selected.AllowsHighResolution && radioButton4096.Checked)
