@@ -22,36 +22,31 @@ namespace TrainzBasemapMaker.Classes
     {
         private static readonly string RootFolder = Path.Combine(AppContext.BaseDirectory, "Kuids");
 
+        /// <summary>
+        /// Attempts to parse tile metadata from a basemap folder name.
+        /// </summary>
         public static bool TryParseTileFolderName(
-            string folderName,
-            out string designation,
-            out int counter,
-            out long x,
-            out long y,
-            out string kuid1,
-            out string kuid2)
+            string? folderName,
+            [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out TileFolderInfo? tileInfo)
         {
-            designation = "";
-            counter = 1;
-            x = 0;
-            y = 0;
-            kuid1 = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
-            kuid2 = "1";
-
+            tileInfo = null;
             if (string.IsNullOrWhiteSpace(folderName)) return false;
 
             string[] parts = folderName.Split('_');
             if (parts.Length < 5 || parts[0] != "basemap") return false;
 
+            string defaultKuid1 = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
+
             if (parts.Length >= 7)
             {
-                if (long.TryParse(parts[parts.Length - 4], out x) &&
-                    long.TryParse(parts[parts.Length - 3], out y) &&
-                    int.TryParse(parts[parts.Length - 5], out counter))
+                if (long.TryParse(parts[parts.Length - 4], out long x) &&
+                    long.TryParse(parts[parts.Length - 3], out long y) &&
+                    int.TryParse(parts[parts.Length - 5], out int counter))
                 {
-                    kuid1 = parts[parts.Length - 2];
-                    kuid2 = parts[parts.Length - 1];
-                    designation = string.Join("_", parts.Skip(1).Take(parts.Length - 6));
+                    string kuid1 = parts[parts.Length - 2];
+                    string kuid2 = parts[parts.Length - 1];
+                    string designation = string.Join("_", parts.Skip(1).Take(parts.Length - 6));
+                    tileInfo = new TileFolderInfo(designation, counter, x, y, kuid1, kuid2);
                     return true;
                 }
             }
@@ -59,12 +54,13 @@ namespace TrainzBasemapMaker.Classes
             // Fallback for 5 or 6 parts format: basemap_{designation}_{counter}_{x}_{y}[_{kuid1}]
             if (parts.Length >= 5)
             {
-                if (long.TryParse(parts[3], out x) &&
-                    long.TryParse(parts[4], out y) &&
-                    int.TryParse(parts[2], out counter))
+                if (long.TryParse(parts[3], out long x) &&
+                    long.TryParse(parts[4], out long y) &&
+                    int.TryParse(parts[2], out int counter))
                 {
-                    designation = parts[1];
-                    if (parts.Length >= 6) kuid1 = parts[5];
+                    string designation = parts[1];
+                    string kuid1 = parts.Length >= 6 ? parts[5] : defaultKuid1;
+                    tileInfo = new TileFolderInfo(designation, counter, x, y, kuid1, "1");
                     return true;
                 }
             }
@@ -87,8 +83,8 @@ namespace TrainzBasemapMaker.Classes
                 .Where(name =>
                 {
                     if (string.IsNullOrEmpty(name)) return false;
-                    return TryParseTileFolderName(name, out _, out _, out long tileX, out long tileY, out _, out _) &&
-                           tileX == x && tileY == y;
+                    return TryParseTileFolderName(name, out var tileInfo) &&
+                           tileInfo.X == x && tileInfo.Y == y;
                 });
 
             if (existingTiles.Any())
@@ -173,8 +169,8 @@ namespace TrainzBasemapMaker.Classes
             foreach (var folder in allFolders)
             {
                 string folderName = new DirectoryInfo(folder).Name;
-                if (TryParseTileFolderName(folderName, out _, out _, out _, out _, out _, out string kuid2Str) &&
-                    int.TryParse(kuid2Str, out int parsedKuidPart2))
+                if (TryParseTileFolderName(folderName, out var tileInfo) &&
+                    int.TryParse(tileInfo.KuidPart2, out int parsedKuidPart2))
                 {
                     usedKuidsPart2.Add(parsedKuidPart2);
                 }
@@ -208,9 +204,9 @@ namespace TrainzBasemapMaker.Classes
             foreach (var folder in allFolders)
             {
                 string folderName = new DirectoryInfo(folder).Name;
-                if (TryParseTileFolderName(folderName, out _, out int parsedCounter, out _, out _, out _, out _))
+                if (TryParseTileFolderName(folderName, out var tileInfo))
                 {
-                    usedCounter.Add(parsedCounter);
+                    usedCounter.Add(tileInfo.Counter);
                 }
             }
 

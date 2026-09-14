@@ -418,10 +418,10 @@ namespace TrainzBasemapMaker
             {
                 if (kuidsInFolderListBox.SelectedItem is string selectedItem)
                 {
-                    if (TrainzFileManager.TryParseTileFolderName(selectedItem, out _, out _, out long parsedX, out long parsedY, out _, out _))
+                    if (TrainzFileManager.TryParseTileFolderName(selectedItem, out var tileInfo))
                     {
-                        currentX = parsedX;
-                        currentY = parsedY;
+                        currentX = tileInfo.X;
+                        currentY = tileInfo.Y;
                         DataRefresh();
 
                         if (GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))

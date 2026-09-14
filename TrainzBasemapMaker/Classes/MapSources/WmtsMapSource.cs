@@ -23,24 +23,6 @@ using System.Drawing.Imaging;
 namespace TrainzBasemapMaker.Classes
 {
     /// <summary>
-    /// Represents a specific TileMatrix level definition in a WMTS TileMatrixSet.
-    /// </summary>
-    internal class WmtsMatrixLevel
-    {
-        public string Identifier { get; }
-        public double ScaleDenominator { get; }
-        public double PixelSize => ScaleDenominator * 0.00028;
-
-        public WmtsMatrixLevel(string identifier, double scaleDenominator)
-        {
-            Identifier = identifier;
-            ScaleDenominator = scaleDenominator;
-        }
-
-        public override string ToString() => $"{Identifier} (Scale: {ScaleDenominator:F2}, {PixelSize:F4}m/px)";
-    }
-
-    /// <summary>
     /// Map provider implementation for OGC Web Map Tile Service (WMTS) in EPSG:2180 coordinate system.
     /// </summary>
     internal class WmtsMapSource : MapSourceBase

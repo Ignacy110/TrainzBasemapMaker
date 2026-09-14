@@ -77,14 +77,14 @@ namespace TrainzBasemapMaker
             if (folders.Count == 0) return;
 
             string firstFolder = folders[0];
-            if (TrainzFileManager.TryParseTileFolderName(firstFolder, out string designation, out _, out long x, out long y, out _, out _))
+            if (TrainzFileManager.TryParseTileFolderName(firstFolder, out var tileInfo))
             {
-                if (!string.IsNullOrWhiteSpace(designation))
+                if (!string.IsNullOrWhiteSpace(tileInfo.Designation))
                 {
-                    textBoxDesignation.Text = designation;
+                    textBoxDesignation.Text = tileInfo.Designation;
                 }
 
-                if (GeoHelperEPSG2180.IsWithin2180Bounds(x, y))
+                if (GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y))
                 {
                     radioButtonEpsg2180.Enabled = true;
                     radioButtonEpsg3857.Enabled = true;
@@ -92,7 +92,7 @@ namespace TrainzBasemapMaker
                 }
                 else
                 {
-                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(x, y);
+                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(tileInfo.X, tileInfo.Y);
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
                     if (inPoland)
                     {
@@ -192,20 +192,20 @@ namespace TrainzBasemapMaker
                 {
                     current++;
 
-                    if (TrainzFileManager.TryParseTileFolderName(folder, out _, out int counter, out long srcX, out long srcY, out string kuid1, out string kuid2))
+                    if (TrainzFileManager.TryParseTileFolderName(folder, out var tileInfo))
                     {
                         try
                         {
-                            long targetX = srcX;
-                            long targetY = srcY;
+                            long targetX = tileInfo.X;
+                            long targetY = tileInfo.Y;
 
-                            bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(srcX, srcY);
+                            bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y);
 
                             if (radioButtonEpsg2180.Checked)
                             {
                                 if (!srcIs2180)
                                 {
-                                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(srcX, srcY);
+                                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(tileInfo.X, tileInfo.Y);
                                     if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
                                     {
                                         var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
@@ -218,7 +218,7 @@ namespace TrainzBasemapMaker
                             {
                                 if (srcIs2180)
                                 {
-                                    var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(srcX, srcY);
+                                    var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(tileInfo.X, tileInfo.Y);
                                     var (tx, ty) = GeoHelperEPSG3857.LatLonToMeters3857(lat, lon);
                                     targetX = (long)Math.Round(tx);
                                     targetY = (long)Math.Round(ty);
@@ -234,9 +234,9 @@ namespace TrainzBasemapMaker
                                 targetGroup,
                                 targetX, targetY,
                                 targetDesignation,
-                                counter,
-                                kuid1,
-                                kuid2
+                                tileInfo.Counter,
+                                tileInfo.KuidPart1,
+                                tileInfo.KuidPart2
                             );
 
                             if (created)
