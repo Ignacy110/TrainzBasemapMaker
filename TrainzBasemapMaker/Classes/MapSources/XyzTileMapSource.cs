@@ -19,109 +19,26 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Globalization;
 
 namespace TrainzBasemapMaker.Classes
 {
-    internal class WmsSource
+    /// <summary>
+    /// Map provider implementation for Slippy Map / XYZ tile services with optional overlay compositing.
+    /// </summary>
+    internal class XyzTileMapSource : MapSourceBase
     {
-        public string Name { get; set; }
-        public string BaseUrl { get; set; }
-        public string Layer { get; set; }
-        public bool SupportsTime { get; set; }
-        public string Format { get; set; }
-        public bool IsXyzTileSource { get; set; }
-        public string OverlayUrl { get; set; }
+        public string BaseUrl { get; }
+        public string OverlayUrl { get; }
+        public override bool AllowsHighResolution => true;
 
-        private static readonly HttpClient _httpClient = new HttpClient();
-
-        public const long TileSize = 500;
-
-        static WmsSource()
+        public XyzTileMapSource(string name, string baseUrl, string overlayUrl = "")
+            : base(name, false)
         {
-            if (!_httpClient.DefaultRequestHeaders.Contains("User-Agent"))
-            {
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "TrainzBasemapMaker/1.0 (https://github.com/Ignacy110/TrainzBasemapMaker)");
-            }
-        }
-
-        public WmsSource(string name, string url, string layer, bool supportsTime, string format = "image/jpeg", bool isXyzTileSource = false, string overlayUrl = "")
-        {
-            Name = name;
-            BaseUrl = url;
-            Layer = layer;
-            SupportsTime = supportsTime;
-            Format = format;
-            IsXyzTileSource = isXyzTileSource;
+            BaseUrl = baseUrl;
             OverlayUrl = overlayUrl;
         }
 
-        public override string ToString() => Name;
-
-        public static List<WmsSource> availableMaps = new List<WmsSource>
-        {
-            new WmsSource("Ortofotomapa",
-                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
-                "Raster", true),
-            new WmsSource("Ortofotomapa wysoka rozdzielczość",
-                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
-                "Image", true),
-            new WmsSource("Cieniowanie",
-                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMS/ShadedRelief?",
-                "Raster", false),
-            new WmsSource("OpenRailwayMap",
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                "", false, "image/png", true,
-                "https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png")
-        };
-
-        public async Task<byte[]> GetMapImageAsync(string year, double xLeft, double yTop, int resolution, int maxRetries = 3, int delaySeconds = 3)
-        {
-            if (IsXyzTileSource)
-            {
-                return await GetXyzTileImageAsync(xLeft, yTop, resolution, maxRetries, delaySeconds);
-            }
-
-            double xRight = xLeft + TileSize;
-            double yBottom = yTop - TileSize;
-
-            string url = BuildWmsUrl(year, xLeft, yBottom, xRight, yTop, resolution);
-
-            int maxAttempts = Math.Max(1, maxRetries);
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    HttpResponseMessage response = await _httpClient.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-
-                    // WMS servers sometimes return HTTP 200 OK with an XML error message instead of an image
-                    if (IsWmsXmlException(bytes))
-                    {
-                        throw new HttpRequestException("Serwer WMS zwrócił komunikat błędu XML zamiast obrazu.");
-                    }
-
-                    return bytes;
-                }
-                catch (Exception ex)
-                {
-                    if (attempt == maxAttempts)
-                    {
-                        throw new Exception($"Pobieranie podkładu nie powiodło się po {maxAttempts} próbach: {ex.Message}", ex);
-                    }
-
-                    // Delay for specified time (e.g., 3 seconds) before next attempt
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
-                }
-            }
-
-            throw new Exception("Pobieranie podkładu nie powiodło się.");
-        }
-
-        private async Task<byte[]> GetXyzTileImageAsync(double xCenter, double yCenter, int resolution, int maxRetries, int delaySeconds)
+        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
             // Bounding box in EPSG:2180 (500m x 500m centered at xCenter, yCenter)
             double minX = xCenter - TileSize / 2.0;
@@ -159,7 +76,7 @@ namespace TrainzBasemapMaker.Classes
                     int currentTx = tx;
                     int currentTy = ty;
                     string sub = "abc"[Math.Abs(currentTx + currentTy) % 3].ToString();
-                    
+
                     string baseUrlFormatted = BaseUrl
                         .Replace("{s}", sub)
                         .Replace("{z}", zoom.ToString())
@@ -260,7 +177,7 @@ namespace TrainzBasemapMaker.Classes
             {
                 try
                 {
-                    HttpResponseMessage response = await _httpClient.GetAsync(url);
+                    HttpResponseMessage response = await HttpClient.GetAsync(url);
                     response.EnsureSuccessStatusCode();
                     return await response.Content.ReadAsByteArrayAsync();
                 }
@@ -275,41 +192,6 @@ namespace TrainzBasemapMaker.Classes
             }
 
             throw new Exception("Pobieranie kafelka XYZ nie powiodło się.");
-        }
-
-        private static bool IsWmsXmlException(byte[] bytes)
-        {
-            if (bytes == null || bytes.Length < 10) return false;
-
-            // Inspect file header for XML declaration or ServiceExceptionReport
-            string prefix = System.Text.Encoding.UTF8.GetString(bytes, 0, Math.Min(bytes.Length, 200));
-            return prefix.Contains("<ServiceException") || prefix.Contains("<?xml");
-        }
-
-        private string BuildWmsUrl(string year, double xLeft, double yBottom, double xRight, double yTop, int resolution)
-        {
-            xLeft = xLeft - TileSize / 2;
-            yBottom = yBottom + TileSize / 2;
-            xRight = xRight - TileSize / 2;
-            yTop = yTop + TileSize / 2;
-
-            var culture = CultureInfo.InvariantCulture;
-
-            string url = $"{BaseUrl}" +
-                         "SERVICE=WMS&REQUEST=GetMap&VERSION=1.1.1" +
-                         $"&LAYERS={Layer}" +
-                         "&SRS=EPSG:2180" +
-                         $"&BBOX={xLeft.ToString(culture)},{yBottom.ToString(culture)},{xRight.ToString(culture)},{yTop.ToString(culture)}" +
-                         $"&WIDTH={resolution}&HEIGHT={resolution}" +
-                         $"&FORMAT={Format}" +
-                         "&STYLES=";
-
-            if (SupportsTime && !string.IsNullOrEmpty(year))
-            {
-                url += $"&TIME={year}";
-            }
-
-            return url;
         }
     }
 }

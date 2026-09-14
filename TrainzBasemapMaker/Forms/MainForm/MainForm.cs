@@ -71,7 +71,7 @@ namespace TrainzBasemapMaker
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             // Bind available map providers to the dropdown list
-            comboBoxMapType.DataSource = WmsSource.availableMaps;
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
             comboBoxMapType.DisplayMember = "Name";
 
             // Initialize dynamic data and lists
@@ -167,7 +167,7 @@ namespace TrainzBasemapMaker
             {
                 toolStripStatusLabel1.Text = $"Pobieranie podkładu...";
 
-                if (comboBoxMapType.SelectedItem is not WmsSource selectedMap) return;
+                if (comboBoxMapType.SelectedItem is not IMapSource selectedMap) return;
                 byte[] imageBytes = await selectedMap.GetMapImageAsync(textBoxBasemapDate.Text, currentX, currentY, resolution);
 
                 // Update the preview image and dispose of the old one to prevent memory leaks
@@ -307,28 +307,28 @@ namespace TrainzBasemapMaker
         // Navigation controls: Shift the map by exactly one tile size in the specified direction
         private async void buttonRight_Click(object sender, EventArgs e)
         {
-            currentX += WmsSource.TileSize;
+            currentX += MapSourceBase.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonLeft_Click(object sender, EventArgs e)
         {
-            currentX -= WmsSource.TileSize;
+            currentX -= MapSourceBase.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonUp_Click(object sender, EventArgs e)
         {
-            currentY += WmsSource.TileSize;
+            currentY += MapSourceBase.TileSize;
             DataRefresh();
             await DownloadMap();
         }
 
         private async void buttonDown_Click(object sender, EventArgs e)
         {
-            currentY -= WmsSource.TileSize;
+            currentY -= MapSourceBase.TileSize;
             DataRefresh();
             await DownloadMap();
         }
@@ -472,19 +472,17 @@ namespace TrainzBasemapMaker
 
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxMapType.SelectedItem is WmsSource selected)
+            if (comboBoxMapType.SelectedItem is IMapSource selected)
             {
                 // Enable or disable the year text box depending on the map provider's capabilities
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
-                bool isHighResAllowed = selected.Name.Contains("Ortofotomapa") || selected.Name.Contains("OpenRailwayMap");
-
-                // 4096px resolution is restricted to orthophotomaps and OpenRailwayMap
-                radioButton4096.Enabled = isHighResAllowed;
+                // 4096px resolution is enabled dynamically based on provider capabilities
+                radioButton4096.Enabled = selected.AllowsHighResolution;
 
                 // Fallback to 2048px if the unsupported 4096px was currently selected
-                if (!isHighResAllowed && radioButton4096.Checked)
+                if (!selected.AllowsHighResolution && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
                 }

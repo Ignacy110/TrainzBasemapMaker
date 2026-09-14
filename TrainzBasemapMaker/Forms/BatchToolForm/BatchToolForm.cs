@@ -39,7 +39,7 @@ namespace TrainzBasemapMaker
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             // Bind available map sources to the dropdown list
-            comboBoxMapType.DataSource = WmsSource.availableMaps;
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
             comboBoxMapType.DisplayMember = "Name";
 
             BasemapFolderListBoxRefresh();
@@ -82,7 +82,7 @@ namespace TrainzBasemapMaker
 
             // 2. Retrieve settings from the UI
             if (basemapFolderListBox.SelectedItem is not string sourceGroup) return;
-            if (comboBoxMapType.SelectedItem is not WmsSource selectedMap) return;
+            if (comboBoxMapType.SelectedItem is not IMapSource selectedMap) return;
 
             string targetGroup = textBoxDestinationFolder.Text;
             string targetDesignation = textBoxDesignation.Text;
@@ -217,19 +217,17 @@ namespace TrainzBasemapMaker
         /// </summary>
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxMapType.SelectedItem is WmsSource selected)
+            if (comboBoxMapType.SelectedItem is IMapSource selected)
             {
                 // Enable or disable the year input based on whether the source supports historical data
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
-                bool isHighResAllowed = selected.Name.Contains("Ortofotomapa") || selected.Name.Contains("OpenRailwayMap");
-
-                // 4096px resolution is restricted to orthophotomaps and OpenRailwayMap
-                radioButton4096.Enabled = isHighResAllowed;
+                // 4096px resolution is enabled dynamically based on provider capabilities
+                radioButton4096.Enabled = selected.AllowsHighResolution;
 
                 // Fallback to 2048px if 4096px was selected but is no longer supported
-                if (!isHighResAllowed && radioButton4096.Checked)
+                if (!selected.AllowsHighResolution && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
                 }
