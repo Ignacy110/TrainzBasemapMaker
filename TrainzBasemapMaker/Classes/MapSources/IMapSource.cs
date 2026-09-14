@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)

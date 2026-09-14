@@ -1,4 +1,4 @@
-
+﻿
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -73,6 +73,8 @@ namespace TrainzBasemapMaker
             // Bind available map providers to the dropdown list
             comboBoxMapType.DataSource = MapSources.AvailableMaps;
             comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
             // Initialize dynamic data and lists
             UpdateNextFreeKuidPart2();
@@ -250,7 +252,7 @@ namespace TrainzBasemapMaker
             groupBox4KuidList.Enabled = enabled;
         }
 
-        // Converts standard geographic coordinates (Lat/Lon) to the EPSG:2180 projection
+        // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 in Poland, EPSG:3857 worldwide)
         private void PerformConversion()
         {
             string latText = textBoxLat.Text.Replace(',', '.');
@@ -259,12 +261,13 @@ namespace TrainzBasemapMaker
             if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
                 double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
             {
-                var (x, y) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                var (x, y) = GeoHelperEPSG2180.LatLonToMeters(lat, lon);
                 currentX = (long)Math.Round(x);
                 currentY = (long)Math.Round(y);
 
                 DataRefresh();
-                toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
+                string crsName = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon) ? "EPSG:2180" : "EPSG:3857 (Global)";
+                toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na {crsName}: {currentX}, {currentY}";
             }
             else
             {
@@ -486,6 +489,37 @@ namespace TrainzBasemapMaker
                 {
                     radioButton2048.Checked = true;
                 }
+            }
+        }
+
+        private void ComboBoxMapType_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) return;
+
+            var comboBox = (ComboBox?)sender;
+            if (comboBox?.Items[e.Index] is IMapSource mapSource)
+            {
+                bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+                // Subtle soft pastel yellow highlight for OpenStreetMap and OpenRailwayMap (XYZ tile sources)
+                Color backColor = isSelected
+                    ? SystemColors.Highlight
+                    : (mapSource is XyzTileMapSource ? Color.FromArgb(255, 255, 204) : e.BackColor);
+
+                Color foreColor = isSelected ? SystemColors.HighlightText : e.ForeColor;
+
+                using (var backBrush = new SolidBrush(backColor))
+                {
+                    e.Graphics.FillRectangle(backBrush, e.Bounds);
+                }
+
+                using (var textBrush = new SolidBrush(foreColor))
+                using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
+                {
+                    e.Graphics.DrawString(mapSource.Name, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
+                }
+
+                e.DrawFocusRectangle();
             }
         }
 

@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -28,15 +28,27 @@ namespace TrainzBasemapMaker.Classes
         /// </summary>
         public static readonly List<IMapSource> AvailableMaps = new List<IMapSource>
         {
-            new WmsMapSource("Ortofotomapa",
+            new WmtsMapSource("Ortofotomapa WMTS",
+                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/StandardResolution",
+                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg"),
+            new WmsMapSource("Ortofotomapa WMS, wybór roku",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
                 "Raster", true, "image/jpeg", allowsHighResolution: true),
-            new WmsMapSource("Ortofotomapa wysoka rozdzielczość",
+            new WmtsMapSource("Ortofotomapa wysoka rozdzielczość WMTS",
+                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/HighResolution",
+                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg"),
+            new WmsMapSource("Ortofotomapa wysoka rozdzielczość WMS, wybór roku",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
                 "Image", true, "image/jpeg", allowsHighResolution: true),
-            new WmsMapSource("Cieniowanie",
+            new WmtsMapSource("Cieniowanie WMTS",
+                "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMTS/ShadedRelief",
+                "ISOK_Cien", WmtsMapSource.TopoAndShadedLevels, supportsTime: false, format: "image/jpeg"),
+            new WmsMapSource("Cieniowanie WMS",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMS/ShadedRelief?",
                 "Raster", false, "image/jpeg", allowsHighResolution: false),
+            new WmtsMapSource("Mapa topograficzna WMTS",
+                "https://mapy.geoportal.gov.pl/wss/service/WMTS/guest/wmts/TOPO",
+                "MAPA TOPOGRAFICZNA", WmtsMapSource.TopoAndShadedLevels, supportsTime: false, format: "image/jpeg"),
             new XyzTileMapSource("OpenStreetMap",
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
             new XyzTileMapSource("OpenRailwayMap",

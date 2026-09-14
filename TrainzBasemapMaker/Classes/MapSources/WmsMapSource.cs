@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -41,6 +41,11 @@ namespace TrainzBasemapMaker.Classes
 
         public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
+            if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
+            {
+                throw new InvalidOperationException("Wybrany obszar znajduje się poza granicami Polski. Usługi Geoportalu obejmują wyłącznie terytorium Polski. Aby pobrać podkład dla tego obszaru, wybierz OpenStreetMap lub OpenRailwayMap.");
+            }
+
             double xLeft = xCenter - TileSize / 2.0;
             double xRight = xCenter + TileSize / 2.0;
             double yBottom = yCenter - TileSize / 2.0;

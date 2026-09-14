@@ -212,7 +212,7 @@
             // 
             // comboBoxMapType
             // 
-            comboBoxMapType.DropDownWidth = 200;
+            comboBoxMapType.DropDownWidth = 310;
             comboBoxMapType.FormattingEnabled = true;
             comboBoxMapType.Location = new Point(118, 131);
             comboBoxMapType.Name = "comboBoxMapType";
@@ -601,7 +601,7 @@
             menuStrip1.TabIndex = 19;
             menuStrip1.Text = "menuStrip1";
             // 
-            // narządziaToolStripMenuItem
+            // toolsToolStripMenuItem
             // 
             toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, batchProcessingToolStripMenuItem });
             toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";

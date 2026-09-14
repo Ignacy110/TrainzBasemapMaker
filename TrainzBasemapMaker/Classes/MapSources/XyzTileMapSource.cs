@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -40,29 +40,30 @@ namespace TrainzBasemapMaker.Classes
 
         public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
-            // Bounding box in EPSG:2180 (500m x 500m centered at xCenter, yCenter)
-            double minX = xCenter - TileSize / 2.0;
-            double maxX = xCenter + TileSize / 2.0;
-            double minY = yCenter - TileSize / 2.0;
-            double maxY = yCenter + TileSize / 2.0;
+            // Convert center coordinates (EPSG:2180 or EPSG:3857) to Lat/Lon
+            var (centerLat, centerLon) = GeoHelperEPSG2180.MetersToLatLon(xCenter, yCenter);
 
-            // Convert 4 corners to Lat/Lon
-            var (tlLat, tlLon) = GeoHelperEPSG2180.Meters2180ToLatLon(minX, maxY);
-            var (trLat, trLon) = GeoHelperEPSG2180.Meters2180ToLatLon(maxX, maxY);
-            var (blLat, blLon) = GeoHelperEPSG2180.Meters2180ToLatLon(minX, minY);
-            var (brLat, brLon) = GeoHelperEPSG2180.Meters2180ToLatLon(maxX, minY);
+            // Compute 500m x 500m geographic footprint
+            double halfSize = TileSize / 2.0;
+            double latOffset = halfSize / 111320.0;
+            double lonOffset = halfSize / (111320.0 * Math.Cos(centerLat * Math.PI / 180.0));
+
+            double minLat = centerLat - latOffset;
+            double maxLat = centerLat + latOffset;
+            double minLon = centerLon - lonOffset;
+            double maxLon = centerLon + lonOffset;
 
             const int zoom = 18;
 
-            var (tlX, tlY) = LatLonToTile(tlLat, tlLon, zoom);
-            var (trX, trY) = LatLonToTile(trLat, trLon, zoom);
-            var (blX, blY) = LatLonToTile(blLat, blLon, zoom);
-            var (brX, brY) = LatLonToTile(brLat, brLon, zoom);
+            var (tlX, tlY) = LatLonToTile(maxLat, minLon, zoom);
+            var (trX, trY) = LatLonToTile(maxLat, maxLon, zoom);
+            var (blX, blY) = LatLonToTile(minLat, minLon, zoom);
+            var (brX, brY) = LatLonToTile(minLat, maxLon, zoom);
 
-            int minTileX = (int)Math.Floor(Math.Min(Math.Min(tlX, trX), Math.Min(blX, brX)));
-            int maxTileX = (int)Math.Floor(Math.Max(Math.Max(tlX, trX), Math.Max(blX, brX)));
-            int minTileY = (int)Math.Floor(Math.Min(Math.Min(tlY, trY), Math.Min(blY, brY)));
-            int maxTileY = (int)Math.Floor(Math.Max(Math.Max(tlY, trY), Math.Max(blY, brY)));
+            int minTileX = (int)Math.Floor(Math.Min(tlX, blX));
+            int maxTileX = (int)Math.Floor(Math.Max(trX, brX));
+            int minTileY = (int)Math.Floor(Math.Min(tlY, trY));
+            int maxTileY = (int)Math.Floor(Math.Max(blY, brY));
 
             int tilesNumX = maxTileX - minTileX + 1;
             int tilesNumY = maxTileY - minTileY + 1;

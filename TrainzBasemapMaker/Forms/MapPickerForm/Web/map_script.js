@@ -35,6 +35,15 @@ var geoportal = L.tileLayer('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORT
     attribution: 'Dane: <a href="https://www.gov.pl/web/gugik">GUGiK</a> / <a href="https://www.geoportal.gov.pl">geoportal.gov.pl</a>'
 });
 
+var topo = L.tileLayer.wms('https://mapy.geoportal.gov.pl/wss/service/img/guest/TOPO/MapServer/WMSServer', {
+    layers: 'Raster',
+    format: 'image/jpeg',
+    transparent: false,
+    version: '1.1.1',
+    maxZoom: 19,
+    attribution: 'Dane: <a href="https://www.gov.pl/web/gugik">GUGiK</a> / <a href="https://www.geoportal.gov.pl">geoportal.gov.pl</a>'
+});
+
 var openRailwayMapOverlay = L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: 'Dane: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | Styl: &copy; <a href="https://www.openrailwaymap.org">OpenRailwayMap</a>'
@@ -54,8 +63,9 @@ var map = L.map('map', {
 
 var baseMaps = {
     "OpenStreetMap": osm,
+    "OpenRailwayMap": openRailwayMapGroup,
     "Geoportal Orto": geoportal,
-    "OpenRailwayMap": openRailwayMapGroup
+    "Mapa topograficzna": topo
 };
 
 // Add metric scale indicator to the bottom-left corner

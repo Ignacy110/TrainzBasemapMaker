@@ -1,4 +1,4 @@
-
+﻿
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -41,6 +41,8 @@ namespace TrainzBasemapMaker
             // Bind available map sources to the dropdown list
             comboBoxMapType.DataSource = MapSources.AvailableMaps;
             comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
             BasemapFolderListBoxRefresh();
         }
@@ -231,6 +233,37 @@ namespace TrainzBasemapMaker
                 {
                     radioButton2048.Checked = true;
                 }
+            }
+        }
+
+        private void ComboBoxMapType_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0) return;
+
+            var comboBox = (ComboBox?)sender;
+            if (comboBox?.Items[e.Index] is IMapSource mapSource)
+            {
+                bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+                // Subtle soft pastel yellow highlight for OpenStreetMap and OpenRailwayMap (XYZ tile sources)
+                Color backColor = isSelected
+                    ? SystemColors.Highlight
+                    : (mapSource is XyzTileMapSource ? Color.FromArgb(255, 255, 204) : e.BackColor);
+
+                Color foreColor = isSelected ? SystemColors.HighlightText : e.ForeColor;
+
+                using (var backBrush = new SolidBrush(backColor))
+                {
+                    e.Graphics.FillRectangle(backBrush, e.Bounds);
+                }
+
+                using (var textBrush = new SolidBrush(foreColor))
+                using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
+                {
+                    e.Graphics.DrawString(mapSource.Name, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
+                }
+
+                e.DrawFocusRectangle();
             }
         }
 

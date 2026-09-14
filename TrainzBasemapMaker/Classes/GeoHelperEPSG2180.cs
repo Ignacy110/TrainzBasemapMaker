@@ -27,7 +27,7 @@ using ProjNet.CoordinateSystems.Transformations;
 
 namespace TrainzBasemapMaker.Classes
 {
-    // a class that uses the ProjNET library to convert to the EPSG:2180 coordinate system
+    // A class that handles coordinate system transformations (EPSG:2180 for Poland and EPSG:3857 worldwide)
     internal class GeoHelperEPSG2180
     {
         private static readonly CoordinateTransformationFactory ctfFac = new CoordinateTransformationFactory();
@@ -35,6 +35,8 @@ namespace TrainzBasemapMaker.Classes
         private static readonly CoordinateSystem epsg2180;
         private static readonly MathTransform transformTo2180;
         private static readonly MathTransform transformToWgs84;
+
+        private const double OriginShift = 20037508.342789244;
 
         static GeoHelperEPSG2180()
         {
@@ -44,6 +46,16 @@ namespace TrainzBasemapMaker.Classes
 
             transformTo2180 = ctfFac.CreateFromCoordinateSystems(wgs84, epsg2180).MathTransform;
             transformToWgs84 = ctfFac.CreateFromCoordinateSystems(epsg2180, wgs84).MathTransform;
+        }
+
+        public static bool IsWithinPolandBounds(double lat, double lon)
+        {
+            return lat >= 48.0 && lat <= 56.5 && lon >= 13.5 && lon <= 25.5;
+        }
+
+        public static bool IsWithin2180Bounds(double x, double y)
+        {
+            return x >= 100000.0 && x <= 950000.0 && y >= 100000.0 && y <= 900000.0;
         }
 
         public static (double x, double y) LatLonToMeters2180(double lat, double lon)
@@ -58,6 +70,40 @@ namespace TrainzBasemapMaker.Classes
             double[] from = new double[] { x, y };
             double[] to = transformToWgs84.Transform(from);
             return (to[1], to[0]);
+        }
+
+        public static (double x, double y) LatLonToWebMercator(double lat, double lon)
+        {
+            double x = lon * OriginShift / 180.0;
+            double clampedLat = Math.Clamp(lat, -85.05112878, 85.05112878);
+            double latRad = clampedLat * Math.PI / 180.0;
+            double y = Math.Log(Math.Tan(Math.PI / 4.0 + latRad / 2.0)) * OriginShift / Math.PI;
+            return (x, y);
+        }
+
+        public static (double lat, double lon) WebMercatorToLatLon(double x, double y)
+        {
+            double lon = x * 180.0 / OriginShift;
+            double lat = (2.0 * Math.Atan(Math.Exp(y * Math.PI / OriginShift)) - Math.PI / 2.0) * 180.0 / Math.PI;
+            return (lat, lon);
+        }
+
+        public static (double x, double y) LatLonToMeters(double lat, double lon)
+        {
+            if (IsWithinPolandBounds(lat, lon))
+            {
+                return LatLonToMeters2180(lat, lon);
+            }
+            return LatLonToWebMercator(lat, lon);
+        }
+
+        public static (double lat, double lon) MetersToLatLon(double x, double y)
+        {
+            if (IsWithin2180Bounds(x, y))
+            {
+                return Meters2180ToLatLon(x, y);
+            }
+            return WebMercatorToLatLon(x, y);
         }
     }
 }
