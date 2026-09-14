@@ -1,0 +1,170 @@
+<!--// Trainz Basemap Maker
+// https://github.com/Ignacy110/TrainzBasemapMaker
+//
+// Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, see (http://www.gnu.org/licenses/).
+//
+//
+// This file utilizes Leaflet.js (version 1.9.4) and Proj4js (version 2.9.2)
+// for handling interactive map layers, coordinate projections and grid math.-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.2/proj4.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            cursor: crosshair;
+        }
+
+        /* Top control bar overlay */
+        .map-top-bar {
+            position: absolute;
+            top: 10px;
+            left: 55px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 6px 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .map-top-bar button {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .map-top-bar button:hover {
+            background-color: #e0e0e0;
+            border-color: #999;
+        }
+
+        .map-top-bar button.active {
+            background-color: #0078d4;
+            color: #fff;
+            border-color: #005a9e;
+        }
+
+        .badge-info {
+            background-color: #e7f3ff;
+            color: #0066cc;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid #cce4ff;
+        }
+
+        /* Custom label styling for tile numbers */
+        .tile-number-label {
+            background: rgba(0, 102, 204, 0.9);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            border-radius: 12px;
+            padding: 2px 7px;
+            border: 1.5px solid #ffffff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .tile-number-label.downloading {
+            background: rgba(255, 153, 0, 0.95);
+            border-color: #fff;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .tile-number-label.done {
+            background: rgba(40, 167, 69, 0.95);
+            border-color: #fff;
+        }
+
+        .tile-number-label.error {
+            background: rgba(220, 53, 69, 0.95);
+            border-color: #fff;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.15); }
+        }
+
+        /* Rubber-band box selection overlay */
+        .selection-box {
+            position: absolute;
+            border: 2px dashed #0078d4;
+            background-color: rgba(0, 120, 212, 0.2);
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="map-top-bar">
+        <span>Tryb:</span>
+        <button id="btnModeClick" class="active" onclick="setSelectionMode('click')">🖱️ Klikanie</button>
+        <button id="btnModeBox" onclick="setSelectionMode('box')">📐 Zaznaczanie prostokątem</button>
+        <span style="color:#888;">|</span>
+        <button onclick="selectCurrentViewport()">🔲 Zaznacz widok</button>
+        <button onclick="clearAllTiles()">❌ Wyczyść zaznaczenie</button>
+        <button onclick="resetGridOrigin()">🔄 Resetuj punkt bazowy</button>
+        <span id="badgeCount" class="badge-info">Kafle: 0</span>
+    </div>
+
+    <div id="map"></div>
+    <div id="selectionBox" class="selection-box"></div>
+
+    <script src="grid_map_script.js"></script>
+</body>
+</html>

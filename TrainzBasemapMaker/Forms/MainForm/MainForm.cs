@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -600,6 +600,16 @@ namespace TrainzBasemapMaker
                 }
 
                 e.DrawFocusRectangle();
+            }
+        }
+
+        private void areaDownloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (GridToolForm gridTool = new GridToolForm())
+            {
+                gridTool.ShowDialog();
+                BasemapFolderListBoxRefresh();
+                KuidsInFolderListBoxRefresh();
             }
         }
 
