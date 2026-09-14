@@ -43,7 +43,17 @@ namespace TrainzBasemapMaker.Classes
         {
             if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
             {
-                throw new InvalidOperationException("Wybrany obszar znajduje się poza granicami Polski. Usługi Geoportalu obejmują wyłącznie terytorium Polski. Aby pobrać podkład dla tego obszaru, wybierz OpenStreetMap lub OpenRailwayMap.");
+                var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(xCenter, yCenter);
+                if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
+                {
+                    var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                    xCenter = tx;
+                    yCenter = ty;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Wybrany obszar znajduje się poza granicami Polski. Usługi Geoportalu obejmują wyłącznie terytorium Polski. Aby pobrać podkład dla tego obszaru, wybierz OpenStreetMap lub OpenRailwayMap.");
+                }
             }
 
             double xLeft = xCenter - TileSize / 2.0;

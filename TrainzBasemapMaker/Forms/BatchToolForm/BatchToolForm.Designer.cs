@@ -49,9 +49,13 @@
             label1 = new Label();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
+            radioButtonEpsg3857 = new RadioButton();
+            radioButtonEpsg2180 = new RadioButton();
             labelProgress = new Label();
+            groupBox3 = new GroupBox();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
+            groupBox3.SuspendLayout();
             SuspendLayout();
             // 
             // basemapFolderListBox
@@ -60,8 +64,9 @@
             basemapFolderListBox.ItemHeight = 15;
             basemapFolderListBox.Location = new Point(6, 41);
             basemapFolderListBox.Name = "basemapFolderListBox";
-            basemapFolderListBox.Size = new Size(169, 109);
+            basemapFolderListBox.Size = new Size(169, 154);
             basemapFolderListBox.TabIndex = 2;
+            basemapFolderListBox.SelectedIndexChanged += basemapFolderListBox_SelectedIndexChanged;
             // 
             // label10
             // 
@@ -74,9 +79,9 @@
             // 
             // progressBar1
             // 
-            progressBar1.Location = new Point(18, 238);
+            progressBar1.Location = new Point(12, 281);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(602, 23);
+            progressBar1.Size = new Size(608, 23);
             progressBar1.TabIndex = 4;
             // 
             // comboBoxMapType
@@ -203,7 +208,7 @@
             // 
             // buttonConfAndDownload
             // 
-            buttonConfAndDownload.Location = new Point(213, 279);
+            buttonConfAndDownload.Location = new Point(222, 312);
             buttonConfAndDownload.Name = "buttonConfAndDownload";
             buttonConfAndDownload.Size = new Size(188, 23);
             buttonConfAndDownload.TabIndex = 46;
@@ -227,7 +232,7 @@
             groupBox1.Controls.Add(label10);
             groupBox1.Location = new Point(12, 56);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(207, 163);
+            groupBox1.Size = new Size(207, 215);
             groupBox1.TabIndex = 48;
             groupBox1.TabStop = false;
             groupBox1.Text = "1. Wybierz folder do przetworzenia";
@@ -247,28 +252,62 @@
             groupBox2.Controls.Add(label4);
             groupBox2.Controls.Add(label15);
             groupBox2.Controls.Add(comboBoxMapType);
-            groupBox2.Location = new Point(225, 56);
+            groupBox2.Location = new Point(225, 111);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(395, 163);
+            groupBox2.Size = new Size(395, 160);
             groupBox2.TabIndex = 49;
             groupBox2.TabStop = false;
-            groupBox2.Text = "2. Ustaw parametry docelowe";
+            groupBox2.Text = "3. Ustaw parametry docelowe";
+            // 
+            // radioButtonEpsg3857
+            // 
+            radioButtonEpsg3857.AutoSize = true;
+            radioButtonEpsg3857.Location = new Point(128, 21);
+            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
+            radioButtonEpsg3857.Size = new Size(79, 19);
+            radioButtonEpsg3857.TabIndex = 48;
+            radioButtonEpsg3857.TabStop = true;
+            radioButtonEpsg3857.Text = "EPSG:3857";
+            radioButtonEpsg3857.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonEpsg2180
+            // 
+            radioButtonEpsg2180.AutoSize = true;
+            radioButtonEpsg2180.Location = new Point(13, 21);
+            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
+            radioButtonEpsg2180.Size = new Size(79, 19);
+            radioButtonEpsg2180.TabIndex = 47;
+            radioButtonEpsg2180.TabStop = true;
+            radioButtonEpsg2180.Text = "EPSG:2180";
+            radioButtonEpsg2180.UseVisualStyleBackColor = true;
             // 
             // labelProgress
             // 
             labelProgress.AutoSize = true;
-            labelProgress.Location = new Point(18, 279);
+            labelProgress.Location = new Point(18, 329);
             labelProgress.Name = "labelProgress";
             labelProgress.Size = new Size(82, 15);
             labelProgress.TabIndex = 50;
             labelProgress.Text = "Przetworzono:";
             labelProgress.Visible = false;
             // 
+            // groupBox3
+            // 
+            groupBox3.Controls.Add(radioButtonEpsg2180);
+            groupBox3.Controls.Add(radioButtonEpsg3857);
+            groupBox3.Location = new Point(225, 56);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(395, 49);
+            groupBox3.TabIndex = 51;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "2. Wybierz układ współrzędnych";
+            // 
             // BatchToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(635, 322);
+            ClientSize = new Size(635, 372);
+            Controls.Add(groupBox3);
             Controls.Add(labelProgress);
             Controls.Add(groupBox2);
             Controls.Add(groupBox1);
@@ -286,6 +325,8 @@
             groupBox1.PerformLayout();
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
+            groupBox3.ResumeLayout(false);
+            groupBox3.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -313,5 +354,8 @@
         private GroupBox groupBox1;
         private GroupBox groupBox2;
         private Label labelProgress;
+        private RadioButton radioButtonEpsg2180;
+        private RadioButton radioButtonEpsg3857;
+        private GroupBox groupBox3;
     }
 }

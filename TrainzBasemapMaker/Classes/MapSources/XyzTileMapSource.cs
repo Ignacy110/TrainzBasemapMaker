@@ -68,7 +68,7 @@ namespace TrainzBasemapMaker.Classes
             int tilesNumX = maxTileX - minTileX + 1;
             int tilesNumY = maxTileY - minTileY + 1;
 
-            var downloadTasks = new List<Task<(int tx, int ty, byte[] baseBytes, byte[]? overlayBytes)>>();
+            var downloadTasks = new List<Task<(int tx, int ty, byte[]? baseBytes, byte[]? overlayBytes)>>();
 
             for (int ty = minTileY; ty <= maxTileY; ty++)
             {
@@ -94,7 +94,7 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[] baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds);
+                        byte[]? baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds);
                         byte[]? overlayBytes = null;
                         if (!string.IsNullOrEmpty(overlayUrlFormatted))
                         {
@@ -106,6 +106,11 @@ namespace TrainzBasemapMaker.Classes
             }
 
             var results = await Task.WhenAll(downloadTasks);
+
+            if (results.All(r => r.baseBytes == null || r.baseBytes.Length == 0))
+            {
+                throw new HttpRequestException("Serwer kafelków XYZ nie zwrócił żadnych kafelków dla wybranego obszaru.");
+            }
 
             int stitchedWidth = tilesNumX * 256;
             int stitchedHeight = tilesNumY * 256;
@@ -170,7 +175,7 @@ namespace TrainzBasemapMaker.Classes
             return (tileX, tileY);
         }
 
-        private static async Task<byte[]> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
+        private static async Task<byte[]?> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
         {
             int maxAttempts = Math.Max(1, maxRetries);
 
@@ -179,20 +184,23 @@ namespace TrainzBasemapMaker.Classes
                 try
                 {
                     HttpResponseMessage response = await HttpClient.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-                    return await response.Content.ReadAsByteArrayAsync();
-                }
-                catch (Exception ex)
-                {
-                    if (attempt == maxAttempts)
+                    if (response.IsSuccessStatusCode)
                     {
-                        throw new Exception($"Pobieranie kafelka XYZ nie powiodło się po {maxAttempts} próbach ({url}): {ex.Message}", ex);
+                        return await response.Content.ReadAsByteArrayAsync();
                     }
+                }
+                catch
+                {
+                    // Retry on transient network errors
+                }
+
+                if (attempt < maxAttempts)
+                {
                     await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
                 }
             }
 
-            throw new Exception("Pobieranie kafelka XYZ nie powiodło się.");
+            return null;
         }
     }
 }

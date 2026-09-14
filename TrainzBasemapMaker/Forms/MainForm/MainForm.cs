@@ -76,6 +76,13 @@ namespace TrainzBasemapMaker
             comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
             comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
+            // Configure coordinate system radio buttons
+            radioButtonEpsg2180.Checked = true;
+            radioButtonEpsg2180.CheckedChanged += RadioButtonEpsg_CheckedChanged;
+            radioButtonEpsg3857.CheckedChanged += RadioButtonEpsg_CheckedChanged;
+            textBoxLat.TextChanged += TextBoxLatLon_TextChanged;
+            textBoxLon.TextChanged += TextBoxLatLon_TextChanged;
+
             // Initialize dynamic data and lists
             UpdateNextFreeKuidPart2();
             KuidsInFolderListBoxRefresh();
@@ -170,7 +177,8 @@ namespace TrainzBasemapMaker
                 toolStripStatusLabel1.Text = $"Pobieranie podkładu...";
 
                 if (comboBoxMapType.SelectedItem is not IMapSource selectedMap) return;
-                byte[] imageBytes = await selectedMap.GetMapImageAsync(textBoxBasemapDate.Text, currentX, currentY, resolution);
+                string year = selectedMap.SupportsTime ? textBoxBasemapDate.Text : "";
+                byte[] imageBytes = await selectedMap.GetMapImageAsync(year, currentX, currentY, resolution);
 
                 // Update the preview image and dispose of the old one to prevent memory leaks
                 using (var ms = new MemoryStream(imageBytes))
@@ -252,7 +260,40 @@ namespace TrainzBasemapMaker
             groupBox4KuidList.Enabled = enabled;
         }
 
-        // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 in Poland, EPSG:3857 worldwide)
+        // Updates EPSG radio buttons based on geographic coordinates (in Poland both 2180 and 3857 are allowed; outside Poland only 3857)
+        private void UpdateCoordinateSystemAvailability()
+        {
+            string latText = textBoxLat.Text.Replace(',', '.');
+            string lonText = textBoxLon.Text.Replace(',', '.');
+
+            if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
+                double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
+            {
+                bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
+                if (inPoland)
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                }
+                else
+                {
+                    radioButtonEpsg2180.Enabled = false;
+                    radioButtonEpsg3857.Checked = true;
+                }
+            }
+        }
+
+        private void TextBoxLatLon_TextChanged(object? sender, EventArgs e)
+        {
+            UpdateCoordinateSystemAvailability();
+        }
+
+        private void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
+        {
+            buttonConvert.Text = radioButtonEpsg2180.Checked ? "Konwertuj na EPSG:2180" : "Konwertuj na EPSG:3857";
+            PerformConversion();
+        }
+
+        // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 or EPSG:3857)
         private void PerformConversion()
         {
             string latText = textBoxLat.Text.Replace(',', '.');
@@ -261,13 +302,37 @@ namespace TrainzBasemapMaker
             if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
                 double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
             {
-                var (x, y) = GeoHelperEPSG2180.LatLonToMeters(lat, lon);
-                currentX = (long)Math.Round(x);
-                currentY = (long)Math.Round(y);
+                bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
 
-                DataRefresh();
-                string crsName = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon) ? "EPSG:2180" : "EPSG:3857 (Global)";
-                toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na {crsName}: {currentX}, {currentY}";
+                if (!inPoland)
+                {
+                    radioButtonEpsg2180.Enabled = false;
+                    radioButtonEpsg3857.Checked = true;
+                }
+                else
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                }
+
+                if (radioButtonEpsg2180.Checked && inPoland)
+                {
+                    var (x, y) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                    currentX = (long)Math.Round(x);
+                    currentY = (long)Math.Round(y);
+
+                    DataRefresh();
+                    toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
+                }
+                else
+                {
+                    var (x, y) = GeoHelperEPSG2180.LatLonToWebMercator(lat, lon);
+                    currentX = (long)Math.Round(x);
+                    currentY = (long)Math.Round(y);
+
+                    DataRefresh();
+                    string suffix = inPoland ? " (Polska)" : " (Global)";
+                    toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:3857{suffix}: {currentX}, {currentY}";
+                }
             }
             else
             {
@@ -351,21 +416,34 @@ namespace TrainzBasemapMaker
             {
                 if (kuidsInFolderListBox.SelectedItem is string selectedItem)
                 {
-                    string[] parts = selectedItem.Split('_');
-
-                    if (parts.Length >= 4)
+                    if (TrainzFileManager.TryParseTileFolderName(selectedItem, out _, out _, out long parsedX, out long parsedY, out _, out _))
                     {
-                        if (long.TryParse(parts[3], out long parsedX) && long.TryParse(parts[4], out long parsedY))
+                        currentX = parsedX;
+                        currentY = parsedY;
+                        DataRefresh();
+
+                        if (GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))
                         {
-                            currentX = parsedX;
-                            currentY = parsedY;
-                            DataRefresh();
+                            var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
+                            textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
+                            textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
+                            radioButtonEpsg2180.Enabled = true;
+                            radioButtonEpsg2180.Checked = true;
                         }
                         else
                         {
-                            toolStripStatusLabel1.Text = $"Błąd nazwy podkładu";
-                            MessageBox.Show("Błąd nazwy podkładu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(currentX, currentY);
+                            textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
+                            textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
+                            bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
+                            radioButtonEpsg2180.Enabled = inPoland;
+                            radioButtonEpsg3857.Checked = true;
                         }
+                    }
+                    else
+                    {
+                        toolStripStatusLabel1.Text = $"Błąd nazwy podkładu";
+                        MessageBox.Show("Błąd nazwy podkładu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }

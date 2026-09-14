@@ -73,6 +73,9 @@
             label5 = new Label();
             label6 = new Label();
             groupBox1Converter = new GroupBox();
+            radioButtonEpsg3857 = new RadioButton();
+            radioButtonEpsg2180 = new RadioButton();
+            label16 = new Label();
             buttonMarkPointMap = new Button();
             kuidsInFolderListBox = new ListBox();
             groupBox5BasemapViewer = new GroupBox();
@@ -113,7 +116,7 @@
             // 
             // textBoxLat
             // 
-            textBoxLat.Location = new Point(6, 72);
+            textBoxLat.Location = new Point(6, 68);
             textBoxLat.Name = "textBoxLat";
             textBoxLat.Size = new Size(100, 23);
             textBoxLat.TabIndex = 1;
@@ -130,7 +133,7 @@
             // 
             // textBoxLon
             // 
-            textBoxLon.Location = new Point(6, 101);
+            textBoxLon.Location = new Point(6, 97);
             textBoxLon.Name = "textBoxLon";
             textBoxLon.Size = new Size(100, 23);
             textBoxLon.TabIndex = 3;
@@ -203,7 +206,7 @@
             groupBox2Configurator.Controls.Add(textBoxX);
             groupBox2Configurator.Controls.Add(buttonConfAndDownload);
             groupBox2Configurator.Controls.Add(label2);
-            groupBox2Configurator.Location = new Point(12, 192);
+            groupBox2Configurator.Location = new Point(12, 225);
             groupBox2Configurator.Name = "groupBox2Configurator";
             groupBox2Configurator.Size = new Size(200, 559);
             groupBox2Configurator.TabIndex = 11;
@@ -475,7 +478,7 @@
             // 
             // buttonConvert
             // 
-            buttonConvert.Location = new Point(6, 130);
+            buttonConvert.Location = new Point(6, 163);
             buttonConvert.Name = "buttonConvert";
             buttonConvert.Size = new Size(188, 23);
             buttonConvert.TabIndex = 13;
@@ -490,7 +493,7 @@
             groupBox3Navigator.Controls.Add(buttonUp);
             groupBox3Navigator.Controls.Add(buttonDown);
             groupBox3Navigator.Controls.Add(buttonRight);
-            groupBox3Navigator.Location = new Point(929, 27);
+            groupBox3Navigator.Location = new Point(962, 27);
             groupBox3Navigator.Name = "groupBox3Navigator";
             groupBox3Navigator.Size = new Size(217, 159);
             groupBox3Navigator.TabIndex = 12;
@@ -510,7 +513,7 @@
             // 
             pictureBox1.Location = new Point(6, 28);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(693, 693);
+            pictureBox1.Size = new Size(726, 726);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 13;
             pictureBox1.TabStop = false;
@@ -518,7 +521,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(112, 80);
+            label5.Location = new Point(112, 71);
             label5.Name = "label5";
             label5.Size = new Size(82, 15);
             label5.TabIndex = 14;
@@ -527,7 +530,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(112, 104);
+            label6.Location = new Point(112, 100);
             label6.Name = "label6";
             label6.Size = new Size(77, 15);
             label6.TabIndex = 15;
@@ -535,6 +538,9 @@
             // 
             // groupBox1Converter
             // 
+            groupBox1Converter.Controls.Add(radioButtonEpsg3857);
+            groupBox1Converter.Controls.Add(radioButtonEpsg2180);
+            groupBox1Converter.Controls.Add(label16);
             groupBox1Converter.Controls.Add(buttonMarkPointMap);
             groupBox1Converter.Controls.Add(label6);
             groupBox1Converter.Controls.Add(label5);
@@ -544,14 +550,45 @@
             groupBox1Converter.Controls.Add(textBoxLat);
             groupBox1Converter.Location = new Point(12, 27);
             groupBox1Converter.Name = "groupBox1Converter";
-            groupBox1Converter.Size = new Size(200, 159);
+            groupBox1Converter.Size = new Size(200, 192);
             groupBox1Converter.TabIndex = 15;
             groupBox1Converter.TabStop = false;
             groupBox1Converter.Text = "1. Konwerter";
             // 
+            // radioButtonEpsg3857
+            // 
+            radioButtonEpsg3857.AutoSize = true;
+            radioButtonEpsg3857.Location = new Point(112, 141);
+            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
+            radioButtonEpsg3857.Size = new Size(79, 19);
+            radioButtonEpsg3857.TabIndex = 34;
+            radioButtonEpsg3857.TabStop = true;
+            radioButtonEpsg3857.Text = "EPSG:3857";
+            radioButtonEpsg3857.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonEpsg2180
+            // 
+            radioButtonEpsg2180.AutoSize = true;
+            radioButtonEpsg2180.Location = new Point(7, 141);
+            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
+            radioButtonEpsg2180.Size = new Size(79, 19);
+            radioButtonEpsg2180.TabIndex = 33;
+            radioButtonEpsg2180.TabStop = true;
+            radioButtonEpsg2180.Text = "EPSG:2180";
+            radioButtonEpsg2180.UseVisualStyleBackColor = true;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(6, 123);
+            label16.Name = "label16";
+            label16.Size = new Size(122, 15);
+            label16.TabIndex = 17;
+            label16.Text = "Układ współrzędnych:";
+            // 
             // buttonMarkPointMap
             // 
-            buttonMarkPointMap.Location = new Point(6, 43);
+            buttonMarkPointMap.Location = new Point(6, 39);
             buttonMarkPointMap.Name = "buttonMarkPointMap";
             buttonMarkPointMap.Size = new Size(188, 23);
             buttonMarkPointMap.TabIndex = 16;
@@ -565,7 +602,7 @@
             kuidsInFolderListBox.ItemHeight = 15;
             kuidsInFolderListBox.Location = new Point(6, 21);
             kuidsInFolderListBox.Name = "kuidsInFolderListBox";
-            kuidsInFolderListBox.Size = new Size(205, 529);
+            kuidsInFolderListBox.Size = new Size(205, 559);
             kuidsInFolderListBox.TabIndex = 16;
             kuidsInFolderListBox.SelectedIndexChanged += kuidsInFolderListBox_SelectedIndexChanged;
             kuidsInFolderListBox.DoubleClick += kuidsInFolderListBox_DoubleClick;
@@ -576,7 +613,7 @@
             groupBox5BasemapViewer.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
             groupBox5BasemapViewer.Location = new Point(218, 24);
             groupBox5BasemapViewer.Name = "groupBox5BasemapViewer";
-            groupBox5BasemapViewer.Size = new Size(705, 727);
+            groupBox5BasemapViewer.Size = new Size(738, 760);
             groupBox5BasemapViewer.TabIndex = 17;
             groupBox5BasemapViewer.TabStop = false;
             groupBox5BasemapViewer.Text = "Podgląd pobranego podkładu:";
@@ -584,9 +621,9 @@
             // groupBox4KuidList
             // 
             groupBox4KuidList.Controls.Add(kuidsInFolderListBox);
-            groupBox4KuidList.Location = new Point(929, 192);
+            groupBox4KuidList.Location = new Point(962, 192);
             groupBox4KuidList.Name = "groupBox4KuidList";
-            groupBox4KuidList.Size = new Size(217, 559);
+            groupBox4KuidList.Size = new Size(217, 592);
             groupBox4KuidList.TabIndex = 18;
             groupBox4KuidList.TabStop = false;
             groupBox4KuidList.Text = "Lista podkładów do Trainz:";
@@ -597,7 +634,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { toolsToolStripMenuItem, preferencesToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1184, 24);
+            menuStrip1.Size = new Size(1193, 24);
             menuStrip1.TabIndex = 19;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -678,9 +715,9 @@
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
-            statusStrip1.Location = new Point(0, 759);
+            statusStrip1.Location = new Point(0, 787);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1184, 22);
+            statusStrip1.Size = new Size(1193, 22);
             statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 20;
             statusStrip1.Text = "statusStrip1";
@@ -695,7 +732,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1184, 781);
+            ClientSize = new Size(1193, 809);
             Controls.Add(statusStrip1);
             Controls.Add(groupBox4KuidList);
             Controls.Add(groupBox5BasemapViewer);
@@ -792,5 +829,8 @@
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;
+        private Label label16;
+        private RadioButton radioButtonEpsg3857;
+        private RadioButton radioButtonEpsg2180;
     }
 }

@@ -36,6 +36,7 @@ namespace TrainzBasemapMaker
 
             // Set default UI states
             radioButton2048.Checked = true;
+            radioButtonEpsg2180.Checked = true;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             // Bind available map sources to the dropdown list
@@ -44,6 +45,7 @@ namespace TrainzBasemapMaker
             comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
             comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
+            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
             BasemapFolderListBoxRefresh();
         }
 
@@ -55,6 +57,56 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Items.Clear();
             var groups = _fileManager.GetBasemapGroups();
             basemapFolderListBox.Items.AddRange(groups.ToArray());
+        }
+
+        private void basemapFolderListBox_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (basemapFolderListBox.SelectedItem is not string selectedGroup) return;
+
+            // Auto-suggest destination folder name
+            textBoxDestinationFolder.Text = $"{selectedGroup}_nowe";
+
+            UpdateCoordinateSystemAvailabilityForSelectedGroup();
+        }
+
+        private void UpdateCoordinateSystemAvailabilityForSelectedGroup()
+        {
+            if (basemapFolderListBox.SelectedItem is not string selectedGroup) return;
+
+            var folders = _fileManager.GetKuidsInGroup(selectedGroup);
+            if (folders.Count == 0) return;
+
+            string firstFolder = folders[0];
+            if (TrainzFileManager.TryParseTileFolderName(firstFolder, out string designation, out _, out long x, out long y, out _, out _))
+            {
+                if (!string.IsNullOrWhiteSpace(designation))
+                {
+                    textBoxDesignation.Text = designation;
+                }
+
+                if (GeoHelperEPSG2180.IsWithin2180Bounds(x, y))
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                    radioButtonEpsg3857.Enabled = true;
+                    radioButtonEpsg2180.Checked = true;
+                }
+                else
+                {
+                    var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(x, y);
+                    bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
+                    if (inPoland)
+                    {
+                        radioButtonEpsg2180.Enabled = true;
+                        radioButtonEpsg3857.Enabled = true;
+                    }
+                    else
+                    {
+                        radioButtonEpsg2180.Enabled = false;
+                        radioButtonEpsg3857.Enabled = true;
+                        radioButtonEpsg3857.Checked = true;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -88,7 +140,7 @@ namespace TrainzBasemapMaker
 
             string targetGroup = textBoxDestinationFolder.Text;
             string targetDesignation = textBoxDesignation.Text;
-            string year = textBoxBasemapDate.Text;
+            string year = selectedMap.SupportsTime ? textBoxBasemapDate.Text : "";
             int res = GetSelectedResolution();
 
             if (sourceGroup == targetGroup)
@@ -123,6 +175,8 @@ namespace TrainzBasemapMaker
                 var folders = _fileManager.GetKuidsInGroup(sourceGroup);
                 int total = folders.Count;
                 int current = 0;
+                int successCount = 0;
+                List<string> failureDetails = new List<string>();
 
                 // Initialize progress bar
                 progressBar1.Minimum = 0;
@@ -138,38 +192,71 @@ namespace TrainzBasemapMaker
                 {
                     current++;
 
-                    // Extract parameters encoded in the folder name (e.g., coordinates, original KUID)
-                    string[] parts = folder.Split('_');
-
-                    if (parts.Length >= 7)
+                    if (TrainzFileManager.TryParseTileFolderName(folder, out _, out int counter, out long srcX, out long srcY, out string kuid1, out string kuid2))
                     {
                         try
                         {
-                            // Parse data from the old folder name
-                            int counter = int.Parse(parts[2]);
-                            long x = long.Parse(parts[3]);
-                            long y = long.Parse(parts[4]);
-                            string kuid1 = parts[5]; // Retain original KUID part 1
-                            string kuid2 = parts[6]; // Retain original KUID part 2
+                            long targetX = srcX;
+                            long targetY = srcY;
+
+                            bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(srcX, srcY);
+
+                            if (radioButtonEpsg2180.Checked)
+                            {
+                                if (!srcIs2180)
+                                {
+                                    var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(srcX, srcY);
+                                    if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
+                                    {
+                                        var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                                        targetX = (long)Math.Round(tx);
+                                        targetY = (long)Math.Round(ty);
+                                    }
+                                }
+                            }
+                            else if (radioButtonEpsg3857.Checked)
+                            {
+                                if (srcIs2180)
+                                {
+                                    var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(srcX, srcY);
+                                    var (tx, ty) = GeoHelperEPSG2180.LatLonToWebMercator(lat, lon);
+                                    targetX = (long)Math.Round(tx);
+                                    targetY = (long)Math.Round(ty);
+                                }
+                            }
 
                             // Download the new map image based on selected parameters
-                            byte[] imageBytes = await selectedMap.GetMapImageAsync(year, x, y, res);
+                            byte[] imageBytes = await selectedMap.GetMapImageAsync(year, targetX, targetY, res);
 
                             // Generate new Trainz files in the target group folder
-                            _fileManager.CreateTrainzFiles(
+                            bool created = _fileManager.CreateTrainzFiles(
                                 imageBytes,
                                 targetGroup,
-                                x, y,
+                                targetX, targetY,
                                 targetDesignation,
                                 counter,
                                 kuid1,
                                 kuid2
                             );
+
+                            if (created)
+                            {
+                                successCount++;
+                            }
+                            else
+                            {
+                                failureDetails.Add($"Kafel {folder}: Podkład o współrzędnych {targetX}, {targetY} już istnieje.");
+                            }
                         }
                         catch (Exception ex)
                         {
+                            failureDetails.Add($"Kafel {folder}: {ex.Message}");
                             Debug.WriteLine($"Error processing tile {folder}: {ex.Message}");
                         }
+                    }
+                    else
+                    {
+                        failureDetails.Add($"Kafel {folder}: Nieprawidłowy format nazwy folderu podkładu.");
                     }
 
                     // Update UI progress indicators
@@ -177,7 +264,24 @@ namespace TrainzBasemapMaker
                     labelProgress.Text = $"Przetworzono: {current} z {total}";
                 }
 
-                MessageBox.Show("Przetwarzanie seryjne zakończone pomyślnie!", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (failureDetails.Count == 0)
+                {
+                    MessageBox.Show($"Przetwarzanie seryjne zakończone pomyślnie!\n\nPomyślnie utworzono podkładów: {successCount} z {total}.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else if (successCount > 0)
+                {
+                    string errorsPreview = string.Join("\n", failureDetails.Take(5));
+                    if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
+
+                    MessageBox.Show($"Przetwarzanie seryjne zakończone z ostrzeżeniami.\n\nUtworzono podkładów: {successCount} z {total}.\nNiepowodzenia ({failureDetails.Count}):\n{errorsPreview}", "Ostrzeżenie", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    string errorsPreview = string.Join("\n", failureDetails.Take(5));
+                    if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
+
+                    MessageBox.Show($"Przetwarzanie seryjne nie powiodło się dla żadnego podkładu (0 z {total}).\n\nSzczegóły błędów:\n{errorsPreview}", "Błąd przetwarzania", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -212,6 +316,7 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Enabled = enabled;
             groupBox1.Enabled = enabled;
             groupBox2.Enabled = enabled;
+            groupBox3.Enabled = enabled;
         }
 
         /// <summary>

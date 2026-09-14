@@ -22,6 +22,56 @@ namespace TrainzBasemapMaker.Classes
     {
         private static readonly string RootFolder = Path.Combine(AppContext.BaseDirectory, "Kuids");
 
+        public static bool TryParseTileFolderName(
+            string folderName,
+            out string designation,
+            out int counter,
+            out long x,
+            out long y,
+            out string kuid1,
+            out string kuid2)
+        {
+            designation = "";
+            counter = 1;
+            x = 0;
+            y = 0;
+            kuid1 = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
+            kuid2 = "1";
+
+            if (string.IsNullOrWhiteSpace(folderName)) return false;
+
+            string[] parts = folderName.Split('_');
+            if (parts.Length < 5 || parts[0] != "basemap") return false;
+
+            if (parts.Length >= 7)
+            {
+                if (long.TryParse(parts[parts.Length - 4], out x) &&
+                    long.TryParse(parts[parts.Length - 3], out y) &&
+                    int.TryParse(parts[parts.Length - 5], out counter))
+                {
+                    kuid1 = parts[parts.Length - 2];
+                    kuid2 = parts[parts.Length - 1];
+                    designation = string.Join("_", parts.Skip(1).Take(parts.Length - 6));
+                    return true;
+                }
+            }
+
+            // Fallback for 5 or 6 parts format: basemap_{designation}_{counter}_{x}_{y}[_{kuid1}]
+            if (parts.Length >= 5)
+            {
+                if (long.TryParse(parts[3], out x) &&
+                    long.TryParse(parts[4], out y) &&
+                    int.TryParse(parts[2], out counter))
+                {
+                    designation = parts[1];
+                    if (parts.Length >= 6) kuid1 = parts[5];
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
         {
             // 1. building paths with Path.Combine
@@ -37,8 +87,8 @@ namespace TrainzBasemapMaker.Classes
                 .Where(name =>
                 {
                     if (string.IsNullOrEmpty(name)) return false;
-                    var parts = name.Split('_');
-                    return parts.Length >= 7 && parts[3] == x.ToString() && parts[4] == y.ToString();
+                    return TryParseTileFolderName(name, out _, out _, out long tileX, out long tileY, out _, out _) &&
+                           tileX == x && tileY == y;
                 });
 
             if (existingTiles.Any())
@@ -123,16 +173,10 @@ namespace TrainzBasemapMaker.Classes
             foreach (var folder in allFolders)
             {
                 string folderName = new DirectoryInfo(folder).Name;
-                string[] parts = folderName.Split('_');
-
-                // Format: basemap_{basemapGroupDesignation}_{counter}_{x}_{y}_{kuidPart1}_{kuidPart2}
-                // Indices: 0=basemap, 1=Designation, 2=counter, 3=x, 4=y, 5=kuidPart1, 6=kuidPart2
-                if (parts.Length >= 7)
+                if (TryParseTileFolderName(folderName, out _, out _, out _, out _, out _, out string kuid2Str) &&
+                    int.TryParse(kuid2Str, out int parsedKuidPart2))
                 {
-                    if (int.TryParse(parts[6], out int parsedKuidPart2))
-                    {
-                        usedKuidsPart2.Add(parsedKuidPart2);
-                    }
+                    usedKuidsPart2.Add(parsedKuidPart2);
                 }
             }
 
@@ -164,14 +208,9 @@ namespace TrainzBasemapMaker.Classes
             foreach (var folder in allFolders)
             {
                 string folderName = new DirectoryInfo(folder).Name;
-                string[] parts = folderName.Split('_');
-
-                if (parts.Length >= 7)
+                if (TryParseTileFolderName(folderName, out _, out int parsedCounter, out _, out _, out _, out _))
                 {
-                    if (int.TryParse(parts[2], out int parsedCounter))
-                    {
-                        usedCounter.Add(parsedCounter);
-                    }
+                    usedCounter.Add(parsedCounter);
                 }
             }
 

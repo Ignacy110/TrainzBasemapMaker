@@ -88,7 +88,17 @@ namespace TrainzBasemapMaker.Classes
         {
             if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
             {
-                throw new InvalidOperationException("Wybrany obszar znajduje się poza granicami Polski. Usługi Geoportalu obejmują wyłącznie terytorium Polski. Aby pobrać podkład dla tego obszaru, wybierz OpenStreetMap lub OpenRailwayMap.");
+                var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(xCenter, yCenter);
+                if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
+                {
+                    var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                    xCenter = tx;
+                    yCenter = ty;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Wybrany obszar znajduje się poza granicami Polski. Usługi Geoportalu obejmują wyłącznie terytorium Polski. Aby pobrać podkład dla tego obszaru, wybierz OpenStreetMap lub OpenRailwayMap.");
+                }
             }
 
             WmtsMatrixLevel selectedLevel = GetOptimalLevel(resolution);
@@ -110,7 +120,7 @@ namespace TrainzBasemapMaker.Classes
             int tilesNumX = maxCol - minCol + 1;
             int tilesNumY = maxRow - minRow + 1;
 
-            var downloadTasks = new List<Task<(int col, int row, byte[] bytes)>>();
+            var downloadTasks = new List<Task<(int col, int row, byte[]? bytes)>>();
 
             for (int r = minRow; r <= maxRow; r++)
             {
@@ -128,13 +138,18 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[] tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds);
+                        byte[]? tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds);
                         return (currentC, currentR, tileBytes);
                     }));
                 }
             }
 
             var results = await Task.WhenAll(downloadTasks);
+
+            if (results.All(r => r.bytes == null || r.bytes.Length == 0))
+            {
+                throw new HttpRequestException("Serwer WMTS nie zwrócił żadnych kafelków dla wybranego obszaru.");
+            }
 
             int stitchedWidth = tilesNumX * WmtsTileSize;
             int stitchedHeight = tilesNumY * WmtsTileSize;
@@ -185,14 +200,15 @@ namespace TrainzBasemapMaker.Classes
             // Target ground resolution (in meters per pixel) for the 500m area exported at requested resolution
             double targetPixelSize = TileSize / (double)resolution;
 
-            // Pick the best detail level available with tolerance margin, fallback to highest available detail
+            // Pick the most efficient level that satisfies the target ground resolution (with a 20% tolerance margin)
             return MatrixLevels
-                .OrderBy(l => l.PixelSize)
-                .FirstOrDefault(l => l.PixelSize <= targetPixelSize * 1.25)
+                .Where(l => l.PixelSize <= targetPixelSize * 1.2)
+                .OrderByDescending(l => l.PixelSize)
+                .FirstOrDefault()
                 ?? MatrixLevels.OrderBy(l => l.PixelSize).First();
         }
 
-        private static async Task<byte[]> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
+        private static async Task<byte[]?> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
         {
             int maxAttempts = Math.Max(1, maxRetries);
 
@@ -201,20 +217,23 @@ namespace TrainzBasemapMaker.Classes
                 try
                 {
                     HttpResponseMessage response = await HttpClient.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-                    return await response.Content.ReadAsByteArrayAsync();
-                }
-                catch (Exception ex)
-                {
-                    if (attempt == maxAttempts)
+                    if (response.IsSuccessStatusCode)
                     {
-                        throw new Exception($"Pobieranie kafelka WMTS nie powiodło się po {maxAttempts} próbach ({url}): {ex.Message}", ex);
+                        return await response.Content.ReadAsByteArrayAsync();
                     }
+                }
+                catch
+                {
+                    // Retry on transient network errors
+                }
+
+                if (attempt < maxAttempts)
+                {
                     await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
                 }
             }
 
-            throw new Exception("Pobieranie kafelka WMTS nie powiodło się.");
+            return null;
         }
     }
 }
