@@ -95,6 +95,21 @@ namespace TrainzBasemapMaker
                 return;
             }
 
+            var existingGroups = _fileManager.GetBasemapGroups();
+            if (existingGroups.Contains(targetGroup))
+            {
+                var dialogResult = MessageBox.Show(
+                    $"Folder docelowy \"{targetGroup}\" już istnieje. Czy na pewno chcesz go usunąć i nadpisać wszystkie znajdujące się w nim podkłady?",
+                    "Ostrzeżenie o nadpisaniu",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (dialogResult != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
+
             // Lock UI during asynchronous processing
             UiEnabled(false);
 

@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -32,8 +32,11 @@ namespace TrainzBasemapMaker
             labelReleaseDate.Text = "13.09.2026";
 
             // Load the application icon from embedded resources using a memory stream
-            var ms = new System.IO.MemoryStream(Properties.Resources.Icon);
-            pictureBox1.Image = Image.FromStream(ms);
+            using (var ms = new System.IO.MemoryStream(Properties.Resources.Icon))
+            using (var temp = Image.FromStream(ms))
+            {
+                pictureBox1.Image = new Bitmap(temp);
+            }
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace TrainzBasemapMaker.Classes
 {
     internal class TrainzFileManager
     {
-        private const string RootFolder = "Kuids";
+        private static readonly string RootFolder = Path.Combine(AppContext.BaseDirectory, "Kuids");
 
         public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
         {
@@ -32,10 +32,16 @@ namespace TrainzBasemapMaker.Classes
                 Directory.CreateDirectory(groupPath);
             }
 
-            string searchPattern = $"*_{x}_{y}_*";
-            var existingTiles = Directory.GetDirectories(groupPath, searchPattern);
+            var existingTiles = Directory.GetDirectories(groupPath, "basemap_*")
+                .Select(Path.GetFileName)
+                .Where(name =>
+                {
+                    if (string.IsNullOrEmpty(name)) return false;
+                    var parts = name.Split('_');
+                    return parts.Length >= 7 && parts[3] == x.ToString() && parts[4] == y.ToString();
+                });
 
-            if (existingTiles.Length > 0)
+            if (existingTiles.Any())
             {
                 return false; // informing Form that we have done nothing (duplicate)
             }

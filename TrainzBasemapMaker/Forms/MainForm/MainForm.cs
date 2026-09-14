@@ -172,9 +172,11 @@ namespace TrainzBasemapMaker
 
                 // Update the preview image and dispose of the old one to prevent memory leaks
                 using (var ms = new MemoryStream(imageBytes))
+                using (var temp = Image.FromStream(ms))
                 {
+                    var newImage = new Bitmap(temp);
                     var oldImage = pictureBox1.Image;
-                    pictureBox1.Image = Image.FromStream(ms);
+                    pictureBox1.Image = newImage;
                     oldImage?.Dispose();
                 }
 
