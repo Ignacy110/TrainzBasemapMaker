@@ -92,7 +92,7 @@ namespace TrainzBasemapMaker
                 }
                 else
                 {
-                    var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(x, y);
+                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(x, y);
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
                     if (inPoland)
                     {
@@ -205,7 +205,7 @@ namespace TrainzBasemapMaker
                             {
                                 if (!srcIs2180)
                                 {
-                                    var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(srcX, srcY);
+                                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(srcX, srcY);
                                     if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
                                     {
                                         var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
@@ -219,7 +219,7 @@ namespace TrainzBasemapMaker
                                 if (srcIs2180)
                                 {
                                     var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(srcX, srcY);
-                                    var (tx, ty) = GeoHelperEPSG2180.LatLonToWebMercator(lat, lon);
+                                    var (tx, ty) = GeoHelperEPSG3857.LatLonToMeters3857(lat, lon);
                                     targetX = (long)Math.Round(tx);
                                     targetY = (long)Math.Round(ty);
                                 }

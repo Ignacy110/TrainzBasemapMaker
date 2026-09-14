@@ -80,6 +80,7 @@ namespace TrainzBasemapMaker
             radioButtonEpsg2180.Checked = true;
             radioButtonEpsg2180.CheckedChanged += RadioButtonEpsg_CheckedChanged;
             radioButtonEpsg3857.CheckedChanged += RadioButtonEpsg_CheckedChanged;
+            label7.Text = radioButtonEpsg2180.Checked ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             textBoxLat.TextChanged += TextBoxLatLon_TextChanged;
             textBoxLon.TextChanged += TextBoxLatLon_TextChanged;
 
@@ -290,6 +291,7 @@ namespace TrainzBasemapMaker
         private void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
         {
             buttonConvert.Text = radioButtonEpsg2180.Checked ? "Konwertuj na EPSG:2180" : "Konwertuj na EPSG:3857";
+            label7.Text = radioButtonEpsg2180.Checked ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             PerformConversion();
         }
 
@@ -325,7 +327,7 @@ namespace TrainzBasemapMaker
                 }
                 else
                 {
-                    var (x, y) = GeoHelperEPSG2180.LatLonToWebMercator(lat, lon);
+                    var (x, y) = GeoHelperEPSG3857.LatLonToMeters3857(lat, lon);
                     currentX = (long)Math.Round(x);
                     currentY = (long)Math.Round(y);
 
@@ -432,7 +434,7 @@ namespace TrainzBasemapMaker
                         }
                         else
                         {
-                            var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(currentX, currentY);
+                            var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
                             textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
                             textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
                             bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);

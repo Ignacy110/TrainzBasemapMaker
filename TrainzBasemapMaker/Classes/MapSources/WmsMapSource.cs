@@ -43,7 +43,7 @@ namespace TrainzBasemapMaker.Classes
         {
             if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
             {
-                var (lat, lon) = GeoHelperEPSG2180.WebMercatorToLatLon(xCenter, yCenter);
+                var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(xCenter, yCenter);
                 if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
                 {
                     var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);

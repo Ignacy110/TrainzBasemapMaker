@@ -41,7 +41,9 @@ namespace TrainzBasemapMaker.Classes
         public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
             // Convert center coordinates (EPSG:2180 or EPSG:3857) to Lat/Lon
-            var (centerLat, centerLon) = GeoHelperEPSG2180.MetersToLatLon(xCenter, yCenter);
+            var (centerLat, centerLon) = GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter)
+                ? GeoHelperEPSG2180.Meters2180ToLatLon(xCenter, yCenter)
+                : GeoHelperEPSG3857.Meters3857ToLatLon(xCenter, yCenter);
 
             // Compute 500m x 500m geographic footprint
             double halfSize = TileSize / 2.0;
