@@ -108,6 +108,94 @@ namespace TrainzBasemapMaker
             }
         }
 
+        private async void buttonLoadFolder_Click(object? sender, EventArgs e)
+        {
+            await LoadExistingTilesFromSelectedFolder();
+        }
+
+        private async void basemapFolderListBox_DoubleClick(object? sender, EventArgs e)
+        {
+            await LoadExistingTilesFromSelectedFolder();
+        }
+
+        private async Task LoadExistingTilesFromSelectedFolder()
+        {
+            if (basemapFolderListBox.SelectedItem is not string selectedGroup)
+            {
+                MessageBox.Show("Wybierz folder z listy, aby wczytać znajdujące się w nim podkłady.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (webView21.CoreWebView2 == null)
+            {
+                MessageBox.Show("Komponent mapy jeszcze się inicjalizuje. Spróbuj ponownie za chwilę.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var kuids = _fileManager.GetKuidsInGroup(selectedGroup);
+            if (kuids.Count == 0)
+            {
+                MessageBox.Show($"Folder \"{selectedGroup}\" jest pusty.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var parsedTiles = new List<TileFolderInfo>();
+            foreach (var folderName in kuids)
+            {
+                if (TrainzFileManager.TryParseTileFolderName(folderName, out var tileInfo))
+                {
+                    parsedTiles.Add(tileInfo);
+                }
+            }
+
+            if (parsedTiles.Count == 0)
+            {
+                MessageBox.Show($"W folderze \"{selectedGroup}\" nie znaleziono podkładów o rozpoznanym formacie nazwy.", "Ostrzeżenie", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Determine EPSG
+            bool isEpsg2180 = GeoHelperEPSG2180.IsWithin2180Bounds(parsedTiles[0].X, parsedTiles[0].Y);
+            if (isEpsg2180)
+            {
+                radioButtonEpsg2180.Checked = true;
+            }
+            else
+            {
+                radioButtonEpsg3857.Checked = true;
+            }
+
+            textBoxDestinationFolder.Text = selectedGroup;
+            if (!string.IsNullOrWhiteSpace(parsedTiles[0].Designation))
+            {
+                textBoxDesignation.Text = parsedTiles[0].Designation;
+            }
+
+            UpdateNextFreeCounter();
+            UpdateNextFreeKuidPart2();
+
+            // Build payload for JS
+            var payload = new
+            {
+                epsg = isEpsg2180 ? "EPSG:2180" : "EPSG:3857",
+                anchor = new { x = parsedTiles[0].X, y = parsedTiles[0].Y },
+                tiles = parsedTiles.Select(t => new
+                {
+                    x = t.X,
+                    y = t.Y,
+                    counter = t.Counter,
+                    designation = t.Designation,
+                    kuid1 = t.KuidPart1,
+                    kuid2 = t.KuidPart2
+                })
+            };
+
+            string json = JsonSerializer.Serialize(payload);
+            await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
+
+            toolStripStatusLabel1.Text = $"Wczytano {parsedTiles.Count} podkładów z folderu \"{selectedGroup}\" i ustawiono siatkę lokalną.";
+        }
+
         private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             if (_isDownloading) return;
@@ -124,6 +212,7 @@ namespace TrainzBasemapMaker
                     if (type == "selection_changed")
                     {
                         int count = root.GetProperty("count").GetInt32();
+                        int existingCount = root.TryGetProperty("existingCount", out var ec) ? ec.GetInt32() : 0;
                         _selectedTiles.Clear();
 
                         if (root.TryGetProperty("tiles", out var tilesArray))
@@ -147,14 +236,18 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        labelTileCount.Text = $"Zaznaczono kafli: {count}";
-                        labelArea.Text = $"Powierzchnia: {(count * 0.25):F2} km²";
+                        string tileText = existingCount > 0
+                            ? $"Zaznaczono nowych: {count} (Wczytano: {existingCount})"
+                            : $"Zaznaczono kafli: {count}";
+
+                        labelTileCount.Text = tileText;
+                        labelArea.Text = $"Powierzchnia: {((count + existingCount) * 0.25):F2} km²";
 
                         string statusMsg = count > 0
-                            ? $"Zaznaczono {count} kafli (obszar {(count * 0.25):F2} km²)."
-                            : "Zaznacz kafle na mapie.";
+                            ? $"Zaznaczono {count} nowych kafli do pobrania."
+                            : (existingCount > 0 ? $"Wczytano {existingCount} istniejących kafli. Kliknij na siatce, aby dodać nowe." : "Zaznacz kafle na mapie.");
 
-                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} kafli." : "Gotowy do zaznaczania.";
+                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} nowych kafli." : "Gotowy do zaznaczania.";
                         toolStripStatusLabel1.Text = statusMsg;
                     }
                 }

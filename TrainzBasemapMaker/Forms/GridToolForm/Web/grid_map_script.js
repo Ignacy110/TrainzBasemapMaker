@@ -69,8 +69,9 @@ L.control.layers(baseMaps).addTo(map);
 var currentEpsg = "EPSG:2180";
 var tileSize = 500; // 500 meters
 var anchor = null;  // { x: number, y: number } in projected meters
-var selectedTiles = new Map(); // key "i_j" => { i, j, x, y, status, polygon, marker }
-var selectionMode = "click"; // "click" or "box"
+var selectedTiles = new Map(); // key "i_j" => { i, j, x, y, status } (newly selected tiles for download)
+var existingTiles = new Map(); // key "i_j" => { i, j, x, y, counter, status: "existing" } (tiles already loaded from folder)
+var selectionMode = "click";   // "click" or "box"
 
 // Layer groups
 var gridLayerGroup = L.layerGroup().addTo(map);
@@ -88,22 +89,78 @@ function metersToLatLon(x, y) {
     return { lat: p[1], lon: p[0] };
 }
 
-// Compute corner LatLngs for a 500m tile centered at (x, y)
-function getTileBounds(xCenter, yCenter) {
-    var half = tileSize / 2.0;
-    var sw = metersToLatLon(xCenter - half, yCenter - half);
-    var nw = metersToLatLon(xCenter - half, yCenter + half);
-    var ne = metersToLatLon(xCenter + half, yCenter + half);
-    var se = metersToLatLon(xCenter + half, yCenter - half);
-    return [
-        [nw.lat, nw.lon],
-        [ne.lat, ne.lon],
-        [se.lat, se.lon],
-        [sw.lat, sw.lon]
-    ];
+// Get tile center in projected meters and Lat/Lon given grid index (i, j)
+function getTileCenter(i, j) {
+    if (!anchor) return null;
+
+    if (currentEpsg === "EPSG:2180") {
+        var x = anchor.x + i * tileSize;
+        var y = anchor.y + j * tileSize;
+        var ll = metersToLatLon(x, y);
+        return { x: x, y: y, lat: ll.lat, lon: ll.lon };
+    } else {
+        // EPSG:3857: 500 real ground meters footprint
+        var anchorLL = metersToLatLon(anchor.x, anchor.y);
+        var latStep = tileSize / 111320.0;
+        var lonStep = tileSize / (111320.0 * Math.cos(anchorLL.lat * Math.PI / 180.0));
+
+        var lat = anchorLL.lat + j * latStep;
+        var lon = anchorLL.lon + i * lonStep;
+        var m = latLonToMeters(lat, lon);
+        return { x: m.x, y: m.y, lat: lat, lon: lon };
+    }
 }
 
-// Update the visible local grid
+// Compute corner LatLngs for a 500m tile
+function getTileBoundsForIndex(i, j) {
+    var center = getTileCenter(i, j);
+    if (!center) return null;
+
+    if (currentEpsg === "EPSG:2180") {
+        var half = tileSize / 2.0;
+        var sw = metersToLatLon(center.x - half, center.y - half);
+        var nw = metersToLatLon(center.x - half, center.y + half);
+        var ne = metersToLatLon(center.x + half, center.y + half);
+        var se = metersToLatLon(center.x + half, center.y - half);
+        return [
+            [nw.lat, nw.lon],
+            [ne.lat, ne.lon],
+            [se.lat, se.lon],
+            [sw.lat, sw.lon]
+        ];
+    } else {
+        var halfLat = (tileSize / 2.0) / 111320.0;
+        var halfLon = (tileSize / 2.0) / (111320.0 * Math.cos(center.lat * Math.PI / 180.0));
+        return [
+            [center.lat + halfLat, center.lon - halfLon],
+            [center.lat + halfLat, center.lon + halfLon],
+            [center.lat - halfLat, center.lon + halfLon],
+            [center.lat - halfLat, center.lon - halfLon]
+        ];
+    }
+}
+
+// Convert any clicked Lat/Lon to grid index (i, j)
+function latLonToGridIndex(lat, lon) {
+    if (!anchor) return null;
+
+    if (currentEpsg === "EPSG:2180") {
+        var m = latLonToMeters(lat, lon);
+        var i = Math.round((m.x - anchor.x) / tileSize);
+        var j = Math.round((m.y - anchor.y) / tileSize);
+        return { i: i, j: j };
+    } else {
+        var anchorLL = metersToLatLon(anchor.x, anchor.y);
+        var latStep = tileSize / 111320.0;
+        var lonStep = tileSize / (111320.0 * Math.cos(anchorLL.lat * Math.PI / 180.0));
+
+        var i = Math.round((lon - anchorLL.lon) / lonStep);
+        var j = Math.round((lat - anchorLL.lat) / latStep);
+        return { i: i, j: j };
+    }
+}
+
+// Update the visible local grid overlay
 function updateGridOverlay() {
     gridLayerGroup.clearLayers();
 
@@ -112,22 +169,16 @@ function updateGridOverlay() {
     }
 
     var bounds = map.getBounds();
-    var nw = latLonToMeters(bounds.getNorth(), bounds.getWest());
-    var ne = latLonToMeters(bounds.getNorth(), bounds.getEast());
-    var sw = latLonToMeters(bounds.getSouth(), bounds.getWest());
-    var se = latLonToMeters(bounds.getSouth(), bounds.getEast());
+    var nwIdx = latLonToGridIndex(bounds.getNorth(), bounds.getWest());
+    var seIdx = latLonToGridIndex(bounds.getSouth(), bounds.getEast());
 
-    var minX = Math.min(nw.x, sw.x, ne.x, se.x);
-    var maxX = Math.max(nw.x, sw.x, ne.x, se.x);
-    var minY = Math.min(nw.y, sw.y, ne.y, se.y);
-    var maxY = Math.max(nw.y, sw.y, ne.y, se.y);
+    if (!nwIdx || !seIdx) return;
 
-    var minI = Math.floor((minX - anchor.x + tileSize / 2.0) / tileSize) - 1;
-    var maxI = Math.floor((maxX - anchor.x + tileSize / 2.0) / tileSize) + 1;
-    var minJ = Math.floor((minY - anchor.y + tileSize / 2.0) / tileSize) - 1;
-    var maxJ = Math.floor((maxY - anchor.y + tileSize / 2.0) / tileSize) + 1;
+    var minI = Math.min(nwIdx.i, seIdx.i) - 1;
+    var maxI = Math.max(nwIdx.i, seIdx.i) + 1;
+    var minJ = Math.min(nwIdx.j, seIdx.j) - 1;
+    var maxJ = Math.max(nwIdx.j, seIdx.j) + 1;
 
-    // Limit grid lines to prevent browser freeze when zoomed out
     var countI = maxI - minI;
     var countJ = maxJ - minJ;
     if (countI * countJ > 2500) {
@@ -137,11 +188,10 @@ function updateGridOverlay() {
     for (var i = minI; i <= maxI; i++) {
         for (var j = minJ; j <= maxJ; j++) {
             var key = i + "_" + j;
-            if (selectedTiles.has(key)) continue; // Selected tiles are rendered separately
+            if (selectedTiles.has(key) || existingTiles.has(key)) continue;
 
-            var cx = anchor.x + i * tileSize;
-            var cy = anchor.y + j * tileSize;
-            var polyCorners = getTileBounds(cx, cy);
+            var polyCorners = getTileBoundsForIndex(i, j);
+            if (!polyCorners) continue;
 
             var poly = L.polygon(polyCorners, {
                 color: "#777777",
@@ -156,7 +206,7 @@ function updateGridOverlay() {
     }
 }
 
-// Get sorted list of selected tiles (top-to-bottom, left-to-right)
+// Get sorted list of selected new tiles (top-to-bottom, left-to-right)
 function getSortedTiles() {
     var list = Array.from(selectedTiles.values());
     list.sort(function(a, b) {
@@ -168,18 +218,51 @@ function getSortedTiles() {
     return list;
 }
 
-// Redraw all selected tiles with their sequence numbers
+// Redraw all tiles with badges
 function renderSelectedTiles(shouldNotify) {
     if (shouldNotify === undefined) shouldNotify = true;
     selectedLayerGroup.clearLayers();
 
+    // 1. Render existing tiles loaded from folder (Green)
+    existingTiles.forEach(function(tile, key) {
+        if (selectedTiles.has(key)) return; // If user explicitly selected it, render as new/modified
+
+        var polyCorners = getTileBoundsForIndex(tile.i, tile.j);
+        if (!polyCorners) return;
+
+        var poly = L.polygon(polyCorners, {
+            color: "#1e7e34",
+            weight: 2,
+            fillColor: "#28a745",
+            fillOpacity: 0.35,
+            interactive: false
+        });
+        selectedLayerGroup.addLayer(poly);
+
+        var center = getTileCenter(tile.i, tile.j);
+        var labelHtml = '<div class="tile-number-label done">#' + tile.counter + '</div>';
+
+        var numIcon = L.divIcon({
+            className: '',
+            html: labelHtml,
+            iconSize: [40, 20],
+            iconAnchor: [20, 10]
+        });
+
+        var marker = L.marker([center.lat, center.lon], {
+            icon: numIcon,
+            interactive: false
+        });
+        selectedLayerGroup.addLayer(marker);
+    });
+
+    // 2. Render newly selected tiles for download (Blue/Orange/Green)
     var sorted = getSortedTiles();
-    var badge = document.getElementById("badgeCount");
-    if (badge) badge.innerText = "Kafle: " + sorted.length;
 
     sorted.forEach(function(tile, index) {
         var orderNum = index + 1;
-        var polyCorners = getTileBounds(tile.x, tile.y);
+        var polyCorners = getTileBoundsForIndex(tile.i, tile.j);
+        if (!polyCorners) return;
 
         var fillColor = "#0078d4";
         var borderColor = "#004578";
@@ -206,7 +289,7 @@ function renderSelectedTiles(shouldNotify) {
         });
         selectedLayerGroup.addLayer(poly);
 
-        var centerLatLon = metersToLatLon(tile.x, tile.y);
+        var center = getTileCenter(tile.i, tile.j);
 
         var badgeClass = "tile-number-label";
         if (tile.status === "downloading") badgeClass += " downloading";
@@ -222,7 +305,7 @@ function renderSelectedTiles(shouldNotify) {
             iconAnchor: [20, 10]
         });
 
-        var marker = L.marker([centerLatLon.lat, centerLatLon.lon], {
+        var marker = L.marker([center.lat, center.lon], {
             icon: numIcon,
             interactive: false
         });
@@ -236,13 +319,16 @@ function renderSelectedTiles(shouldNotify) {
 
 // Transmit current state to C# WinForms WebView2 host
 function notifySelectionChanged() {
-    var sorted = getSortedTiles();
+    var sortedNew = getSortedTiles();
+    var existingList = Array.from(existingTiles.values());
+
     var payload = {
         type: "selection_changed",
         epsg: currentEpsg,
         anchor: anchor,
-        count: sorted.length,
-        tiles: sorted.map(function(t, idx) {
+        count: sortedNew.length,
+        existingCount: existingList.length,
+        tiles: sortedNew.map(function(t, idx) {
             return {
                 order: idx + 1,
                 i: t.i,
@@ -265,17 +351,16 @@ function toggleTile(i, j) {
     if (selectedTiles.has(key)) {
         selectedTiles.delete(key);
     } else {
-        var cx = anchor.x + i * tileSize;
-        var cy = anchor.y + j * tileSize;
+        var center = getTileCenter(i, j);
         selectedTiles.set(key, {
             i: i,
             j: j,
-            x: cx,
-            y: cy,
+            x: center.x,
+            y: center.y,
             status: "normal"
         });
     }
-    renderSelectedTiles();
+    renderSelectedTiles(true);
     updateGridOverlay();
 }
 
@@ -284,13 +369,12 @@ function addTile(i, j) {
     if (!anchor) return;
     var key = i + "_" + j;
     if (!selectedTiles.has(key)) {
-        var cx = anchor.x + i * tileSize;
-        var cy = anchor.y + j * tileSize;
+        var center = getTileCenter(i, j);
         selectedTiles.set(key, {
             i: i,
             j: j,
-            x: cx,
-            y: cy,
+            x: center.x,
+            y: center.y,
             status: "normal"
         });
     }
@@ -298,18 +382,15 @@ function addTile(i, j) {
 
 // Map click event
 map.on('click', function(e) {
-    if (selectionMode === "box") return; // Handled by box selector
-
-    var clicked = latLonToMeters(e.latlng.lat, e.latlng.lng);
+    if (selectionMode === "box") return;
 
     if (!anchor) {
-        // First click initializes the anchor point
+        var clicked = latLonToMeters(e.latlng.lat, e.latlng.lng);
         anchor = {
             x: Math.round(clicked.x),
             y: Math.round(clicked.y)
         };
 
-        // Create anchor marker
         var anchorLL = metersToLatLon(anchor.x, anchor.y);
         anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
             radius: 5,
@@ -318,12 +399,12 @@ map.on('click', function(e) {
             fillOpacity: 1
         }).addTo(map);
 
-        // Select the origin tile (0, 0)
         toggleTile(0, 0);
     } else {
-        var i = Math.round((clicked.x - anchor.x) / tileSize);
-        var j = Math.round((clicked.y - anchor.y) / tileSize);
-        toggleTile(i, j);
+        var idx = latLonToGridIndex(e.latlng.lat, e.latlng.lng);
+        if (idx) {
+            toggleTile(idx.i, idx.j);
+        }
     }
 });
 
@@ -334,11 +415,6 @@ map.on('moveend zoomend', function() {
 // Selection modes
 function setSelectionMode(mode) {
     selectionMode = mode;
-    var btnClick = document.getElementById("btnModeClick");
-    if (btnClick) btnClick.className = (mode === "click") ? "active" : "";
-    var btnBox = document.getElementById("btnModeBox");
-    if (btnBox) btnBox.className = (mode === "box") ? "active" : "";
-
     if (mode === "box") {
         map.dragging.disable();
     } else {
@@ -350,7 +426,6 @@ function setSelectionMode(mode) {
 var isSelecting = false;
 var startPoint = null;
 var selectionBox = document.getElementById("selectionBox");
-
 var mapContainer = document.getElementById("map");
 
 mapContainer.addEventListener("mousedown", function(e) {
@@ -395,7 +470,7 @@ window.addEventListener("mouseup", function(e) {
     var width = Math.abs(currentX - startPoint.x);
     var height = Math.abs(currentY - startPoint.y);
 
-    if (width < 5 && height < 5) return; // Ignore accidental tiny clicks
+    if (width < 5 && height < 5) return;
 
     var containerRect = mapContainer.getBoundingClientRect();
     var p1 = map.containerPointToLatLng([
@@ -407,20 +482,13 @@ window.addEventListener("mouseup", function(e) {
         Math.max(startPoint.y, currentY) - containerRect.top
     ]);
 
-    var m1 = latLonToMeters(p1.lat, p1.lng);
-    var m2 = latLonToMeters(p2.lat, p2.lng);
-
-    var minX = Math.min(m1.x, m2.x);
-    var maxX = Math.max(m1.x, m2.x);
-    var minY = Math.min(m1.y, m2.y);
-    var maxY = Math.max(m1.y, m2.y);
-
     if (!anchor) {
-        var centerX = (minX + maxX) / 2.0;
-        var centerY = (minY + maxY) / 2.0;
+        var centerLat = (p1.lat + p2.lat) / 2.0;
+        var centerLon = (p1.lng + p2.lng) / 2.0;
+        var m = latLonToMeters(centerLat, centerLon);
         anchor = {
-            x: Math.round(centerX),
-            y: Math.round(centerY)
+            x: Math.round(m.x),
+            y: Math.round(m.y)
         };
         var anchorLL = metersToLatLon(anchor.x, anchor.y);
         anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
@@ -431,18 +499,23 @@ window.addEventListener("mouseup", function(e) {
         }).addTo(map);
     }
 
-    var minI = Math.round((minX - anchor.x) / tileSize);
-    var maxI = Math.round((maxX - anchor.x) / tileSize);
-    var minJ = Math.round((minY - anchor.y) / tileSize);
-    var maxJ = Math.round((maxY - anchor.y) / tileSize);
+    var idx1 = latLonToGridIndex(p1.lat, p1.lng);
+    var idx2 = latLonToGridIndex(p2.lat, p2.lng);
 
-    for (var i = Math.min(minI, maxI); i <= Math.max(minI, maxI); i++) {
-        for (var j = Math.min(minJ, maxJ); j <= Math.max(minJ, maxJ); j++) {
-            addTile(i, j);
+    if (idx1 && idx2) {
+        var minI = Math.min(idx1.i, idx2.i);
+        var maxI = Math.max(idx1.i, idx2.i);
+        var minJ = Math.min(idx1.j, idx2.j);
+        var maxJ = Math.max(idx1.j, idx2.j);
+
+        for (var i = minI; i <= maxI; i++) {
+            for (var j = minJ; j <= maxJ; j++) {
+                addTile(i, j);
+            }
         }
     }
 
-    renderSelectedTiles();
+    renderSelectedTiles(true);
     updateGridOverlay();
 });
 
@@ -453,42 +526,21 @@ function setCoordinateSystem(epsg) {
     resetGridOrigin();
 }
 
-function setAnchorPoint(x, y) {
-    anchor = { x: Math.round(x), y: Math.round(y) };
-    selectedTiles.clear();
-
-    if (anchorMarker) {
-        map.removeLayer(anchorMarker);
-    }
-
-    var anchorLL = metersToLatLon(anchor.x, anchor.y);
-    anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
-        radius: 5,
-        color: '#ff7800',
-        fillColor: '#ff7800',
-        fillOpacity: 1
-    }).addTo(map);
-
-    map.panTo([anchorLL.lat, anchorLL.lon]);
-    addTile(0, 0);
-    renderSelectedTiles();
-    updateGridOverlay();
-}
-
 function clearAllTiles() {
     selectedTiles.clear();
-    renderSelectedTiles();
+    renderSelectedTiles(true);
     updateGridOverlay();
 }
 
 function resetGridOrigin() {
     selectedTiles.clear();
+    existingTiles.clear();
     anchor = null;
     if (anchorMarker) {
         map.removeLayer(anchorMarker);
         anchorMarker = null;
     }
-    renderSelectedTiles();
+    renderSelectedTiles(true);
     updateGridOverlay();
 }
 
@@ -499,20 +551,14 @@ function selectCurrentViewport() {
     }
 
     var bounds = map.getBounds();
-    var nw = latLonToMeters(bounds.getNorth(), bounds.getWest());
-    var se = latLonToMeters(bounds.getSouth(), bounds.getEast());
-
-    var minX = Math.min(nw.x, se.x);
-    var maxX = Math.max(nw.x, se.x);
-    var minY = Math.min(nw.y, se.y);
-    var maxY = Math.max(nw.y, se.y);
 
     if (!anchor) {
-        var centerX = (minX + maxX) / 2.0;
-        var centerY = (minY + maxY) / 2.0;
+        var centerLat = (bounds.getNorth() + bounds.getSouth()) / 2.0;
+        var centerLon = (bounds.getEast() + bounds.getWest()) / 2.0;
+        var m = latLonToMeters(centerLat, centerLon);
         anchor = {
-            x: Math.round(centerX),
-            y: Math.round(centerY)
+            x: Math.round(m.x),
+            y: Math.round(m.y)
         };
         var anchorLL = metersToLatLon(anchor.x, anchor.y);
         anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
@@ -523,18 +569,23 @@ function selectCurrentViewport() {
         }).addTo(map);
     }
 
-    var minI = Math.round((minX - anchor.x) / tileSize);
-    var maxI = Math.round((maxX - anchor.x) / tileSize);
-    var minJ = Math.round((minY - anchor.y) / tileSize);
-    var maxJ = Math.round((maxY - anchor.y) / tileSize);
+    var nwIdx = latLonToGridIndex(bounds.getNorth(), bounds.getWest());
+    var seIdx = latLonToGridIndex(bounds.getSouth(), bounds.getEast());
 
-    for (var i = Math.min(minI, maxI); i <= Math.max(minI, maxI); i++) {
-        for (var j = Math.min(minJ, maxJ); j <= Math.max(minJ, maxJ); j++) {
-            addTile(i, j);
+    if (nwIdx && seIdx) {
+        var minI = Math.min(nwIdx.i, seIdx.i);
+        var maxI = Math.max(nwIdx.i, seIdx.i);
+        var minJ = Math.min(nwIdx.j, seIdx.j);
+        var maxJ = Math.max(nwIdx.j, seIdx.j);
+
+        for (var i = minI; i <= maxI; i++) {
+            for (var j = minJ; j <= maxJ; j++) {
+                addTile(i, j);
+            }
         }
     }
 
-    renderSelectedTiles();
+    renderSelectedTiles(true);
     updateGridOverlay();
 }
 
@@ -546,4 +597,71 @@ function highlightTile(order, status) {
         target.status = status;
         renderSelectedTiles(false);
     }
+}
+
+// Load existing tiles from folder and align grid
+function loadExistingFolderTiles(data) {
+    if (!data) return;
+
+    if (data.epsg && data.epsg !== currentEpsg) {
+        currentEpsg = data.epsg;
+    }
+
+    selectedTiles.clear();
+    existingTiles.clear();
+
+    if (data.anchor) {
+        anchor = { x: Math.round(data.anchor.x), y: Math.round(data.anchor.y) };
+    } else if (data.tiles && data.tiles.length > 0) {
+        anchor = { x: Math.round(data.tiles[0].x), y: Math.round(data.tiles[0].y) };
+    }
+
+    if (!anchor) return;
+
+    if (anchorMarker) {
+        map.removeLayer(anchorMarker);
+    }
+    var anchorLL = metersToLatLon(anchor.x, anchor.y);
+    anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
+        radius: 6,
+        color: '#ff7800',
+        fillColor: '#ff7800',
+        fillOpacity: 1
+    }).addTo(map);
+
+    var allBounds = [];
+
+    if (data.tiles && data.tiles.length > 0) {
+        data.tiles.forEach(function(tile) {
+            var tileLL = metersToLatLon(tile.x, tile.y);
+            var idx = latLonToGridIndex(tileLL.lat, tileLL.lon);
+            if (!idx) return;
+
+            var key = idx.i + "_" + idx.j;
+            var center = getTileCenter(idx.i, idx.j);
+
+            existingTiles.set(key, {
+                i: idx.i,
+                j: idx.j,
+                x: center.x,
+                y: center.y,
+                counter: tile.counter,
+                status: "existing"
+            });
+
+            var b = getTileBoundsForIndex(idx.i, idx.j);
+            if (b) {
+                b.forEach(function(pt) { allBounds.push(pt); });
+            }
+        });
+    }
+
+    if (allBounds.length > 0) {
+        map.fitBounds(allBounds, { padding: [50, 50], maxZoom: 16 });
+    } else {
+        map.panTo([anchorLL.lat, anchorLL.lon]);
+    }
+
+    renderSelectedTiles(true);
+    updateGridOverlay();
 }

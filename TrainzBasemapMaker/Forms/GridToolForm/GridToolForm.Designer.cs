@@ -55,6 +55,7 @@ namespace TrainzBasemapMaker
             textBoxDestinationFolder = new TextBox();
             label4 = new Label();
             basemapFolderListBox = new ListBox();
+            buttonLoadFolder = new Button();
             label10 = new Label();
             radioButton512 = new RadioButton();
             radioButton1024 = new RadioButton();
@@ -249,6 +250,7 @@ namespace TrainzBasemapMaker
             // 
             // panelTrainzFiles
             // 
+            panelTrainzFiles.Controls.Add(buttonLoadFolder);
             panelTrainzFiles.Controls.Add(labelKuidSeparator);
             panelTrainzFiles.Controls.Add(textBoxKuidPart2);
             panelTrainzFiles.Controls.Add(textBoxKuidPart1);
@@ -269,7 +271,7 @@ namespace TrainzBasemapMaker
             // labelKuidSeparator
             // 
             labelKuidSeparator.AutoSize = true;
-            labelKuidSeparator.Location = new Point(94, 365);
+            labelKuidSeparator.Location = new Point(94, 342);
             labelKuidSeparator.Name = "labelKuidSeparator";
             labelKuidSeparator.Size = new Size(10, 15);
             labelKuidSeparator.TabIndex = 11;
@@ -277,7 +279,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxKuidPart2
             // 
-            textBoxKuidPart2.Location = new Point(108, 362);
+            textBoxKuidPart2.Location = new Point(108, 339);
             textBoxKuidPart2.Name = "textBoxKuidPart2";
             textBoxKuidPart2.Size = new Size(89, 23);
             textBoxKuidPart2.TabIndex = 10;
@@ -285,7 +287,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxKuidPart1
             // 
-            textBoxKuidPart1.Location = new Point(3, 362);
+            textBoxKuidPart1.Location = new Point(3, 339);
             textBoxKuidPart1.Name = "textBoxKuidPart1";
             textBoxKuidPart1.Size = new Size(87, 23);
             textBoxKuidPart1.TabIndex = 9;
@@ -295,7 +297,7 @@ namespace TrainzBasemapMaker
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(3, 344);
+            label12.Location = new Point(3, 321);
             label12.Name = "label12";
             label12.Size = new Size(111, 15);
             label12.TabIndex = 8;
@@ -303,7 +305,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxCounter
             // 
-            textBoxCounter.Location = new Point(108, 314);
+            textBoxCounter.Location = new Point(108, 291);
             textBoxCounter.Name = "textBoxCounter";
             textBoxCounter.Size = new Size(89, 23);
             textBoxCounter.TabIndex = 7;
@@ -312,7 +314,7 @@ namespace TrainzBasemapMaker
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(108, 296);
+            label11.Location = new Point(108, 273);
             label11.Name = "label11";
             label11.Size = new Size(76, 15);
             label11.TabIndex = 6;
@@ -320,7 +322,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxDesignation
             // 
-            textBoxDesignation.Location = new Point(3, 314);
+            textBoxDesignation.Location = new Point(3, 291);
             textBoxDesignation.Name = "textBoxDesignation";
             textBoxDesignation.Size = new Size(87, 23);
             textBoxDesignation.TabIndex = 5;
@@ -328,7 +330,7 @@ namespace TrainzBasemapMaker
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(3, 296);
+            label13.Location = new Point(3, 273);
             label13.Name = "label13";
             label13.Size = new Size(87, 15);
             label13.TabIndex = 4;
@@ -336,7 +338,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxDestinationFolder
             // 
-            textBoxDestinationFolder.Location = new Point(3, 266);
+            textBoxDestinationFolder.Location = new Point(3, 243);
             textBoxDestinationFolder.Name = "textBoxDestinationFolder";
             textBoxDestinationFolder.Size = new Size(194, 23);
             textBoxDestinationFolder.TabIndex = 3;
@@ -345,11 +347,21 @@ namespace TrainzBasemapMaker
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(3, 248);
+            label4.Location = new Point(3, 225);
             label4.Name = "label4";
             label4.Size = new Size(154, 15);
             label4.TabIndex = 2;
             label4.Text = "Nazwa docelowego folderu:";
+            // 
+            // buttonLoadFolder
+            // 
+            buttonLoadFolder.Location = new Point(3, 194);
+            buttonLoadFolder.Name = "buttonLoadFolder";
+            buttonLoadFolder.Size = new Size(194, 26);
+            buttonLoadFolder.TabIndex = 12;
+            buttonLoadFolder.Text = "Wczytaj z folderu";
+            buttonLoadFolder.UseVisualStyleBackColor = true;
+            buttonLoadFolder.Click += buttonLoadFolder_Click;
             // 
             // basemapFolderListBox
             // 
@@ -357,9 +369,10 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.ItemHeight = 15;
             basemapFolderListBox.Location = new Point(3, 21);
             basemapFolderListBox.Name = "basemapFolderListBox";
-            basemapFolderListBox.Size = new Size(194, 214);
+            basemapFolderListBox.Size = new Size(194, 169);
             basemapFolderListBox.TabIndex = 1;
             basemapFolderListBox.Click += basemapFolderListBox_Click;
+            basemapFolderListBox.DoubleClick += basemapFolderListBox_DoubleClick;
             // 
             // label10
             // 
@@ -591,6 +604,7 @@ namespace TrainzBasemapMaker
         private Label label2;
         private Panel panelTrainzFiles;
         private ListBox basemapFolderListBox;
+        private Button buttonLoadFolder;
         private Label label10;
         private TextBox textBoxDestinationFolder;
         private Label label4;
