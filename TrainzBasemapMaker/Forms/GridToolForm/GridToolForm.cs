@@ -67,6 +67,7 @@ namespace TrainzBasemapMaker
             BasemapFolderListBoxRefresh();
             UpdateNextFreeKuidPart2();
             UpdateNextFreeCounter();
+            toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciągnij pędzlem, aby zaznaczyć | PPM: Przesuwanie mapy";
         }
 
         private async void GridToolForm_Load(object sender, EventArgs e)
@@ -274,11 +275,6 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync($"setCoordinateSystem('{epsg}')");
         }
 
-        private async void buttonSelectViewport_Click(object sender, EventArgs e)
-        {
-            if (webView21.CoreWebView2 == null) return;
-            await webView21.CoreWebView2.ExecuteScriptAsync("selectCurrentViewport()");
-        }
 
         private async void buttonClearSelection_Click(object sender, EventArgs e)
         {
@@ -533,6 +529,21 @@ namespace TrainzBasemapMaker
                 if (!selected.AllowsHighResolution && radioButton4096.Checked)
                 {
                     radioButton2048.Checked = true;
+                }
+
+                // Geoportal maps (WMS / WMTS) only support EPSG:2180 in Poland
+                // Global maps (XYZ OpenStreetMap / OpenRailwayMap) only support EPSG:3857
+                if (selected is WmsMapSource || selected is WmtsMapSource)
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                    radioButtonEpsg2180.Checked = true;
+                    radioButtonEpsg3857.Enabled = false;
+                }
+                else
+                {
+                    radioButtonEpsg3857.Enabled = true;
+                    radioButtonEpsg3857.Checked = true;
+                    radioButtonEpsg2180.Enabled = false;
                 }
             }
         }

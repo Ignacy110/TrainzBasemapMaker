@@ -34,7 +34,6 @@ namespace TrainzBasemapMaker
             labelTileCount = new Label();
             buttonResetAnchor = new Button();
             buttonClearSelection = new Button();
-            buttonSelectViewport = new Button();
             radioButtonModeBox = new RadioButton();
             radioButtonModeClick = new RadioButton();
             groupBox2CoordSystem = new GroupBox();
@@ -89,12 +88,11 @@ namespace TrainzBasemapMaker
             groupBox1Selection.Controls.Add(labelTileCount);
             groupBox1Selection.Controls.Add(buttonResetAnchor);
             groupBox1Selection.Controls.Add(buttonClearSelection);
-            groupBox1Selection.Controls.Add(buttonSelectViewport);
             groupBox1Selection.Controls.Add(radioButtonModeBox);
             groupBox1Selection.Controls.Add(radioButtonModeClick);
             groupBox1Selection.Location = new Point(12, 12);
             groupBox1Selection.Name = "groupBox1Selection";
-            groupBox1Selection.Size = new Size(200, 248);
+            groupBox1Selection.Size = new Size(200, 215);
             groupBox1Selection.TabIndex = 0;
             groupBox1Selection.TabStop = false;
             groupBox1Selection.Text = "1. Zaznaczanie na siatce";
@@ -102,51 +100,41 @@ namespace TrainzBasemapMaker
             // labelArea
             // 
             labelArea.AutoSize = true;
-            labelArea.Location = new Point(6, 222);
+            labelArea.Location = new Point(6, 190);
             labelArea.Name = "labelArea";
             labelArea.Size = new Size(130, 15);
-            labelArea.TabIndex = 6;
+            labelArea.TabIndex = 5;
             labelArea.Text = "Powierzchnia: 0.00 km²";
             // 
             // labelTileCount
             // 
             labelTileCount.AutoSize = true;
             labelTileCount.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            labelTileCount.Location = new Point(6, 203);
+            labelTileCount.Location = new Point(6, 171);
             labelTileCount.Name = "labelTileCount";
             labelTileCount.Size = new Size(111, 15);
-            labelTileCount.TabIndex = 5;
+            labelTileCount.TabIndex = 4;
             labelTileCount.Text = "Zaznaczono kafli: 0";
             // 
             // buttonResetAnchor
             // 
-            buttonResetAnchor.Location = new Point(6, 160);
+            buttonResetAnchor.Location = new Point(6, 125);
             buttonResetAnchor.Name = "buttonResetAnchor";
             buttonResetAnchor.Size = new Size(188, 26);
-            buttonResetAnchor.TabIndex = 4;
+            buttonResetAnchor.TabIndex = 3;
             buttonResetAnchor.Text = "Resetuj punkt bazowy";
             buttonResetAnchor.UseVisualStyleBackColor = true;
             buttonResetAnchor.Click += buttonResetAnchor_Click;
             // 
             // buttonClearSelection
             // 
-            buttonClearSelection.Location = new Point(6, 128);
+            buttonClearSelection.Location = new Point(6, 93);
             buttonClearSelection.Name = "buttonClearSelection";
             buttonClearSelection.Size = new Size(188, 26);
-            buttonClearSelection.TabIndex = 3;
+            buttonClearSelection.TabIndex = 2;
             buttonClearSelection.Text = "Wyczyść zaznaczenie";
             buttonClearSelection.UseVisualStyleBackColor = true;
             buttonClearSelection.Click += buttonClearSelection_Click;
-            // 
-            // buttonSelectViewport
-            // 
-            buttonSelectViewport.Location = new Point(6, 96);
-            buttonSelectViewport.Name = "buttonSelectViewport";
-            buttonSelectViewport.Size = new Size(188, 26);
-            buttonSelectViewport.TabIndex = 2;
-            buttonSelectViewport.Text = "Zaznacz widok";
-            buttonSelectViewport.UseVisualStyleBackColor = true;
-            buttonSelectViewport.Click += buttonSelectViewport_Click;
             // 
             // radioButtonModeBox
             // 
@@ -165,10 +153,10 @@ namespace TrainzBasemapMaker
             radioButtonModeClick.Checked = true;
             radioButtonModeClick.Location = new Point(6, 26);
             radioButtonModeClick.Name = "radioButtonModeClick";
-            radioButtonModeClick.Size = new Size(102, 19);
+            radioButtonModeClick.Size = new Size(115, 19);
             radioButtonModeClick.TabIndex = 0;
             radioButtonModeClick.TabStop = true;
-            radioButtonModeClick.Text = "Klikanie kafli";
+            radioButtonModeClick.Text = "Pędzel / klikanie";
             radioButtonModeClick.UseVisualStyleBackColor = true;
             radioButtonModeClick.CheckedChanged += RadioButtonMode_CheckedChanged;
             // 
@@ -176,7 +164,7 @@ namespace TrainzBasemapMaker
             // 
             groupBox2CoordSystem.Controls.Add(radioButtonEpsg3857);
             groupBox2CoordSystem.Controls.Add(radioButtonEpsg2180);
-            groupBox2CoordSystem.Location = new Point(12, 266);
+            groupBox2CoordSystem.Location = new Point(12, 233);
             groupBox2CoordSystem.Name = "groupBox2CoordSystem";
             groupBox2CoordSystem.Size = new Size(200, 85);
             groupBox2CoordSystem.TabIndex = 1;
@@ -582,7 +570,6 @@ namespace TrainzBasemapMaker
         private GroupBox groupBox1Selection;
         private RadioButton radioButtonModeBox;
         private RadioButton radioButtonModeClick;
-        private Button buttonSelectViewport;
         private Button buttonClearSelection;
         private Button buttonResetAnchor;
         private Label labelTileCount;

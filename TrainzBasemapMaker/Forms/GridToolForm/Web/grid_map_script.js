@@ -52,7 +52,9 @@ var openRailwayMapGroup = L.layerGroup([
 var map = L.map('map', {
     center: [52.12, 19.11],
     zoom: 7,
-    layers: [osm]
+    layers: [osm],
+    dragging: false,
+    doubleClickZoom: false
 });
 
 var baseMaps = {
@@ -245,8 +247,8 @@ function renderSelectedTiles(shouldNotify) {
         var numIcon = L.divIcon({
             className: '',
             html: labelHtml,
-            iconSize: [40, 20],
-            iconAnchor: [20, 10]
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
         });
 
         var marker = L.marker([center.lat, center.lon], {
@@ -296,13 +298,13 @@ function renderSelectedTiles(shouldNotify) {
         else if (tile.status === "done") badgeClass += " done";
         else if (tile.status === "error") badgeClass += " error";
 
-        var labelHtml = '<div class="' + badgeClass + '">' + orderNum + (isAnchorTile ? ' (Baza)' : '') + '</div>';
+        var labelHtml = '<div class="' + badgeClass + '">' + orderNum + '</div>';
 
         var numIcon = L.divIcon({
             className: '',
             html: labelHtml,
-            iconSize: [40, 20],
-            iconAnchor: [20, 10]
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
         });
 
         var marker = L.marker([center.lat, center.lon], {
@@ -380,34 +382,6 @@ function addTile(i, j) {
     }
 }
 
-// Map click event
-map.on('click', function(e) {
-    if (selectionMode === "box") return;
-
-    if (!anchor) {
-        var clicked = latLonToMeters(e.latlng.lat, e.latlng.lng);
-        anchor = {
-            x: Math.round(clicked.x),
-            y: Math.round(clicked.y)
-        };
-
-        var anchorLL = metersToLatLon(anchor.x, anchor.y);
-        anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
-            radius: 5,
-            color: '#ff7800',
-            fillColor: '#ff7800',
-            fillOpacity: 1
-        }).addTo(map);
-
-        toggleTile(0, 0);
-    } else {
-        var idx = latLonToGridIndex(e.latlng.lat, e.latlng.lng);
-        if (idx) {
-            toggleTile(idx.i, idx.j);
-        }
-    }
-});
-
 map.on('moveend zoomend', function() {
     updateGridOverlay();
 });
@@ -415,108 +389,233 @@ map.on('moveend zoomend', function() {
 // Selection modes
 function setSelectionMode(mode) {
     selectionMode = mode;
-    if (mode === "box") {
-        map.dragging.disable();
-    } else {
-        map.dragging.enable();
-    }
 }
 
-// Box Selection logic (Rubber-band)
-var isSelecting = false;
-var startPoint = null;
-var selectionBox = document.getElementById("selectionBox");
 var mapContainer = document.getElementById("map");
+var selectionBox = document.getElementById("selectionBox");
+
+// Panning state (Right click or Middle click)
+var isPanning = false;
+var panStartPoint = null;
+
+// Brush & Single-click state (Left click)
+var isPainting = false;
+var paintMoved = false;
+var initialTileInfo = null; // { i, j, wasSelected }
+
+// Box selection state (Left click in Box mode)
+var isSelecting = false;
+var boxStartPoint = null;
+
+// Prevent context menu so right click can be used for panning
+mapContainer.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+});
 
 mapContainer.addEventListener("mousedown", function(e) {
-    if (selectionMode !== "box" && !e.shiftKey) return;
-    if (e.button !== 0) return;
+    // 1. Right click (2) or Middle click (1) -> Pan Map
+    if (e.button === 2 || e.button === 1) {
+        isPanning = true;
+        panStartPoint = { x: e.clientX, y: e.clientY };
+        mapContainer.style.cursor = "grabbing";
+        e.preventDefault();
+        return;
+    }
 
-    isSelecting = true;
-    startPoint = { x: e.clientX, y: e.clientY };
+    // 2. Left click (0)
+    if (e.button === 0) {
+        var containerRect = mapContainer.getBoundingClientRect();
+        var latlng = map.containerPointToLatLng([
+            e.clientX - containerRect.left,
+            e.clientY - containerRect.top
+        ]);
 
-    selectionBox.style.left = startPoint.x + "px";
-    selectionBox.style.top = startPoint.y + "px";
-    selectionBox.style.width = "0px";
-    selectionBox.style.height = "0px";
-    selectionBox.style.display = "block";
+        if (selectionMode === "box") {
+            // Box selection start
+            isSelecting = true;
+            boxStartPoint = { x: e.clientX, y: e.clientY };
+
+            selectionBox.style.left = boxStartPoint.x + "px";
+            selectionBox.style.top = boxStartPoint.y + "px";
+            selectionBox.style.width = "0px";
+            selectionBox.style.height = "0px";
+            selectionBox.style.display = "block";
+            e.preventDefault();
+        } else {
+            // "Pędzel / klikanie" mode
+            isPainting = true;
+            paintMoved = false;
+
+            if (!anchor) {
+                var clicked = latLonToMeters(latlng.lat, latlng.lng);
+                anchor = {
+                    x: Math.round(clicked.x),
+                    y: Math.round(clicked.y)
+                };
+
+                var anchorLL = metersToLatLon(anchor.x, anchor.y);
+                anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
+                    radius: 5,
+                    color: '#ff7800',
+                    fillColor: '#ff7800',
+                    fillOpacity: 1
+                }).addTo(map);
+
+                addTile(0, 0);
+                initialTileInfo = { i: 0, j: 0, wasSelected: false };
+                renderSelectedTiles(false);
+                updateGridOverlay();
+            } else {
+                var idx = latLonToGridIndex(latlng.lat, latlng.lng);
+                if (idx) {
+                    var key = idx.i + "_" + idx.j;
+                    var wasSelected = selectedTiles.has(key);
+                    initialTileInfo = { i: idx.i, j: idx.j, wasSelected: wasSelected };
+
+                    if (!wasSelected) {
+                        addTile(idx.i, idx.j);
+                        renderSelectedTiles(false);
+                    }
+                }
+            }
+            e.preventDefault();
+        }
+    }
 });
 
 window.addEventListener("mousemove", function(e) {
-    if (!isSelecting || !startPoint) return;
+    // 1. Panning
+    if (isPanning && panStartPoint) {
+        var dx = e.clientX - panStartPoint.x;
+        var dy = e.clientY - panStartPoint.y;
+        map.panBy([-dx, -dy], { animate: false });
+        panStartPoint = { x: e.clientX, y: e.clientY };
+        return;
+    }
 
-    var currentX = e.clientX;
-    var currentY = e.clientY;
+    // 2. Brush painting (Left button held down)
+    if (isPainting && selectionMode === "click" && anchor) {
+        var containerRect = mapContainer.getBoundingClientRect();
+        var latlng = map.containerPointToLatLng([
+            e.clientX - containerRect.left,
+            e.clientY - containerRect.top
+        ]);
 
-    var left = Math.min(startPoint.x, currentX);
-    var top = Math.min(startPoint.y, currentY);
-    var width = Math.abs(currentX - startPoint.x);
-    var height = Math.abs(currentY - startPoint.y);
+        var idx = latLonToGridIndex(latlng.lat, latlng.lng);
+        if (idx) {
+            var key = idx.i + "_" + idx.j;
+            if (initialTileInfo && (idx.i !== initialTileInfo.i || idx.j !== initialTileInfo.j)) {
+                paintMoved = true;
+            }
 
-    selectionBox.style.left = left + "px";
-    selectionBox.style.top = top + "px";
-    selectionBox.style.width = width + "px";
-    selectionBox.style.height = height + "px";
+            if (!selectedTiles.has(key)) {
+                addTile(idx.i, idx.j);
+                renderSelectedTiles(false);
+            }
+        }
+        return;
+    }
+
+    // 3. Box rubber-band resizing
+    if (isSelecting && boxStartPoint) {
+        var currentX = e.clientX;
+        var currentY = e.clientY;
+
+        var left = Math.min(boxStartPoint.x, currentX);
+        var top = Math.min(boxStartPoint.y, currentY);
+        var width = Math.abs(currentX - boxStartPoint.x);
+        var height = Math.abs(currentY - boxStartPoint.y);
+
+        selectionBox.style.left = left + "px";
+        selectionBox.style.top = top + "px";
+        selectionBox.style.width = width + "px";
+        selectionBox.style.height = height + "px";
+    }
 });
 
 window.addEventListener("mouseup", function(e) {
-    if (!isSelecting || !startPoint) return;
-    isSelecting = false;
-    selectionBox.style.display = "none";
-
-    var currentX = e.clientX;
-    var currentY = e.clientY;
-
-    var width = Math.abs(currentX - startPoint.x);
-    var height = Math.abs(currentY - startPoint.y);
-
-    if (width < 5 && height < 5) return;
-
-    var containerRect = mapContainer.getBoundingClientRect();
-    var p1 = map.containerPointToLatLng([
-        Math.min(startPoint.x, currentX) - containerRect.left,
-        Math.min(startPoint.y, currentY) - containerRect.top
-    ]);
-    var p2 = map.containerPointToLatLng([
-        Math.max(startPoint.x, currentX) - containerRect.left,
-        Math.max(startPoint.y, currentY) - containerRect.top
-    ]);
-
-    if (!anchor) {
-        var centerLat = (p1.lat + p2.lat) / 2.0;
-        var centerLon = (p1.lng + p2.lng) / 2.0;
-        var m = latLonToMeters(centerLat, centerLon);
-        anchor = {
-            x: Math.round(m.x),
-            y: Math.round(m.y)
-        };
-        var anchorLL = metersToLatLon(anchor.x, anchor.y);
-        anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
-            radius: 5,
-            color: '#ff7800',
-            fillColor: '#ff7800',
-            fillOpacity: 1
-        }).addTo(map);
+    // 1. Panning stop
+    if (isPanning) {
+        isPanning = false;
+        panStartPoint = null;
+        mapContainer.style.cursor = "";
     }
 
-    var idx1 = latLonToGridIndex(p1.lat, p1.lng);
-    var idx2 = latLonToGridIndex(p2.lat, p2.lng);
+    // 2. Brush painting stop
+    if (isPainting) {
+        isPainting = false;
 
-    if (idx1 && idx2) {
-        var minI = Math.min(idx1.i, idx2.i);
-        var maxI = Math.max(idx1.i, idx2.i);
-        var minJ = Math.min(idx1.j, idx2.j);
-        var maxJ = Math.max(idx1.j, idx2.j);
-
-        for (var i = minI; i <= maxI; i++) {
-            for (var j = minJ; j <= maxJ; j++) {
-                addTile(i, j);
-            }
+        // If it was a single click without moving to other tiles and the tile was already selected -> deselect it
+        if (!paintMoved && initialTileInfo && initialTileInfo.wasSelected) {
+            var key = initialTileInfo.i + "_" + initialTileInfo.j;
+            selectedTiles.delete(key);
         }
+
+        initialTileInfo = null;
+        renderSelectedTiles(true);
+        updateGridOverlay();
     }
 
-    renderSelectedTiles(true);
-    updateGridOverlay();
+    // 3. Box selection commit
+    if (isSelecting && boxStartPoint) {
+        isSelecting = false;
+        selectionBox.style.display = "none";
+
+        var currentX = e.clientX;
+        var currentY = e.clientY;
+
+        var width = Math.abs(currentX - boxStartPoint.x);
+        var height = Math.abs(currentY - boxStartPoint.y);
+
+        if (width >= 5 || height >= 5) {
+            var containerRect = mapContainer.getBoundingClientRect();
+            var p1 = map.containerPointToLatLng([
+                Math.min(boxStartPoint.x, currentX) - containerRect.left,
+                Math.min(boxStartPoint.y, currentY) - containerRect.top
+            ]);
+            var p2 = map.containerPointToLatLng([
+                Math.max(boxStartPoint.x, currentX) - containerRect.left,
+                Math.max(boxStartPoint.y, currentY) - containerRect.top
+            ]);
+
+            if (!anchor) {
+                var centerLat = (p1.lat + p2.lat) / 2.0;
+                var centerLon = (p1.lng + p2.lng) / 2.0;
+                var m = latLonToMeters(centerLat, centerLon);
+                anchor = {
+                    x: Math.round(m.x),
+                    y: Math.round(m.y)
+                };
+                var anchorLL = metersToLatLon(anchor.x, anchor.y);
+                anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
+                    radius: 5,
+                    color: '#ff7800',
+                    fillColor: '#ff7800',
+                    fillOpacity: 1
+                }).addTo(map);
+            }
+
+            var idx1 = latLonToGridIndex(p1.lat, p1.lng);
+            var idx2 = latLonToGridIndex(p2.lat, p2.lng);
+
+            if (idx1 && idx2) {
+                var minI = Math.min(idx1.i, idx2.i);
+                var maxI = Math.max(idx1.i, idx2.i);
+                var minJ = Math.min(idx1.j, idx2.j);
+                var maxJ = Math.max(idx1.j, idx2.j);
+
+                for (var i = minI; i <= maxI; i++) {
+                    for (var j = minJ; j <= maxJ; j++) {
+                        addTile(i, j);
+                    }
+                }
+            }
+
+            renderSelectedTiles(true);
+            updateGridOverlay();
+        }
+        boxStartPoint = null;
+    }
 });
 
 // Control API methods accessible from C#
@@ -540,51 +639,6 @@ function resetGridOrigin() {
         map.removeLayer(anchorMarker);
         anchorMarker = null;
     }
-    renderSelectedTiles(true);
-    updateGridOverlay();
-}
-
-function selectCurrentViewport() {
-    if (map.getZoom() < 12) {
-        alert("Przybliż mapę (zoom >= 12), aby zaznaczyć widok.");
-        return;
-    }
-
-    var bounds = map.getBounds();
-
-    if (!anchor) {
-        var centerLat = (bounds.getNorth() + bounds.getSouth()) / 2.0;
-        var centerLon = (bounds.getEast() + bounds.getWest()) / 2.0;
-        var m = latLonToMeters(centerLat, centerLon);
-        anchor = {
-            x: Math.round(m.x),
-            y: Math.round(m.y)
-        };
-        var anchorLL = metersToLatLon(anchor.x, anchor.y);
-        anchorMarker = L.circleMarker([anchorLL.lat, anchorLL.lon], {
-            radius: 5,
-            color: '#ff7800',
-            fillColor: '#ff7800',
-            fillOpacity: 1
-        }).addTo(map);
-    }
-
-    var nwIdx = latLonToGridIndex(bounds.getNorth(), bounds.getWest());
-    var seIdx = latLonToGridIndex(bounds.getSouth(), bounds.getEast());
-
-    if (nwIdx && seIdx) {
-        var minI = Math.min(nwIdx.i, seIdx.i);
-        var maxI = Math.max(nwIdx.i, seIdx.i);
-        var minJ = Math.min(nwIdx.j, seIdx.j);
-        var maxJ = Math.max(nwIdx.j, seIdx.j);
-
-        for (var i = minI; i <= maxI; i++) {
-            for (var j = minJ; j <= maxJ; j++) {
-                addTile(i, j);
-            }
-        }
-    }
-
     renderSelectedTiles(true);
     updateGridOverlay();
 }

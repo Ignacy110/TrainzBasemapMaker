@@ -261,25 +261,22 @@ namespace TrainzBasemapMaker
             groupBox4KuidList.Enabled = enabled;
         }
 
-        // Updates EPSG radio buttons based on geographic coordinates (in Poland both 2180 and 3857 are allowed; outside Poland only 3857)
+        // Updates EPSG radio buttons based on map provider (Geoportal only supports EPSG:2180; OSM only supports EPSG:3857)
         private void UpdateCoordinateSystemAvailability()
         {
-            string latText = textBoxLat.Text.Replace(',', '.');
-            string lonText = textBoxLon.Text.Replace(',', '.');
-
-            if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
-                double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
+            if (comboBoxMapType.SelectedItem is WmsMapSource || comboBoxMapType.SelectedItem is WmtsMapSource)
             {
-                bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
-                if (inPoland)
-                {
-                    radioButtonEpsg2180.Enabled = true;
-                }
-                else
-                {
-                    radioButtonEpsg2180.Enabled = false;
-                    radioButtonEpsg3857.Checked = true;
-                }
+                // Geoportal services only support EPSG:2180 in Poland
+                radioButtonEpsg2180.Enabled = true;
+                radioButtonEpsg2180.Checked = true;
+                radioButtonEpsg3857.Enabled = false;
+            }
+            else
+            {
+                // Global XYZ tile maps (OpenStreetMap / OpenRailwayMap) only support EPSG:3857
+                radioButtonEpsg3857.Enabled = true;
+                radioButtonEpsg3857.Checked = true;
+                radioButtonEpsg2180.Enabled = false;
             }
         }
 
@@ -569,6 +566,9 @@ namespace TrainzBasemapMaker
                 {
                     radioButton2048.Checked = true;
                 }
+
+                UpdateCoordinateSystemAvailability();
+                PerformConversion();
             }
         }
 
