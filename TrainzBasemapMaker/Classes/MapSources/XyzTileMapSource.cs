@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -40,32 +40,54 @@ namespace TrainzBasemapMaker.Classes
 
         public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
         {
-            // Convert center coordinates (EPSG:2180 or EPSG:3857) to Lat/Lon
-            var (centerLat, centerLon) = GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter)
-                ? GeoHelperEPSG2180.Meters2180ToLatLon(xCenter, yCenter)
-                : GeoHelperEPSG3857.Meters3857ToLatLon(xCenter, yCenter);
-
-            // Compute 500m x 500m geographic footprint
-            double halfSize = TileSize / 2.0;
-            double latOffset = halfSize / 111320.0;
-            double lonOffset = halfSize / (111320.0 * Math.Cos(centerLat * Math.PI / 180.0));
-
-            double minLat = centerLat - latOffset;
-            double maxLat = centerLat + latOffset;
-            double minLon = centerLon - lonOffset;
-            double maxLon = centerLon + lonOffset;
-
             const int zoom = 18;
+            double n = Math.Pow(2, zoom);
 
-            var (tlX, tlY) = LatLonToTile(maxLat, minLon, zoom);
-            var (trX, trY) = LatLonToTile(maxLat, maxLon, zoom);
-            var (blX, blY) = LatLonToTile(minLat, minLon, zoom);
-            var (brX, brY) = LatLonToTile(minLat, maxLon, zoom);
+            double tlX, tlY, trX, trY, blX, blY, brX, brY;
 
-            int minTileX = (int)Math.Floor(Math.Min(tlX, blX));
-            int maxTileX = (int)Math.Floor(Math.Max(trX, brX));
-            int minTileY = (int)Math.Floor(Math.Min(tlY, trY));
-            int maxTileY = (int)Math.Floor(Math.Max(blY, brY));
+            if (GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
+            {
+                // EPSG:2180 (Poland CS92)
+                double halfSize = TileSize / 2.0;
+                var (tlLat, tlLon) = GeoHelperEPSG2180.Meters2180ToLatLon(xCenter - halfSize, yCenter + halfSize);
+                var (trLat, trLon) = GeoHelperEPSG2180.Meters2180ToLatLon(xCenter + halfSize, yCenter + halfSize);
+                var (blLat, blLon) = GeoHelperEPSG2180.Meters2180ToLatLon(xCenter - halfSize, yCenter - halfSize);
+                var (brLat, brLon) = GeoHelperEPSG2180.Meters2180ToLatLon(xCenter + halfSize, yCenter - halfSize);
+
+                (tlX, tlY) = LatLonToTile(tlLat, tlLon, zoom);
+                (trX, trY) = LatLonToTile(trLat, trLon, zoom);
+                (blX, blY) = LatLonToTile(blLat, blLon, zoom);
+                (brX, brY) = LatLonToTile(brLat, brLon, zoom);
+            }
+            else
+            {
+                // EPSG:3857 (Web Mercator / Pseudo-Mercator)
+                var (centerLat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(xCenter, yCenter);
+                double cosLat = Math.Max(0.01, Math.Cos(centerLat * Math.PI / 180.0));
+                double halfSpan = (TileSize / 2.0) / cosLat;
+
+                double minX = xCenter - halfSpan;
+                double maxX = xCenter + halfSpan;
+                double minY = yCenter - halfSpan;
+                double maxY = yCenter + halfSpan;
+
+                double originShift = GeoHelperEPSG3857.OriginShift;
+
+                tlX = (minX + originShift) / (2.0 * originShift) * n;
+                trX = (maxX + originShift) / (2.0 * originShift) * n;
+                blX = tlX;
+                brX = trX;
+
+                tlY = (originShift - maxY) / (2.0 * originShift) * n;
+                trY = tlY;
+                blY = (originShift - minY) / (2.0 * originShift) * n;
+                brY = blY;
+            }
+
+            int minTileX = (int)Math.Floor(Math.Min(Math.Min(tlX, trX), Math.Min(blX, brX)));
+            int maxTileX = (int)Math.Floor(Math.Max(Math.Max(tlX, trX), Math.Max(blX, brX)));
+            int minTileY = (int)Math.Floor(Math.Min(Math.Min(tlY, trY), Math.Min(blY, brY)));
+            int maxTileY = (int)Math.Floor(Math.Max(Math.Max(tlY, trY), Math.Max(blY, brY)));
 
             int tilesNumX = maxTileX - minTileX + 1;
             int tilesNumY = maxTileY - minTileY + 1;

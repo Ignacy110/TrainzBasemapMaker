@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -72,6 +72,33 @@ namespace TrainzBasemapMaker
         private void UpdateCoordinateSystemAvailabilityForSelectedGroup()
         {
             if (basemapFolderListBox.SelectedItem is not string selectedGroup) return;
+
+            var groupInfo = _fileManager.GetGroupInfo(selectedGroup);
+            if (groupInfo != null)
+            {
+                if (!string.IsNullOrWhiteSpace(groupInfo.Designation))
+                {
+                    textBoxDesignation.Text = groupInfo.Designation;
+                }
+
+                if (groupInfo.Epsg == "EPSG:2180")
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                    radioButtonEpsg3857.Enabled = true;
+                    radioButtonEpsg2180.Checked = true;
+                }
+                else
+                {
+                    long ax = groupInfo.AnchorX ?? 0;
+                    long ay = groupInfo.AnchorY ?? 0;
+                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(ax, ay);
+                    bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
+                    radioButtonEpsg2180.Enabled = inPoland;
+                    radioButtonEpsg3857.Enabled = true;
+                    radioButtonEpsg3857.Checked = true;
+                }
+                return;
+            }
 
             var folders = _fileManager.GetKuidsInGroup(selectedGroup);
             if (folders.Count == 0) return;
@@ -262,6 +289,79 @@ namespace TrainzBasemapMaker
                     // Update UI progress indicators
                     progressBar1.Value = current;
                     labelProgress.Text = $"Przetworzono: {current} z {total}";
+                }
+
+                if (successCount > 0)
+                {
+                    try
+                    {
+                        var srcInfo = _fileManager.GetGroupInfo(sourceGroup);
+                        long? anchorX = srcInfo?.AnchorX;
+                        long? anchorY = srcInfo?.AnchorY;
+                        double? anchorCosLat = srcInfo?.AnchorCosLat;
+
+                        // Fallback anchor if src didn't have one
+                        if (anchorX == null && folders.Count > 0 && TrainzFileManager.TryParseTileFolderName(folders[0], out var firstTile))
+                        {
+                            bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(firstTile.X, firstTile.Y);
+                            if (radioButtonEpsg2180.Checked)
+                            {
+                                if (srcIs2180)
+                                {
+                                    anchorX = firstTile.X;
+                                    anchorY = firstTile.Y;
+                                }
+                                else
+                                {
+                                    var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(firstTile.X, firstTile.Y);
+                                    var (tx, ty) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
+                                    anchorX = (long)Math.Round(tx);
+                                    anchorY = (long)Math.Round(ty);
+                                }
+                            }
+                            else
+                            {
+                                if (srcIs2180)
+                                {
+                                    var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(firstTile.X, firstTile.Y);
+                                    var (tx, ty) = GeoHelperEPSG3857.LatLonToMeters3857(lat, lon);
+                                    anchorX = (long)Math.Round(tx);
+                                    anchorY = (long)Math.Round(ty);
+                                }
+                                else
+                                {
+                                    anchorX = firstTile.X;
+                                    anchorY = firstTile.Y;
+                                }
+                            }
+                        }
+
+                        if (radioButtonEpsg3857.Checked && anchorX.HasValue && anchorY.HasValue && anchorCosLat == null)
+                        {
+                            var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(anchorX.Value, anchorY.Value);
+                            anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
+                        }
+
+                        var targetInfo = new BasemapGroupInfo
+                        {
+                            GroupName = targetGroup,
+                            Designation = targetDesignation,
+                            Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                            AnchorX = anchorX,
+                            AnchorY = anchorY,
+                            AnchorCosLat = anchorCosLat,
+                            MapSource = selectedMap.Name,
+                            Resolution = res,
+                            Year = selectedMap.SupportsTime ? year : null,
+                            CreatedAt = DateTime.Now,
+                            LastUpdatedAt = DateTime.Now
+                        };
+                        _fileManager.SaveGroupInfo(targetGroup, targetInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Error saving batch group metadata: " + ex.Message);
+                    }
                 }
 
                 if (failureDetails.Count == 0)

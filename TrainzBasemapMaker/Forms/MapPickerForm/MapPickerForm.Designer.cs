@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class MapPickerForm
     {
@@ -137,7 +137,7 @@
             Name = "MapPickerForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            Text = "MapPickerForm";
+            Text = "Wskaż punkt na mapie";
             Load += MapPickerForm_Load;
             ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
             ResumeLayout(false);

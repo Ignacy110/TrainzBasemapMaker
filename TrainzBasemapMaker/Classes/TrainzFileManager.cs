@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -16,11 +16,14 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
+using System.Text.Json;
+
 namespace TrainzBasemapMaker.Classes
 {
     internal class TrainzFileManager
     {
         private static readonly string RootFolder = Path.Combine(AppContext.BaseDirectory, "Kuids");
+        public const string GroupInfoFileName = "group_info.json";
 
         /// <summary>
         /// Attempts to parse tile metadata from a basemap folder name.
@@ -217,6 +220,46 @@ namespace TrainzBasemapMaker.Classes
             }
 
             return freeCounter;
+        }
+
+        /// <summary>
+        /// Retrieves the group metadata from group_info.json if it exists.
+        /// </summary>
+        public BasemapGroupInfo? GetGroupInfo(string basemapGroup)
+        {
+            if (string.IsNullOrWhiteSpace(basemapGroup)) return null;
+
+            string jsonPath = Path.Combine(RootFolder, basemapGroup, GroupInfoFileName);
+            if (!File.Exists(jsonPath)) return null;
+
+            try
+            {
+                string json = File.ReadAllText(jsonPath);
+                return JsonSerializer.Deserialize<BasemapGroupInfo>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Saves or updates the group metadata in group_info.json.
+        /// </summary>
+        public void SaveGroupInfo(string basemapGroup, BasemapGroupInfo info)
+        {
+            if (string.IsNullOrWhiteSpace(basemapGroup)) return;
+
+            string groupPath = Path.Combine(RootFolder, basemapGroup);
+            if (!Directory.Exists(groupPath))
+            {
+                Directory.CreateDirectory(groupPath);
+            }
+
+            string jsonPath = Path.Combine(groupPath, GroupInfoFileName);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(info, options);
+            File.WriteAllText(jsonPath, json);
         }
     }
 }

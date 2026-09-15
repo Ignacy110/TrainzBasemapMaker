@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class MainForm
     {
@@ -87,6 +87,7 @@
             findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
             findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
+            areaDownloadToolStripMenuItem = new ToolStripMenuItem();
             batchProcessingToolStripMenuItem = new ToolStripMenuItem();
             preferencesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
@@ -640,7 +641,7 @@
             // 
             // toolsToolStripMenuItem
             // 
-            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, batchProcessingToolStripMenuItem });
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, areaDownloadToolStripMenuItem, batchProcessingToolStripMenuItem });
             toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             toolsToolStripMenuItem.Size = new Size(70, 20);
             toolsToolStripMenuItem.Text = "&Narzędzia";
@@ -675,6 +676,13 @@
             // 
             toolStripMenuItem1.Name = "toolStripMenuItem1";
             toolStripMenuItem1.Size = new Size(273, 6);
+            // 
+            // areaDownloadToolStripMenuItem
+            // 
+            areaDownloadToolStripMenuItem.Name = "areaDownloadToolStripMenuItem";
+            areaDownloadToolStripMenuItem.Size = new Size(276, 22);
+            areaDownloadToolStripMenuItem.Text = "&Pobieranie obszarowe (siatka)";
+            areaDownloadToolStripMenuItem.Click += areaDownloadToolStripMenuItem_Click;
             // 
             // batchProcessingToolStripMenuItem
             // 
@@ -826,6 +834,7 @@
         private Label label15;
         private ComboBox comboBoxMapType;
         private ToolStripMenuItem batchProcessingToolStripMenuItem;
+        private ToolStripMenuItem areaDownloadToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;

@@ -77,28 +77,38 @@ L.control.layers(baseMaps).addTo(map);
 var marker;
 var basemapSquare;
 
-// Global map click event listener
-map.on('click', function(e) {
-    var lat = e.latlng.lat;
-    var lon = e.latlng.lng;
-    var tileSize = 500; // Target basemap dimensions in meters (e.g., 500m x 500m)
+function selectPoint(lat, lon, zoomLevel) {
+    var latlng = L.latLng(lat, lon);
+    if (zoomLevel) {
+        map.setView(latlng, zoomLevel);
+    }
 
     // Update existing marker position or create a new one on initial click
     if (marker) {
-        marker.setLatLng(e.latlng);
+        marker.setLatLng(latlng);
     } else {
-        marker = L.marker(e.latlng).addTo(map);
+        marker = L.marker(latlng).addTo(map);
     }
 
     // Draw the preview boundary box representing the actual C# download footprint
-    drawBasemapSquare(lat, lon, tileSize);
+    drawBasemapSquare(lat, lon, 500);
 
     // Transmit coordinates asynchronously back to the hosting WinForms C# WebView2 environment
     var message = { lat: lat, lon: lon };
     if (window.chrome && window.chrome.webview) {
         window.chrome.webview.postMessage(message);
     }
+}
+
+// Global map click event listener
+map.on('click', function(e) {
+    selectPoint(e.latlng.lat, e.latlng.lng);
 });
+
+// Sets the initial map location and marker from C# host
+function setInitialLocation(lat, lon, zoomLevel) {
+    selectPoint(lat, lon, zoomLevel || 15);
+}
 
 /**
  * Calculates and renders a precise geographic square boundary scaled in meters.
