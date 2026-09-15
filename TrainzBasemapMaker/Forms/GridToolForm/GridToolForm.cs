@@ -76,6 +76,7 @@ namespace TrainzBasemapMaker
         {
             this.Size = Properties.Settings.Default.GridToolFormSize;
             this.WindowState = Properties.Settings.Default.GridToolFormState;
+            TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
             await InitBrowser();
         }
 
@@ -658,9 +659,12 @@ namespace TrainzBasemapMaker
             {
                 bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
+                bool isDarkMode = Properties.Settings.Default.DarkMode;
+                Color highlightColor = isDarkMode ? Color.FromArgb(120, 120, 0) : Color.FromArgb(255, 255, 204);
+
                 Color backColor = isSelected
                     ? SystemColors.Highlight
-                    : (mapSource is XyzTileMapSource ? Color.FromArgb(255, 255, 204) : e.BackColor);
+                    : (mapSource is XyzTileMapSource ? highlightColor : e.BackColor);
 
                 Color foreColor = isSelected ? SystemColors.HighlightText : e.ForeColor;
 

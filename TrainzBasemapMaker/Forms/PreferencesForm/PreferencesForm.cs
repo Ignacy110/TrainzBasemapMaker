@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -32,6 +32,23 @@ namespace TrainzBasemapMaker
             checkBoxAutoCounter.Checked = Properties.Settings.Default.AutoCounterNumber;
             checkBoxAutoKuid.Checked = Properties.Settings.Default.AutoKuidNumber;
             textBoxDefaultKuidFirstPart.Text = Properties.Settings.Default.DefaultKuidFirstPart;
+            checkBoxDarkMode.Checked = Properties.Settings.Default.DarkMode;
+            
+            TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
+
+            // Subscribe to CheckedChanged event for immediate theme application
+            checkBoxDarkMode.CheckedChanged += CheckBoxDarkMode_CheckedChanged;
+        }
+
+        private void CheckBoxDarkMode_CheckedChanged(object? sender, EventArgs e)
+        {
+            Properties.Settings.Default.DarkMode = checkBoxDarkMode.Checked;
+            Properties.Settings.Default.Save();
+            
+            foreach (Form f in Application.OpenForms)
+            {
+                TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(f);
+            }
         }
 
         /// <summary>
@@ -61,8 +78,7 @@ namespace TrainzBasemapMaker
             Properties.Settings.Default.AutoCounterNumber = checkBoxAutoCounter.Checked;
             Properties.Settings.Default.AutoKuidNumber = checkBoxAutoKuid.Checked;
             Properties.Settings.Default.DefaultKuidFirstPart = textBoxDefaultKuidFirstPart.Text;
-
-            // Persist the changes to the configuration file
+            
             Properties.Settings.Default.Save();
         }
     }

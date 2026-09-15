@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class PreferencesForm
     {
@@ -34,6 +34,7 @@
             textBoxDefaultKuidFirstPart = new TextBox();
             label1 = new Label();
             label2 = new Label();
+            checkBoxDarkMode = new CheckBox();
             SuspendLayout();
             // 
             // checkBoxAutoCounter
@@ -84,11 +85,22 @@
             label2.TabIndex = 4;
             label2.Text = "Preferencje:";
             // 
+            // checkBoxDarkMode
+            // 
+            checkBoxDarkMode.AutoSize = true;
+            checkBoxDarkMode.Location = new Point(38, 143);
+            checkBoxDarkMode.Name = "checkBoxDarkMode";
+            checkBoxDarkMode.Size = new Size(100, 19);
+            checkBoxDarkMode.TabIndex = 5;
+            checkBoxDarkMode.Text = "Ciemny motyw";
+            checkBoxDarkMode.UseVisualStyleBackColor = true;
+            // 
             // PreferencesForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(414, 181);
+            ClientSize = new Size(414, 190);
+            Controls.Add(checkBoxDarkMode);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(textBoxDefaultKuidFirstPart);
@@ -113,5 +125,6 @@
         private TextBox textBoxDefaultKuidFirstPart;
         private Label label1;
         private Label label2;
+        private CheckBox checkBoxDarkMode;
     }
 }

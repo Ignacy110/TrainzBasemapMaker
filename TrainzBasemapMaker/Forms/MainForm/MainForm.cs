@@ -100,6 +100,7 @@ namespace TrainzBasemapMaker
         {
             this.Size = Properties.Settings.Default.MainFormSize;
             this.WindowState = Properties.Settings.Default.MainFormState;
+            TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
         }
 
         private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
@@ -683,7 +684,6 @@ namespace TrainzBasemapMaker
             {
                 // Enable or disable the year text box depending on the map provider's capabilities
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
-                label14.Enabled = selected.SupportsTime;
 
                 // 4096px resolution is enabled dynamically based on provider capabilities
                 radioButton4096.Enabled = selected.AllowsHighResolution;
@@ -719,10 +719,14 @@ namespace TrainzBasemapMaker
             {
                 bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
 
+                bool isDarkMode = Properties.Settings.Default.DarkMode;
+                Color highlightColor = isDarkMode ? Color.FromArgb(120, 120, 0) : Color.FromArgb(255, 255, 204);
+
                 // Subtle soft pastel yellow highlight for OpenStreetMap and OpenRailwayMap (XYZ tile sources)
+                // Use darker yellow in dark mode to keep text visible
                 Color backColor = isSelected
                     ? SystemColors.Highlight
-                    : (mapSource is XyzTileMapSource ? Color.FromArgb(255, 255, 204) : e.BackColor);
+                    : (mapSource is XyzTileMapSource ? highlightColor : e.BackColor);
 
                 Color foreColor = isSelected ? SystemColors.HighlightText : e.ForeColor;
 
