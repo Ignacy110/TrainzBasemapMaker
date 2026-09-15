@@ -739,7 +739,21 @@ namespace TrainzBasemapMaker
 
         private void buttonMarkPointMap_Click(object sender, EventArgs e)
         {
-            using (var mapPicker = new MapPickerForm())
+            double? initialLat = null;
+            double? initialLon = null;
+
+            string latText = textBoxLat.Text.Replace(',', '.');
+            string lonText = textBoxLon.Text.Replace(',', '.');
+
+            if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
+                double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon) &&
+                lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180)
+            {
+                initialLat = lat;
+                initialLon = lon;
+            }
+
+            using (var mapPicker = new MapPickerForm(initialLat, initialLon))
             {
                 // The map picker dialog pauses execution until the user makes a selection
                 if (mapPicker.ShowDialog() == DialogResult.OK)

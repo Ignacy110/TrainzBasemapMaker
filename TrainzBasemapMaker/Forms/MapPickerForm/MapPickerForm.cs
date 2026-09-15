@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -44,9 +44,23 @@ namespace TrainzBasemapMaker
         public double SelectedLat { get; private set; }
         public double SelectedLon { get; private set; }
 
-        public MapPickerForm()
+        private readonly double? _initialLat;
+        private readonly double? _initialLon;
+
+        public MapPickerForm(double? initialLat = null, double? initialLon = null)
         {
             InitializeComponent();
+
+            _initialLat = initialLat;
+            _initialLon = initialLon;
+
+            if (_initialLat.HasValue && _initialLon.HasValue)
+            {
+                SelectedLat = _initialLat.Value;
+                SelectedLon = _initialLon.Value;
+                textBoxLat.Text = _initialLat.Value.ToString("F7", CultureInfo.InvariantCulture);
+                textBoxLon.Text = _initialLon.Value.ToString("F7", CultureInfo.InvariantCulture);
+            }
         }
 
         /// <summary>
@@ -63,11 +77,22 @@ namespace TrainzBasemapMaker
             // Build the absolute path to the HTML file within the project folder structure
             string indexPath = Path.Combine(Application.StartupPath, "Forms", "MapPickerForm", "Web", "map.html");
 
-            // Navigate to the local file using the file:/// protocol
-            webView21.CoreWebView2.Navigate("file:///" + indexPath);
-
             // Subscribe to the event that receives messages sent from JavaScript
             webView21.CoreWebView2.WebMessageReceived += WebView21_WebMessageReceived;
+
+            // When navigation completes, center on initial coordinates if provided
+            webView21.CoreWebView2.NavigationCompleted += async (sender, args) =>
+            {
+                if (args.IsSuccess && _initialLat.HasValue && _initialLon.HasValue)
+                {
+                    string latStr = _initialLat.Value.ToString(CultureInfo.InvariantCulture);
+                    string lonStr = _initialLon.Value.ToString(CultureInfo.InvariantCulture);
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"setInitialLocation({latStr}, {lonStr}, 15)");
+                }
+            };
+
+            // Navigate to the local file using the file:/// protocol
+            webView21.CoreWebView2.Navigate("file:///" + indexPath);
         }
 
         /// <summary>
@@ -83,6 +108,9 @@ namespace TrainzBasemapMaker
                 {
                     double lat = doc.RootElement.GetProperty("lat").GetDouble();
                     double lon = doc.RootElement.GetProperty("lon").GetDouble();
+
+                    SelectedLat = lat;
+                    SelectedLon = lon;
 
                     // Update UI text boxes with coordinates using InvariantCulture (dot separator)
                     textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
