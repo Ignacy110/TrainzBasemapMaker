@@ -41,6 +41,8 @@ namespace TrainzBasemapMaker
         private readonly List<SelectedTileModel> _selectedTiles = new List<SelectedTileModel>();
         private CancellationTokenSource? _cancellationTokenSource;
         private bool _isDownloading = false;
+        private long? _currentAnchorX;
+        private long? _currentAnchorY;
 
         public GridToolForm()
         {
@@ -155,8 +157,52 @@ namespace TrainzBasemapMaker
                 return;
             }
 
-            // Determine EPSG
-            bool isEpsg2180 = GeoHelperEPSG2180.IsWithin2180Bounds(parsedTiles[0].X, parsedTiles[0].Y);
+            // Check if group_info.json exists to retrieve the original anchor and settings
+            var groupInfo = _fileManager.GetGroupInfo(selectedGroup);
+
+            bool isEpsg2180;
+            long anchorX, anchorY;
+
+            if (groupInfo != null && groupInfo.AnchorX.HasValue && groupInfo.AnchorY.HasValue)
+            {
+                isEpsg2180 = groupInfo.Epsg == "EPSG:2180";
+                anchorX = groupInfo.AnchorX.Value;
+                anchorY = groupInfo.AnchorY.Value;
+
+                if (!string.IsNullOrWhiteSpace(groupInfo.Designation))
+                {
+                    textBoxDesignation.Text = groupInfo.Designation;
+                }
+
+                // Restore map source if available in dropdown
+                if (!string.IsNullOrWhiteSpace(groupInfo.MapSource))
+                {
+                    for (int k = 0; k < comboBoxMapType.Items.Count; k++)
+                    {
+                        if (comboBoxMapType.Items[k] is IMapSource ms && ms.Name.Equals(groupInfo.MapSource, StringComparison.OrdinalIgnoreCase))
+                        {
+                            comboBoxMapType.SelectedIndex = k;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Fallback: determine EPSG and anchor from first parsed tile
+                isEpsg2180 = GeoHelperEPSG2180.IsWithin2180Bounds(parsedTiles[0].X, parsedTiles[0].Y);
+                anchorX = parsedTiles[0].X;
+                anchorY = parsedTiles[0].Y;
+
+                if (!string.IsNullOrWhiteSpace(parsedTiles[0].Designation))
+                {
+                    textBoxDesignation.Text = parsedTiles[0].Designation;
+                }
+            }
+
+            _currentAnchorX = anchorX;
+            _currentAnchorY = anchorY;
+
             if (isEpsg2180)
             {
                 radioButtonEpsg2180.Checked = true;
@@ -167,10 +213,6 @@ namespace TrainzBasemapMaker
             }
 
             textBoxDestinationFolder.Text = selectedGroup;
-            if (!string.IsNullOrWhiteSpace(parsedTiles[0].Designation))
-            {
-                textBoxDesignation.Text = parsedTiles[0].Designation;
-            }
 
             UpdateNextFreeCounter();
             UpdateNextFreeKuidPart2();
@@ -179,7 +221,7 @@ namespace TrainzBasemapMaker
             var payload = new
             {
                 epsg = isEpsg2180 ? "EPSG:2180" : "EPSG:3857",
-                anchor = new { x = parsedTiles[0].X, y = parsedTiles[0].Y },
+                anchor = new { x = anchorX, y = anchorY },
                 tiles = parsedTiles.Select(t => new
                 {
                     x = t.X,
@@ -194,7 +236,8 @@ namespace TrainzBasemapMaker
             string json = JsonSerializer.Serialize(payload);
             await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
 
-            toolStripStatusLabel1.Text = $"Wczytano {parsedTiles.Count} podkładów z folderu \"{selectedGroup}\" i ustawiono siatkę lokalną.";
+            string anchorSourceText = groupInfo != null ? " (zapisany punkt bazowy)" : "";
+            toolStripStatusLabel1.Text = $"Wczytano {parsedTiles.Count} podkładów z folderu \"{selectedGroup}\"{anchorSourceText} i ustawiono siatkę lokalną.";
         }
 
         private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -215,6 +258,20 @@ namespace TrainzBasemapMaker
                         int count = root.GetProperty("count").GetInt32();
                         int existingCount = root.TryGetProperty("existingCount", out var ec) ? ec.GetInt32() : 0;
                         _selectedTiles.Clear();
+
+                        if (root.TryGetProperty("anchor", out var anchorElem) && anchorElem.ValueKind == JsonValueKind.Object)
+                        {
+                            if (anchorElem.TryGetProperty("x", out var ax) && anchorElem.TryGetProperty("y", out var ay))
+                            {
+                                _currentAnchorX = (long)Math.Round(ax.GetDouble());
+                                _currentAnchorY = (long)Math.Round(ay.GetDouble());
+                            }
+                        }
+                        else if (count == 0 && existingCount == 0)
+                        {
+                            _currentAnchorX = null;
+                            _currentAnchorY = null;
+                        }
 
                         if (root.TryGetProperty("tiles", out var tilesArray))
                         {
@@ -285,6 +342,8 @@ namespace TrainzBasemapMaker
         private async void buttonResetAnchor_Click(object sender, EventArgs e)
         {
             if (webView21.CoreWebView2 == null) return;
+            _currentAnchorX = null;
+            _currentAnchorY = null;
             await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
         }
 
@@ -384,6 +443,49 @@ namespace TrainzBasemapMaker
             progressBar1.Minimum = 0;
             progressBar1.Maximum = total;
             progressBar1.Value = 0;
+
+            // Save or update group metadata in group_info.json
+            try
+            {
+                var existingInfo = _fileManager.GetGroupInfo(targetGroup);
+                if (existingInfo == null)
+                {
+                    long anchorX = _currentAnchorX ?? tilesToDownload[0].X;
+                    long anchorY = _currentAnchorY ?? tilesToDownload[0].Y;
+                    double? anchorCosLat = null;
+
+                    if (radioButtonEpsg3857.Checked)
+                    {
+                        var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(anchorX, anchorY);
+                        anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
+                    }
+
+                    var newInfo = new BasemapGroupInfo
+                    {
+                        GroupName = targetGroup,
+                        Designation = targetDesignation,
+                        Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                        AnchorX = anchorX,
+                        AnchorY = anchorY,
+                        AnchorCosLat = anchorCosLat,
+                        MapSource = selectedMap.Name,
+                        Resolution = res,
+                        Year = selectedMap.SupportsTime ? year : null,
+                        CreatedAt = DateTime.Now,
+                        LastUpdatedAt = DateTime.Now
+                    };
+                    _fileManager.SaveGroupInfo(targetGroup, newInfo);
+                }
+                else
+                {
+                    existingInfo.LastUpdatedAt = DateTime.Now;
+                    _fileManager.SaveGroupInfo(targetGroup, existingInfo);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error saving group metadata: " + ex.Message);
+            }
 
             try
             {
@@ -531,20 +633,17 @@ namespace TrainzBasemapMaker
                     radioButton2048.Checked = true;
                 }
 
-                // Geoportal maps (WMS / WMTS) only support EPSG:2180 in Poland
-                // Global maps (XYZ OpenStreetMap / OpenRailwayMap) only support EPSG:3857
-                if (selected is WmsMapSource || selected is WmtsMapSource)
+                // Auto-suggest the native EPSG for the selected provider while keeping both options enabled
+                if (selected is XyzTileMapSource)
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg2180.Checked = true;
-                    radioButtonEpsg3857.Enabled = false;
+                    radioButtonEpsg3857.Checked = true;
                 }
                 else
                 {
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg3857.Checked = true;
-                    radioButtonEpsg2180.Enabled = false;
+                    radioButtonEpsg2180.Checked = true;
                 }
+                radioButtonEpsg2180.Enabled = true;
+                radioButtonEpsg3857.Enabled = true;
             }
         }
 

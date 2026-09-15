@@ -101,15 +101,15 @@ function getTileCenter(i, j) {
         var ll = metersToLatLon(x, y);
         return { x: x, y: y, lat: ll.lat, lon: ll.lon };
     } else {
-        // EPSG:3857: 500 real ground meters footprint
+        // EPSG:3857: 500 real ground meters footprint based on anchor latitude
         var anchorLL = metersToLatLon(anchor.x, anchor.y);
-        var latStep = tileSize / 111320.0;
-        var lonStep = tileSize / (111320.0 * Math.cos(anchorLL.lat * Math.PI / 180.0));
+        var cosLat = Math.cos(anchorLL.lat * Math.PI / 180.0);
+        var stepSize = tileSize / Math.max(0.01, cosLat);
 
-        var lat = anchorLL.lat + j * latStep;
-        var lon = anchorLL.lon + i * lonStep;
-        var m = latLonToMeters(lat, lon);
-        return { x: m.x, y: m.y, lat: lat, lon: lon };
+        var x = anchor.x + i * stepSize;
+        var y = anchor.y + j * stepSize;
+        var ll = metersToLatLon(x, y);
+        return { x: x, y: y, lat: ll.lat, lon: ll.lon };
     }
 }
 
@@ -131,13 +131,20 @@ function getTileBoundsForIndex(i, j) {
             [sw.lat, sw.lon]
         ];
     } else {
-        var halfLat = (tileSize / 2.0) / 111320.0;
-        var halfLon = (tileSize / 2.0) / (111320.0 * Math.cos(center.lat * Math.PI / 180.0));
+        var anchorLL = metersToLatLon(anchor.x, anchor.y);
+        var cosLat = Math.cos(anchorLL.lat * Math.PI / 180.0);
+        var stepSize = tileSize / Math.max(0.01, cosLat);
+        var halfSpan = stepSize / 2.0;
+
+        var nw = metersToLatLon(center.x - halfSpan, center.y + halfSpan);
+        var ne = metersToLatLon(center.x + halfSpan, center.y + halfSpan);
+        var se = metersToLatLon(center.x + halfSpan, center.y - halfSpan);
+        var sw = metersToLatLon(center.x - halfSpan, center.y - halfSpan);
         return [
-            [center.lat + halfLat, center.lon - halfLon],
-            [center.lat + halfLat, center.lon + halfLon],
-            [center.lat - halfLat, center.lon + halfLon],
-            [center.lat - halfLat, center.lon - halfLon]
+            [nw.lat, nw.lon],
+            [ne.lat, ne.lon],
+            [se.lat, se.lon],
+            [sw.lat, sw.lon]
         ];
     }
 }
@@ -153,11 +160,12 @@ function latLonToGridIndex(lat, lon) {
         return { i: i, j: j };
     } else {
         var anchorLL = metersToLatLon(anchor.x, anchor.y);
-        var latStep = tileSize / 111320.0;
-        var lonStep = tileSize / (111320.0 * Math.cos(anchorLL.lat * Math.PI / 180.0));
+        var cosLat = Math.cos(anchorLL.lat * Math.PI / 180.0);
+        var stepSize = tileSize / Math.max(0.01, cosLat);
 
-        var i = Math.round((lon - anchorLL.lon) / lonStep);
-        var j = Math.round((lat - anchorLL.lat) / latStep);
+        var m = latLonToMeters(lat, lon);
+        var i = Math.round((m.x - anchor.x) / stepSize);
+        var j = Math.round((m.y - anchor.y) / stepSize);
         return { i: i, j: j };
     }
 }
@@ -621,8 +629,38 @@ window.addEventListener("mouseup", function(e) {
 // Control API methods accessible from C#
 function setCoordinateSystem(epsg) {
     if (currentEpsg === epsg) return;
-    currentEpsg = epsg;
-    resetGridOrigin();
+
+    if (anchor) {
+        var anchorLL = metersToLatLon(anchor.x, anchor.y);
+        currentEpsg = epsg;
+        var newM = latLonToMeters(anchorLL.lat, anchorLL.lon);
+        anchor = {
+            x: Math.round(newM.x),
+            y: Math.round(newM.y)
+        };
+
+        selectedTiles.forEach(function(tile, key) {
+            var center = getTileCenter(tile.i, tile.j);
+            if (center) {
+                tile.x = center.x;
+                tile.y = center.y;
+            }
+        });
+
+        existingTiles.forEach(function(tile, key) {
+            var center = getTileCenter(tile.i, tile.j);
+            if (center) {
+                tile.x = center.x;
+                tile.y = center.y;
+            }
+        });
+
+        renderSelectedTiles(true);
+        updateGridOverlay();
+    } else {
+        currentEpsg = epsg;
+        resetGridOrigin();
+    }
 }
 
 function clearAllTiles() {

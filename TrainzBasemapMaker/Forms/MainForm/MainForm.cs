@@ -43,6 +43,9 @@ namespace TrainzBasemapMaker
         string basemapGroup = "Podkłady";
         string basemapGroupDesignation = "P";
 
+        // Anchor factor for EPSG:3857 grid navigation to prevent drift
+        private double? _anchorCosLat = null;
+
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
         // Custom tooltip for displaying input validation warnings
@@ -101,6 +104,22 @@ namespace TrainzBasemapMaker
             textBoxX.Text = currentX.ToString();
             textBoxY.Text = currentY.ToString();
             textBoxCounter.Text = counter.ToString();
+        }
+
+        private void UpdateLatLonDisplayFromCurrentXY()
+        {
+            if (radioButtonEpsg2180.Checked && GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))
+            {
+                var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
+                textBoxLat.Text = lat.ToString("F7", CultureInfo.InvariantCulture);
+                textBoxLon.Text = lon.ToString("F7", CultureInfo.InvariantCulture);
+            }
+            else if (radioButtonEpsg3857.Checked)
+            {
+                var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
+                textBoxLat.Text = lat.ToString("F7", CultureInfo.InvariantCulture);
+                textBoxLon.Text = lon.ToString("F7", CultureInfo.InvariantCulture);
+            }
         }
 
         // Loads and displays a previously saved basemap image in the picture box
@@ -213,6 +232,45 @@ namespace TrainzBasemapMaker
 
                         if (success)
                         {
+                            try
+                            {
+                                var existingInfo = fileManager.GetGroupInfo(basemapGroup);
+                                if (existingInfo == null)
+                                {
+                                    double? anchorCosLat = null;
+                                    if (radioButtonEpsg3857.Checked)
+                                    {
+                                        var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
+                                        anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
+                                    }
+
+                                    var newInfo = new BasemapGroupInfo
+                                    {
+                                        GroupName = basemapGroup,
+                                        Designation = basemapGroupDesignation,
+                                        Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                                        AnchorX = currentX,
+                                        AnchorY = currentY,
+                                        AnchorCosLat = _anchorCosLat ?? anchorCosLat,
+                                        MapSource = selectedMap.Name,
+                                        Resolution = resolution,
+                                        Year = selectedMap.SupportsTime ? year : null,
+                                        CreatedAt = DateTime.Now,
+                                        LastUpdatedAt = DateTime.Now
+                                    };
+                                    fileManager.SaveGroupInfo(basemapGroup, newInfo);
+                                }
+                                else
+                                {
+                                    existingInfo.LastUpdatedAt = DateTime.Now;
+                                    fileManager.SaveGroupInfo(basemapGroup, existingInfo);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Error saving group metadata: " + ex.Message);
+                            }
+
                             // Auto-increment counters based on user preferences
                             if (Properties.Settings.Default.AutoCounterNumber)
                             {
@@ -261,22 +319,35 @@ namespace TrainzBasemapMaker
             groupBox4KuidList.Enabled = enabled;
         }
 
-        // Updates EPSG radio buttons based on map provider (Geoportal only supports EPSG:2180; OSM only supports EPSG:3857)
+        // Updates EPSG radio buttons based on geographic coordinates (in Poland both 2180 and 3857 are allowed; outside Poland only 3857)
         private void UpdateCoordinateSystemAvailability()
         {
-            if (comboBoxMapType.SelectedItem is WmsMapSource || comboBoxMapType.SelectedItem is WmtsMapSource)
+            string latText = textBoxLat.Text.Replace(',', '.');
+            string lonText = textBoxLon.Text.Replace(',', '.');
+
+            if (double.TryParse(latText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lat) &&
+                double.TryParse(lonText, NumberStyles.Any, CultureInfo.InvariantCulture, out double lon))
             {
-                // Geoportal services only support EPSG:2180 in Poland
-                radioButtonEpsg2180.Enabled = true;
-                radioButtonEpsg2180.Checked = true;
-                radioButtonEpsg3857.Enabled = false;
+                bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
+                if (inPoland)
+                {
+                    radioButtonEpsg2180.Enabled = true;
+                    radioButtonEpsg3857.Enabled = true;
+                }
+                else
+                {
+                    radioButtonEpsg2180.Enabled = false;
+                    radioButtonEpsg3857.Enabled = true;
+                    if (radioButtonEpsg2180.Checked)
+                    {
+                        radioButtonEpsg3857.Checked = true;
+                    }
+                }
             }
             else
             {
-                // Global XYZ tile maps (OpenStreetMap / OpenRailwayMap) only support EPSG:3857
+                radioButtonEpsg2180.Enabled = true;
                 radioButtonEpsg3857.Enabled = true;
-                radioButtonEpsg3857.Checked = true;
-                radioButtonEpsg2180.Enabled = false;
             }
         }
 
@@ -318,6 +389,7 @@ namespace TrainzBasemapMaker
                     var (x, y) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
                     currentX = (long)Math.Round(x);
                     currentY = (long)Math.Round(y);
+                    _anchorCosLat = null;
 
                     DataRefresh();
                     toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
@@ -327,6 +399,7 @@ namespace TrainzBasemapMaker
                     var (x, y) = GeoHelperEPSG3857.LatLonToMeters3857(lat, lon);
                     currentX = (long)Math.Round(x);
                     currentY = (long)Math.Round(y);
+                    _anchorCosLat = null;
 
                     DataRefresh();
                     string suffix = inPoland ? " (Polska)" : " (Global)";
@@ -362,6 +435,7 @@ namespace TrainzBasemapMaker
             {
                 currentX = long.Parse(textBoxX.Text, CultureInfo.InvariantCulture);
                 currentY = long.Parse(textBoxY.Text, CultureInfo.InvariantCulture);
+                _anchorCosLat = null;
                 await DownloadMap();
             }
             catch (Exception ex)
@@ -371,32 +445,61 @@ namespace TrainzBasemapMaker
             }
         }
 
-        // Navigation controls: Shift the map by exactly one tile size in the specified direction
+        private (double stepX, double stepY) GetNavigationStep()
+        {
+            if (radioButtonEpsg2180.Checked)
+            {
+                return (MapSourceBase.TileSize, MapSourceBase.TileSize);
+            }
+            else
+            {
+                // W EPSG:3857 zapamiętujemy współczynnik skali z pierwszego kroku,
+                // aby siatka (grid) pozostała idealnie równa (uniknięcie dryfu).
+                if (_anchorCosLat == null)
+                {
+                    var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
+                    _anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
+                }
+
+                double step = MapSourceBase.TileSize / Math.Max(0.01, _anchorCosLat.Value);
+                return (step, step);
+            }
+        }
+
+        // Navigation controls: Shift the map by exactly one tile size (500 ground meters) in the specified direction
         private async void buttonRight_Click(object sender, EventArgs e)
         {
-            currentX += MapSourceBase.TileSize;
+            var (stepX, _) = GetNavigationStep();
+            currentX = (long)Math.Round(currentX + stepX);
             DataRefresh();
+            UpdateLatLonDisplayFromCurrentXY();
             await DownloadMap();
         }
 
         private async void buttonLeft_Click(object sender, EventArgs e)
         {
-            currentX -= MapSourceBase.TileSize;
+            var (stepX, _) = GetNavigationStep();
+            currentX = (long)Math.Round(currentX - stepX);
             DataRefresh();
+            UpdateLatLonDisplayFromCurrentXY();
             await DownloadMap();
         }
 
         private async void buttonUp_Click(object sender, EventArgs e)
         {
-            currentY += MapSourceBase.TileSize;
+            var (_, stepY) = GetNavigationStep();
+            currentY = (long)Math.Round(currentY + stepY);
             DataRefresh();
+            UpdateLatLonDisplayFromCurrentXY();
             await DownloadMap();
         }
 
         private async void buttonDown_Click(object sender, EventArgs e)
         {
-            currentY -= MapSourceBase.TileSize;
+            var (_, stepY) = GetNavigationStep();
+            currentY = (long)Math.Round(currentY - stepY);
             DataRefresh();
+            UpdateLatLonDisplayFromCurrentXY();
             await DownloadMap();
         }
 
@@ -419,6 +522,7 @@ namespace TrainzBasemapMaker
                     {
                         currentX = tileInfo.X;
                         currentY = tileInfo.Y;
+                        _anchorCosLat = null;
                         DataRefresh();
 
                         if (GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))
@@ -568,6 +672,17 @@ namespace TrainzBasemapMaker
                 }
 
                 UpdateCoordinateSystemAvailability();
+
+                // Auto-suggest the native EPSG for the selected provider while keeping both options switchable
+                if (selected is XyzTileMapSource)
+                {
+                    radioButtonEpsg3857.Checked = true;
+                }
+                else if (radioButtonEpsg2180.Enabled)
+                {
+                    radioButtonEpsg2180.Checked = true;
+                }
+
                 PerformConversion();
             }
         }
@@ -632,6 +747,7 @@ namespace TrainzBasemapMaker
                     // Apply coordinates only if the user confirmed the selection
                     textBoxLat.Text = mapPicker.SelectedLat.ToString(CultureInfo.InvariantCulture);
                     textBoxLon.Text = mapPicker.SelectedLon.ToString(CultureInfo.InvariantCulture);
+                    _anchorCosLat = null;
                     PerformConversion();
                 }
             }
