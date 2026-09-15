@@ -91,6 +91,29 @@ namespace TrainzBasemapMaker
             UpdateNextFreeKuidPart2();
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
+
+            this.Load += MainForm_Load;
+            this.FormClosing += MainForm_FormClosing;
+        }
+
+        private void MainForm_Load(object? sender, EventArgs e)
+        {
+            this.Size = Properties.Settings.Default.MainFormSize;
+            this.WindowState = Properties.Settings.Default.MainFormState;
+        }
+
+        private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.MainFormState = this.WindowState;
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.MainFormSize = this.Size;
+            }
+            else
+            {
+                Properties.Settings.Default.MainFormSize = this.RestoreBounds.Size;
+            }
+            Properties.Settings.Default.Save();
         }
 
 

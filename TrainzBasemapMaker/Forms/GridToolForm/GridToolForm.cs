@@ -72,8 +72,10 @@ namespace TrainzBasemapMaker
             toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciągnij pędzlem, aby zaznaczyć | PPM: Przesuwanie mapy";
         }
 
-        private async void GridToolForm_Load(object sender, EventArgs e)
+        private async void GridToolForm_Load(object? sender, EventArgs e)
         {
+            this.Size = Properties.Settings.Default.GridToolFormSize;
+            this.WindowState = Properties.Settings.Default.GridToolFormState;
             await InitBrowser();
         }
 
@@ -691,7 +693,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void GridToolForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void GridToolForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
             if (_isDownloading)
             {
@@ -704,6 +706,17 @@ namespace TrainzBasemapMaker
 
                 _cancellationTokenSource?.Cancel();
             }
+
+            Properties.Settings.Default.GridToolFormState = this.WindowState;
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                Properties.Settings.Default.GridToolFormSize = this.Size;
+            }
+            else
+            {
+                Properties.Settings.Default.GridToolFormSize = this.RestoreBounds.Size;
+            }
+            Properties.Settings.Default.Save();
         }
     }
 }

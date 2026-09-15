@@ -489,6 +489,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox3Navigator
             // 
+            groupBox3Navigator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox3Navigator.Controls.Add(label3);
             groupBox3Navigator.Controls.Add(buttonLeft);
             groupBox3Navigator.Controls.Add(buttonUp);
@@ -512,6 +513,7 @@ namespace TrainzBasemapMaker
             // 
             // pictureBox1
             // 
+            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBox1.Location = new Point(6, 28);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(726, 726);
@@ -599,6 +601,7 @@ namespace TrainzBasemapMaker
             // 
             // kuidsInFolderListBox
             // 
+            kuidsInFolderListBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             kuidsInFolderListBox.FormattingEnabled = true;
             kuidsInFolderListBox.ItemHeight = 15;
             kuidsInFolderListBox.Location = new Point(6, 21);
@@ -610,6 +613,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox5BasemapViewer
             // 
+            groupBox5BasemapViewer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox5BasemapViewer.Controls.Add(pictureBox1);
             groupBox5BasemapViewer.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
             groupBox5BasemapViewer.Location = new Point(218, 24);
@@ -621,6 +625,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox4KuidList
             // 
+            groupBox4KuidList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             groupBox4KuidList.Controls.Add(kuidsInFolderListBox);
             groupBox4KuidList.Location = new Point(962, 192);
             groupBox4KuidList.Name = "groupBox4KuidList";
@@ -726,7 +731,6 @@ namespace TrainzBasemapMaker
             statusStrip1.Location = new Point(0, 787);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(1193, 22);
-            statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 20;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -748,10 +752,9 @@ namespace TrainzBasemapMaker
             Controls.Add(groupBox3Navigator);
             Controls.Add(groupBox2Configurator);
             Controls.Add(menuStrip1);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip1;
-            MaximizeBox = false;
+            MinimumSize = new Size(1209, 848);
             Name = "MainForm";
             Text = "Trainz Basemap Maker";
             groupBox2Configurator.ResumeLayout(false);
