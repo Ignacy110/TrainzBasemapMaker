@@ -1,4 +1,4 @@
-﻿
+
 // Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
@@ -37,6 +37,8 @@ namespace TrainzBasemapMaker
             {
                 pictureBox1.Image = new Bitmap(temp);
             }
+            
+            TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
         }
 
         /// <summary>

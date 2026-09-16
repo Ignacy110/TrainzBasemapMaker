@@ -197,6 +197,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBoxMap
             // 
+            groupBoxMap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxMap.Controls.Add(webView21);
             groupBoxMap.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
             groupBoxMap.Location = new Point(218, 12);
@@ -209,6 +210,7 @@ namespace TrainzBasemapMaker
             // webView21
             // 
             webView21.AllowExternalDrop = true;
+            webView21.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             webView21.CreationProperties = null;
             webView21.DefaultBackgroundColor = Color.White;
             webView21.Location = new Point(6, 28);
@@ -219,6 +221,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox3Config
             // 
+            groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox3Config.Controls.Add(panelTrainzFiles);
             groupBox3Config.Controls.Add(radioButton512);
             groupBox3Config.Controls.Add(radioButton1024);
@@ -462,6 +465,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox4Download
             // 
+            groupBox4Download.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox4Download.Controls.Add(buttonCancel);
             groupBox4Download.Controls.Add(buttonStartDownload);
             groupBox4Download.Controls.Add(labelProgress);
@@ -517,7 +521,6 @@ namespace TrainzBasemapMaker
             statusStrip1.Location = new Point(0, 787);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(1193, 22);
-            statusStrip1.SizingGrip = false;
             statusStrip1.TabIndex = 5;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -538,9 +541,8 @@ namespace TrainzBasemapMaker
             Controls.Add(groupBoxMap);
             Controls.Add(groupBox2CoordSystem);
             Controls.Add(groupBox1Selection);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MaximizeBox = false;
+            MinimumSize = new Size(1209, 848);
             Name = "GridToolForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;

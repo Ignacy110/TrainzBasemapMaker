@@ -123,8 +123,9 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private async void MapPickerForm_Load(object sender, EventArgs e)
+        private async void MapPickerForm_Load(object? sender, EventArgs e)
         {
+            TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
             await InitBrowser();
         }
 
