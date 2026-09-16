@@ -35,6 +35,8 @@ namespace TrainzBasemapMaker
             label1 = new Label();
             label2 = new Label();
             checkBoxDarkMode = new CheckBox();
+            comboBoxBasemapSize = new ComboBox();
+            label3 = new Label();
             SuspendLayout();
             // 
             // checkBoxAutoCounter
@@ -95,11 +97,35 @@ namespace TrainzBasemapMaker
             checkBoxDarkMode.Text = "Ciemny motyw";
             checkBoxDarkMode.UseVisualStyleBackColor = true;
             // 
+            // 
+            // comboBoxBasemapSize
+            // 
+            comboBoxBasemapSize.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxBasemapSize.FormattingEnabled = true;
+            comboBoxBasemapSize.Items.AddRange(new object[] {
+            "500",
+            "720"});
+            comboBoxBasemapSize.Location = new Point(38, 172);
+            comboBoxBasemapSize.Name = "comboBoxBasemapSize";
+            comboBoxBasemapSize.Size = new Size(121, 23);
+            comboBoxBasemapSize.TabIndex = 6;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(165, 175);
+            label3.Name = "label3";
+            label3.Size = new Size(124, 15);
+            label3.TabIndex = 7;
+            label3.Text = "Rozmiar podkładu (m)";
+            // 
             // PreferencesForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(414, 190);
+            ClientSize = new Size(414, 220);
+            Controls.Add(label3);
+            Controls.Add(comboBoxBasemapSize);
             Controls.Add(checkBoxDarkMode);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -126,5 +152,7 @@ namespace TrainzBasemapMaker
         private Label label1;
         private Label label2;
         private CheckBox checkBoxDarkMode;
+        private ComboBox comboBoxBasemapSize;
+        private Label label3;
     }
 }

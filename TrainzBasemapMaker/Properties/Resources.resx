@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -123,6 +123,9 @@
   </data>
   <data name="basemap_im" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\basemap.im;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="basemap720_im" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\basemap720.im;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="config_txt" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\config.txt;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

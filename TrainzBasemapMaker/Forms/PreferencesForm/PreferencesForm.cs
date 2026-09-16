@@ -33,6 +33,7 @@ namespace TrainzBasemapMaker
             checkBoxAutoKuid.Checked = Properties.Settings.Default.AutoKuidNumber;
             textBoxDefaultKuidFirstPart.Text = Properties.Settings.Default.DefaultKuidFirstPart;
             checkBoxDarkMode.Checked = Properties.Settings.Default.DarkMode;
+            comboBoxBasemapSize.SelectedItem = Properties.Settings.Default.BasemapSize.ToString();
             
             TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
 
@@ -78,6 +79,10 @@ namespace TrainzBasemapMaker
             Properties.Settings.Default.AutoCounterNumber = checkBoxAutoCounter.Checked;
             Properties.Settings.Default.AutoKuidNumber = checkBoxAutoKuid.Checked;
             Properties.Settings.Default.DefaultKuidFirstPart = textBoxDefaultKuidFirstPart.Text;
+            if (int.TryParse(comboBoxBasemapSize.SelectedItem?.ToString(), out int size))
+            {
+                Properties.Settings.Default.BasemapSize = size;
+            }
             
             Properties.Settings.Default.Save();
         }

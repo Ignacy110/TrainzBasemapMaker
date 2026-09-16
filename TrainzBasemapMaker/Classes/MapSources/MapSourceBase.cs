@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -24,9 +24,9 @@ namespace TrainzBasemapMaker.Classes
     internal abstract class MapSourceBase : IMapSource
     {
         /// <summary>
-        /// Default tile footprint size in meters (500m x 500m).
+        /// Default tile footprint size in meters (500m x 500m or 720m x 720m).
         /// </summary>
-        public const long TileSize = 500;
+        public static long TileSize => Properties.Settings.Default.BasemapSize;
 
         protected static readonly HttpClient HttpClient = new HttpClient();
 

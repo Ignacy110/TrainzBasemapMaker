@@ -89,6 +89,15 @@ namespace TrainzBasemapMaker
                 webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.5.0-alpha (https://github.com/Ignacy110/TrainzBasemapMaker)";
 
                 string indexPath = Path.Combine(Application.StartupPath, "Forms", "GridToolForm", "Web", "grid_map.html");
+                
+                webView21.CoreWebView2.NavigationCompleted += async (sender, args) =>
+                {
+                    if (args.IsSuccess)
+                    {
+                        await webView21.CoreWebView2.ExecuteScriptAsync($"setTileSize({TrainzBasemapMaker.Classes.MapSourceBase.TileSize});");
+                    }
+                };
+                
                 webView21.CoreWebView2.Navigate("file:///" + indexPath);
 
                 webView21.CoreWebView2.WebMessageReceived += WebView21_WebMessageReceived;

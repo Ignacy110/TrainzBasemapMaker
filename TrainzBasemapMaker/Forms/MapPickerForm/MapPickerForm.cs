@@ -87,7 +87,11 @@ namespace TrainzBasemapMaker
                 {
                     string latStr = _initialLat.Value.ToString(CultureInfo.InvariantCulture);
                     string lonStr = _initialLon.Value.ToString(CultureInfo.InvariantCulture);
-                    await webView21.CoreWebView2.ExecuteScriptAsync($"setInitialLocation({latStr}, {lonStr}, 15)");
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize}; setInitialLocation({latStr}, {lonStr}, 15)");
+                }
+                else
+                {
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize};");
                 }
             };
 

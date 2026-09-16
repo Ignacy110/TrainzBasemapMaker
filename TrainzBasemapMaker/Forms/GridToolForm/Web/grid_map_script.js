@@ -70,6 +70,13 @@ L.control.layers(baseMaps).addTo(map);
 // State variables
 var currentEpsg = "EPSG:2180";
 var tileSize = 500; // 500 meters
+
+function setTileSize(size) {
+    tileSize = size;
+    updateGridOverlay();
+    renderSelectedTiles(false);
+}
+
 var anchor = null;  // { x: number, y: number } in projected meters
 var selectedTiles = new Map(); // key "i_j" => { i, j, x, y, status } (newly selected tiles for download)
 var existingTiles = new Map(); // key "i_j" => { i, j, x, y, counter, status: "existing" } (tiles already loaded from folder)

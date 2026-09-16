@@ -103,7 +103,10 @@ namespace TrainzBasemapMaker.Classes
             // 4. writing files
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap.jpg"), imageBytes);
             File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
-            File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap_im);
+            if (Properties.Settings.Default.BasemapSize == 720)
+                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap720_im);
+            else
+                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap_im);
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap-basemap.texture.txt"), Properties.Resources.basemap_basemap_texture_txt);
 
             // 5. creating config.txt

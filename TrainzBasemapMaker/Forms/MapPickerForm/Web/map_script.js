@@ -91,7 +91,7 @@ function selectPoint(lat, lon, zoomLevel) {
     }
 
     // Draw the preview boundary box representing the actual C# download footprint
-    drawBasemapSquare(lat, lon, 500);
+    drawBasemapSquare(lat, lon, window.tileSize || 500);
 
     // Transmit coordinates asynchronously back to the hosting WinForms C# WebView2 environment
     var message = { lat: lat, lon: lon };
