@@ -755,6 +755,14 @@ namespace TrainzBasemapMaker
             }
         }
 
+        private void terrainGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (TerrainGridToolForm terrainTool = new TerrainGridToolForm())
+            {
+                terrainTool.ShowDialog();
+            }
+        }
+
         private void batchProcessingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (BatchToolForm info = new BatchToolForm())

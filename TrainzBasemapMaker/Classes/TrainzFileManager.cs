@@ -71,6 +71,34 @@ namespace TrainzBasemapMaker.Classes
             return false;
         }
 
+        public void CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData)
+        {
+            string groupPath = Path.Combine(RootFolder, basemapGroup);
+            if (!Directory.Exists(groupPath))
+            {
+                Directory.CreateDirectory(groupPath);
+            }
+
+                                                string safeRouteName = string.Join("_", routeName.Split(Path.GetInvalidFileNameChars()));
+            string targetFolderName = $"route_{safeRouteName}_{kuidPart1}_{kuidPart2}";
+            string targetFolder = Path.Combine(groupPath, targetFolderName);
+            Directory.CreateDirectory(targetFolder);
+
+            // Zapis mapfile.gnd (g³ówny plik siatki)
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.gnd"), gndData);
+
+            // Zapis pustego mapfile.obs (obiekty - wymagane przez niektóre wersje Trainz)
+            byte[] emptyObs = { 0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.obs"), emptyObs);
+
+            // Zapis pustego mapfile.trk (tory - wymagane przez niektóre wersje Trainz)
+            byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
+
+            string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            2.9\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";
+            File.WriteAllText(Path.Combine(targetFolder, "config.txt"), configText);
+            File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
+        }
         public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
         {
             // 1. building paths with Path.Combine
@@ -266,3 +294,7 @@ namespace TrainzBasemapMaker.Classes
         }
     }
 }
+
+
+
+

@@ -66,4 +66,12 @@
     <Folder Include="Forms\MapPickerForm\Web\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Forms\TerrainGridToolForm\Web\grid_map.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Forms\TerrainGridToolForm\Web\grid_map_script.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
