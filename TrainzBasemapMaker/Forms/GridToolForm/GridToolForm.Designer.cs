@@ -43,6 +43,7 @@ namespace TrainzBasemapMaker
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3Config = new GroupBox();
             panelTrainzFiles = new Panel();
+            buttonLoadFolder = new Button();
             labelKuidSeparator = new Label();
             textBoxKuidPart2 = new TextBox();
             textBoxKuidPart1 = new TextBox();
@@ -54,7 +55,6 @@ namespace TrainzBasemapMaker
             textBoxDestinationFolder = new TextBox();
             label4 = new Label();
             basemapFolderListBox = new ListBox();
-            buttonLoadFolder = new Button();
             label10 = new Label();
             radioButton512 = new RadioButton();
             radioButton1024 = new RadioButton();
@@ -102,7 +102,7 @@ namespace TrainzBasemapMaker
             labelArea.AutoSize = true;
             labelArea.Location = new Point(6, 190);
             labelArea.Name = "labelArea";
-            labelArea.Size = new Size(130, 15);
+            labelArea.Size = new Size(128, 15);
             labelArea.TabIndex = 5;
             labelArea.Text = "Powierzchnia: 0.00 km²";
             // 
@@ -112,7 +112,7 @@ namespace TrainzBasemapMaker
             labelTileCount.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             labelTileCount.Location = new Point(6, 171);
             labelTileCount.Name = "labelTileCount";
-            labelTileCount.Size = new Size(111, 15);
+            labelTileCount.Size = new Size(112, 15);
             labelTileCount.TabIndex = 4;
             labelTileCount.Text = "Zaznaczono kafli: 0";
             // 
@@ -141,7 +141,7 @@ namespace TrainzBasemapMaker
             radioButtonModeBox.AutoSize = true;
             radioButtonModeBox.Location = new Point(6, 55);
             radioButtonModeBox.Name = "radioButtonModeBox";
-            radioButtonModeBox.Size = new Size(147, 19);
+            radioButtonModeBox.Size = new Size(143, 19);
             radioButtonModeBox.TabIndex = 1;
             radioButtonModeBox.Text = "Zaznaczanie obszarem";
             radioButtonModeBox.UseVisualStyleBackColor = true;
@@ -153,7 +153,7 @@ namespace TrainzBasemapMaker
             radioButtonModeClick.Checked = true;
             radioButtonModeClick.Location = new Point(6, 26);
             radioButtonModeClick.Name = "radioButtonModeClick";
-            radioButtonModeClick.Size = new Size(115, 19);
+            radioButtonModeClick.Size = new Size(110, 19);
             radioButtonModeClick.TabIndex = 0;
             radioButtonModeClick.TabStop = true;
             radioButtonModeClick.Text = "Pędzel / klikanie";
@@ -176,7 +176,7 @@ namespace TrainzBasemapMaker
             radioButtonEpsg3857.AutoSize = true;
             radioButtonEpsg3857.Location = new Point(6, 51);
             radioButtonEpsg3857.Name = "radioButtonEpsg3857";
-            radioButtonEpsg3857.Size = new Size(140, 19);
+            radioButtonEpsg3857.Size = new Size(137, 19);
             radioButtonEpsg3857.TabIndex = 1;
             radioButtonEpsg3857.Text = "EPSG:3857 (Globalny)";
             radioButtonEpsg3857.UseVisualStyleBackColor = true;
@@ -188,7 +188,7 @@ namespace TrainzBasemapMaker
             radioButtonEpsg2180.Checked = true;
             radioButtonEpsg2180.Location = new Point(6, 26);
             radioButtonEpsg2180.Name = "radioButtonEpsg2180";
-            radioButtonEpsg2180.Size = new Size(130, 19);
+            radioButtonEpsg2180.Size = new Size(124, 19);
             radioButtonEpsg2180.TabIndex = 0;
             radioButtonEpsg2180.TabStop = true;
             radioButtonEpsg2180.Text = "EPSG:2180 (Polska)";
@@ -200,9 +200,9 @@ namespace TrainzBasemapMaker
             groupBoxMap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxMap.Controls.Add(webView21);
             groupBoxMap.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            groupBoxMap.Location = new Point(218, 12);
+            groupBoxMap.Location = new Point(218, 9);
             groupBoxMap.Name = "groupBoxMap";
-            groupBoxMap.Size = new Size(738, 760);
+            groupBoxMap.Size = new Size(738, 763);
             groupBoxMap.TabIndex = 2;
             groupBoxMap.TabStop = false;
             groupBoxMap.Text = "Wybór kafli na mapie (siatka lokalna):";
@@ -215,7 +215,7 @@ namespace TrainzBasemapMaker
             webView21.DefaultBackgroundColor = Color.White;
             webView21.Location = new Point(6, 28);
             webView21.Name = "webView21";
-            webView21.Size = new Size(726, 726);
+            webView21.Size = new Size(726, 729);
             webView21.TabIndex = 0;
             webView21.ZoomFactor = 1D;
             // 
@@ -258,6 +258,16 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.Name = "panelTrainzFiles";
             panelTrainzFiles.Size = new Size(205, 394);
             panelTrainzFiles.TabIndex = 9;
+            // 
+            // buttonLoadFolder
+            // 
+            buttonLoadFolder.Location = new Point(3, 194);
+            buttonLoadFolder.Name = "buttonLoadFolder";
+            buttonLoadFolder.Size = new Size(194, 26);
+            buttonLoadFolder.TabIndex = 12;
+            buttonLoadFolder.Text = "Wczytaj z folderu";
+            buttonLoadFolder.UseVisualStyleBackColor = true;
+            buttonLoadFolder.Click += buttonLoadFolder_Click;
             // 
             // labelKuidSeparator
             // 
@@ -344,16 +354,6 @@ namespace TrainzBasemapMaker
             label4.TabIndex = 2;
             label4.Text = "Nazwa docelowego folderu:";
             // 
-            // buttonLoadFolder
-            // 
-            buttonLoadFolder.Location = new Point(3, 194);
-            buttonLoadFolder.Name = "buttonLoadFolder";
-            buttonLoadFolder.Size = new Size(194, 26);
-            buttonLoadFolder.TabIndex = 12;
-            buttonLoadFolder.Text = "Wczytaj z folderu";
-            buttonLoadFolder.UseVisualStyleBackColor = true;
-            buttonLoadFolder.Click += buttonLoadFolder_Click;
-            // 
             // basemapFolderListBox
             // 
             basemapFolderListBox.FormattingEnabled = true;
@@ -421,7 +421,7 @@ namespace TrainzBasemapMaker
             label2.AutoSize = true;
             label2.Location = new Point(6, 102);
             label2.Name = "label2";
-            label2.Size = new Size(134, 15);
+            label2.Size = new Size(135, 15);
             label2.TabIndex = 4;
             label2.Text = "Rozdzielczość podkładu:";
             // 
@@ -503,7 +503,7 @@ namespace TrainzBasemapMaker
             labelProgress.AutoSize = true;
             labelProgress.Location = new Point(6, 58);
             labelProgress.Name = "labelProgress";
-            labelProgress.Size = new Size(125, 15);
+            labelProgress.Size = new Size(127, 15);
             labelProgress.TabIndex = 1;
             labelProgress.Text = "Gotowy do pobierania.";
             // 
