@@ -61,6 +61,10 @@ namespace TrainzBasemapMaker
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3Config = new GroupBox();
+            labelRoutes = new Label();
+            listBoxRoutes = new ListBox();
+            buttonLoadRoute = new Button();
+            buttonDeleteRoute = new Button();
             panelTrainzFiles = new Panel();
             labelKuidSeparator = new Label();
             textBoxKuidPart2 = new TextBox();
@@ -229,47 +233,58 @@ namespace TrainzBasemapMaker
             // groupBox3Config
             // 
             groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox3Config.Controls.Add(labelRoutes);
+            groupBox3Config.Controls.Add(listBoxRoutes);
+            groupBox3Config.Controls.Add(buttonLoadRoute);
+            groupBox3Config.Controls.Add(buttonDeleteRoute);
             groupBox3Config.Controls.Add(panelTrainzFiles);
             groupBox3Config.Controls.Add(groupBoxElevation);
             groupBox3Config.Location = new Point(962, 12);
             groupBox3Config.Name = "groupBox3Config";
-            groupBox3Config.Size = new Size(217, 215);
+            groupBox3Config.Size = new Size(217, 380);
             groupBox3Config.TabIndex = 3;
             groupBox3Config.TabStop = false;
             groupBox3Config.Text = "3. Konfiguracja trasy";
             // 
-            // groupBoxElevation
+            // labelRoutes
             // 
-            groupBoxElevation.Controls.Add(radioButtonElevationRelative);
-            groupBoxElevation.Controls.Add(radioButtonElevationAbsolute);
-            groupBoxElevation.Location = new Point(6, 130);
-            groupBoxElevation.Name = "groupBoxElevation";
-            groupBoxElevation.Size = new Size(205, 75);
-            groupBoxElevation.TabIndex = 1;
-            groupBoxElevation.TabStop = false;
-            groupBoxElevation.Text = "Tryb wysokości:";
+            labelRoutes.AutoSize = true;
+            labelRoutes.Location = new Point(6, 20);
+            labelRoutes.Name = "labelRoutes";
+            labelRoutes.Size = new Size(118, 15);
+            labelRoutes.TabIndex = 0;
+            labelRoutes.Text = "Wygenerowane trasy:";
             // 
-            // radioButtonElevationRelative
+            // listBoxRoutes
             // 
-            radioButtonElevationRelative.AutoSize = true;
-            radioButtonElevationRelative.Location = new Point(6, 45);
-            radioButtonElevationRelative.Name = "radioButtonElevationRelative";
-            radioButtonElevationRelative.Size = new Size(160, 19);
-            radioButtonElevationRelative.TabIndex = 1;
-            radioButtonElevationRelative.Text = "Wyrównaj do zera (wzgl.)";
-            radioButtonElevationRelative.UseVisualStyleBackColor = true;
+            listBoxRoutes.FormattingEnabled = true;
+            listBoxRoutes.ItemHeight = 15;
+            listBoxRoutes.Location = new Point(6, 38);
+            listBoxRoutes.Name = "listBoxRoutes";
+            listBoxRoutes.Size = new Size(205, 109);
+            listBoxRoutes.TabIndex = 1;
+            listBoxRoutes.SelectedIndexChanged += listBoxRoutes_SelectedIndexChanged;
+            listBoxRoutes.DoubleClick += listBoxRoutes_DoubleClick;
             // 
-            // radioButtonElevationAbsolute
+            // buttonLoadRoute
             // 
-            radioButtonElevationAbsolute.AutoSize = true;
-            radioButtonElevationAbsolute.Checked = true;
-            radioButtonElevationAbsolute.Location = new Point(6, 20);
-            radioButtonElevationAbsolute.Name = "radioButtonElevationAbsolute";
-            radioButtonElevationAbsolute.Size = new Size(166, 19);
-            radioButtonElevationAbsolute.TabIndex = 0;
-            radioButtonElevationAbsolute.TabStop = true;
-            radioButtonElevationAbsolute.Text = "Rzeczywista n.p.m. (bezwzgl.)";
-            radioButtonElevationAbsolute.UseVisualStyleBackColor = true;
+            buttonLoadRoute.Location = new Point(6, 153);
+            buttonLoadRoute.Name = "buttonLoadRoute";
+            buttonLoadRoute.Size = new Size(100, 26);
+            buttonLoadRoute.TabIndex = 2;
+            buttonLoadRoute.Text = "Wczytaj";
+            buttonLoadRoute.UseVisualStyleBackColor = true;
+            buttonLoadRoute.Click += buttonLoadRoute_Click;
+            // 
+            // buttonDeleteRoute
+            // 
+            buttonDeleteRoute.Location = new Point(111, 153);
+            buttonDeleteRoute.Name = "buttonDeleteRoute";
+            buttonDeleteRoute.Size = new Size(100, 26);
+            buttonDeleteRoute.TabIndex = 3;
+            buttonDeleteRoute.Text = "Usuń";
+            buttonDeleteRoute.UseVisualStyleBackColor = true;
+            buttonDeleteRoute.Click += buttonDeleteRoute_Click;
             // 
             // panelTrainzFiles
             // 
@@ -279,10 +294,10 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.Controls.Add(label12);
             panelTrainzFiles.Controls.Add(textBoxDestinationFolder);
             panelTrainzFiles.Controls.Add(label4);
-            panelTrainzFiles.Location = new Point(6, 20);
+            panelTrainzFiles.Location = new Point(6, 185);
             panelTrainzFiles.Name = "panelTrainzFiles";
             panelTrainzFiles.Size = new Size(205, 105);
-            panelTrainzFiles.TabIndex = 0;
+            panelTrainzFiles.TabIndex = 4;
             // 
             // label4
             // 
@@ -335,6 +350,39 @@ namespace TrainzBasemapMaker
             textBoxKuidPart2.TabIndex = 5;
             textBoxKuidPart2.KeyPress += OnlyNumbers_KeyPress;
             // 
+            // groupBoxElevation
+            // 
+            groupBoxElevation.Controls.Add(radioButtonElevationRelative);
+            groupBoxElevation.Controls.Add(radioButtonElevationAbsolute);
+            groupBoxElevation.Location = new Point(6, 296);
+            groupBoxElevation.Name = "groupBoxElevation";
+            groupBoxElevation.Size = new Size(205, 75);
+            groupBoxElevation.TabIndex = 5;
+            groupBoxElevation.TabStop = false;
+            groupBoxElevation.Text = "Tryb wysokości:";
+            // 
+            // radioButtonElevationRelative
+            // 
+            radioButtonElevationRelative.AutoSize = true;
+            radioButtonElevationRelative.Location = new Point(6, 45);
+            radioButtonElevationRelative.Name = "radioButtonElevationRelative";
+            radioButtonElevationRelative.Size = new Size(160, 19);
+            radioButtonElevationRelative.TabIndex = 1;
+            radioButtonElevationRelative.Text = "Wyrównaj do zera (wzgl.)";
+            radioButtonElevationRelative.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonElevationAbsolute
+            // 
+            radioButtonElevationAbsolute.AutoSize = true;
+            radioButtonElevationAbsolute.Checked = true;
+            radioButtonElevationAbsolute.Location = new Point(6, 20);
+            radioButtonElevationAbsolute.Name = "radioButtonElevationAbsolute";
+            radioButtonElevationAbsolute.Size = new Size(166, 19);
+            radioButtonElevationAbsolute.TabIndex = 0;
+            radioButtonElevationAbsolute.TabStop = true;
+            radioButtonElevationAbsolute.Text = "Rzeczywista n.p.m. (bezwzgl.)";
+            radioButtonElevationAbsolute.UseVisualStyleBackColor = true;
+            // 
             // groupBox4Download
             // 
             groupBox4Download.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -342,7 +390,7 @@ namespace TrainzBasemapMaker
             groupBox4Download.Controls.Add(buttonStartDownload);
             groupBox4Download.Controls.Add(labelProgress);
             groupBox4Download.Controls.Add(progressBar1);
-            groupBox4Download.Location = new Point(962, 237);
+            groupBox4Download.Location = new Point(962, 398);
             groupBox4Download.Name = "groupBox4Download";
             groupBox4Download.Size = new Size(217, 179);
             groupBox4Download.TabIndex = 4;
@@ -456,6 +504,10 @@ namespace TrainzBasemapMaker
         private GroupBox groupBoxMap;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private GroupBox groupBox3Config;
+        private Label labelRoutes;
+        private ListBox listBoxRoutes;
+        private Button buttonLoadRoute;
+        private Button buttonDeleteRoute;
         private Panel panelTrainzFiles;
         private TextBox textBoxDestinationFolder;
         private Label label4;

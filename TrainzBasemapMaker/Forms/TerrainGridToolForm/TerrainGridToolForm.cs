@@ -47,6 +47,8 @@ namespace TrainzBasemapMaker
         private bool _isDownloading = false;
         private long? _currentAnchorX;
         private long? _currentAnchorY;
+        private TerrainRouteInfo? _loadedRoute;
+        private readonly Dictionary<(int SegmentX, int SegmentY), MapGridPart> _loadedGndBlocks = new Dictionary<(int SegmentX, int SegmentY), MapGridPart>();
 
         public TerrainGridToolForm()
         {
@@ -60,6 +62,9 @@ namespace TrainzBasemapMaker
             radioButtonModeClick.Checked = true;
             radioButtonElevationAbsolute.Checked = true;
 
+            buttonLoadRoute.Enabled = false;
+            buttonDeleteRoute.Enabled = false;
+
             UpdateNextFreeKuidPart2();
             toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciagnij pedzlem, aby zaznaczyc | PPM: Przesuwanie mapy";
         }
@@ -69,6 +74,8 @@ namespace TrainzBasemapMaker
             this.Size = Properties.Settings.Default.TerrainGridToolFormSize;
             this.WindowState = Properties.Settings.Default.TerrainGridToolFormState;
             ThemeManager.ApplyTheme(this);
+
+            RoutesListBoxRefresh();
 
             await InitBrowser();
         }
@@ -107,6 +114,153 @@ namespace TrainzBasemapMaker
             }
         }
 
+        private void RoutesListBoxRefresh()
+        {
+            listBoxRoutes.Items.Clear();
+            var routes = _fileManager.GetTerrainRoutes();
+            listBoxRoutes.Items.AddRange(routes.ToArray());
+            buttonLoadRoute.Enabled = listBoxRoutes.SelectedItem != null;
+            buttonDeleteRoute.Enabled = listBoxRoutes.SelectedItem != null;
+        }
+
+        private void listBoxRoutes_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            buttonLoadRoute.Enabled = listBoxRoutes.SelectedItem != null;
+            buttonDeleteRoute.Enabled = listBoxRoutes.SelectedItem != null;
+
+            if (listBoxRoutes.SelectedItem is TerrainRouteInfo route)
+            {
+                textBoxDestinationFolder.Text = route.RouteName;
+                textBoxKuidPart1.Text = route.KuidPart1;
+                textBoxKuidPart2.Text = route.KuidPart2;
+            }
+        }
+
+        private async void buttonLoadRoute_Click(object? sender, EventArgs e)
+        {
+            await LoadSelectedRoute();
+        }
+
+        private async void listBoxRoutes_DoubleClick(object? sender, EventArgs e)
+        {
+            await LoadSelectedRoute();
+        }
+
+        private async Task LoadSelectedRoute()
+        {
+            if (listBoxRoutes.SelectedItem is not TerrainRouteInfo selectedRoute)
+            {
+                MessageBox.Show("Wybierz trasę z listy do wczytania.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (webView21.CoreWebView2 == null)
+            {
+                MessageBox.Show("Komponent mapy jeszcze się inicjalizuje. Spróbuj ponownie za chwilę.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string gndPath = Path.Combine(selectedRoute.FolderPath, "mapfile.gnd");
+            if (!File.Exists(gndPath))
+            {
+                MessageBox.Show($"W folderze trasy nie znaleziono pliku mapfile.gnd:\n{selectedRoute.FolderPath}", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                byte[] gndData = File.ReadAllBytes(gndPath);
+                var parts = GndReader.ReadGndFile(gndData);
+
+                _loadedGndBlocks.Clear();
+                foreach (var p in parts)
+                {
+                    _loadedGndBlocks[(p.SegmentX, p.SegmentY)] = p;
+                }
+
+                _loadedRoute = selectedRoute;
+
+                textBoxDestinationFolder.Text = selectedRoute.RouteName;
+                textBoxKuidPart1.Text = selectedRoute.KuidPart1;
+                textBoxKuidPart2.Text = selectedRoute.KuidPart2;
+
+                if (selectedRoute.Epsg == "EPSG:3857")
+                    radioButtonEpsg3857.Checked = true;
+                else
+                    radioButtonEpsg2180.Checked = true;
+
+                if (selectedRoute.IsRelative)
+                    radioButtonElevationRelative.Checked = true;
+                else
+                    radioButtonElevationAbsolute.Checked = true;
+
+                buttonStartDownload.Text = "Aktualizuj teren (map.gnd)";
+
+                if (selectedRoute.AnchorX.HasValue && selectedRoute.AnchorY.HasValue && selectedRoute.Tiles.Count > 0)
+                {
+                    _currentAnchorX = selectedRoute.AnchorX.Value;
+                    _currentAnchorY = selectedRoute.AnchorY.Value;
+
+                    var payload = new
+                    {
+                        epsg = selectedRoute.Epsg,
+                        anchor = new { x = selectedRoute.AnchorX.Value, y = selectedRoute.AnchorY.Value },
+                        tiles = selectedRoute.Tiles.Select(t => new
+                        {
+                            i = t.I,
+                            j = t.J,
+                            x = t.X,
+                            y = t.Y,
+                            counter = t.Order
+                        })
+                    };
+
+                    string json = JsonSerializer.Serialize(payload);
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
+                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.";
+                }
+                else
+                {
+                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.";
+                    MessageBox.Show($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów).\n\nTrasa ta nie zawierała danych geolokalizacji punktu bazowego (została wygenerowana we wcześniejszej wersji). Nie można jej wyświetlić na mapie.", "Wczytano trasę", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("error.log", ex.ToString());
+                MessageBox.Show("Błąd podczas wczytywania trasy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void buttonDeleteRoute_Click(object? sender, EventArgs e)
+        {
+            if (listBoxRoutes.SelectedItem is not TerrainRouteInfo route)
+            {
+                MessageBox.Show("Wybierz trasę z listy do usunięcia.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show($"Czy na pewno chcesz usunąć trasę \"{route.RouteName}\"?\nFolder: {route.FolderPath}\n\nOperacji nie można cofnąć!", "Potwierdzenie usunięcia", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                _fileManager.DeleteRouteFolder(route.FolderPath);
+                if (_loadedRoute?.FolderPath == route.FolderPath)
+                {
+                    _loadedRoute = null;
+                    _loadedGndBlocks.Clear();
+                    buttonResetAnchor_Click(sender, e);
+                }
+                RoutesListBoxRefresh();
+                toolStripStatusLabel1.Text = $"Usunięto trasę \"{route.RouteName}\".";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Błąd podczas usuwania trasy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
         {
             if (_isDownloading) return;
@@ -119,6 +273,14 @@ namespace TrainzBasemapMaker
                 {
                     var root = doc.RootElement;
                     string? type = root.GetProperty("type").GetString();
+
+                    if (type == "js_error")
+                    {
+                        string msg = root.TryGetProperty("message", out var mElem) ? (mElem.GetString() ?? "") : "";
+                        File.WriteAllText("js_error.log", msg);
+                        System.Diagnostics.Debug.WriteLine($"[JS Error] {msg}");
+                        return;
+                    }
 
                     if (type == "selection_changed")
                     {
@@ -161,16 +323,18 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        string tileText = $"Zaznaczono baseboardow (720m): {count}";
+                        string tileText = existingCount > 0
+                            ? $"Nowe baseboardy: {count} (łącznie: {count + existingCount})"
+                            : $"Zaznaczono baseboardów (720m): {count}";
                         // 720m x 720m = 0.5184 km2
                         labelTileCount.Text = tileText;
                         labelArea.Text = $"Powierzchnia: {((count + existingCount) * 0.5184):F2} km²";
 
                         string statusMsg = count > 0
-                            ? $"Zaznaczono {count} baseboardow do wygenerowania."
-                            : "Zaznacz obszar trasy na mapie.";
+                            ? $"Zaznaczono {count} nowych baseboardów do wygenerowania."
+                            : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów. Kliknij na mapie, aby dodać nowe." : "Zaznacz obszar trasy na mapie.");
 
-                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} baseboardow." : "Gotowy do zaznaczania.";
+                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} baseboardów." : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów." : "Gotowy do zaznaczania.");
                         toolStripStatusLabel1.Text = statusMsg;
                     }
                 }
@@ -205,17 +369,33 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync("clearAllTiles()");
         }
 
-        private async void buttonResetAnchor_Click(object sender, EventArgs e)
+        private async void buttonResetAnchor_Click(object? sender, EventArgs e)
         {
-            if (webView21.CoreWebView2 == null) return;
+            _loadedRoute = null;
+            _loadedGndBlocks.Clear();
+            _selectedTiles.Clear();
             _currentAnchorX = null;
             _currentAnchorY = null;
-            await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
+            buttonStartDownload.Text = "Generuj teren (map.gnd)";
+            textBoxDestinationFolder.Text = "Nowa_Trasa";
+            UpdateNextFreeKuidPart2();
+            labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
+            labelArea.Text = "Powierzchnia: 0.00 km²";
+            labelProgress.Text = "Zresetowano trasę. Gotowy do zaznaczania.";
+            toolStripStatusLabel1.Text = "Wybierz punkt początkowy na mapie.";
+
+            if (webView21.CoreWebView2 != null)
+            {
+                await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
+            }
         }
 
         private void textBoxDestinationFolder_TextChanged(object sender, EventArgs e)
         {
-            UpdateNextFreeKuidPart2();
+            if (_loadedRoute == null)
+            {
+                UpdateNextFreeKuidPart2();
+            }
         }
 
         private void UpdateNextFreeKuidPart2()
@@ -325,15 +505,29 @@ namespace TrainzBasemapMaker
                 token.ThrowIfCancellationRequested();
 
                 // Handle Relative Elevation normalization globally (guarantees NO vertical cliffs between tiles)
+                float anchorElevation = 0;
                 if (isRelative)
                 {
-                    var anchorTile = _selectedTiles.FirstOrDefault(t => t.I == 0 && t.J == 0)
-                                     ?? _selectedTiles.OrderBy(t => t.Order).First();
-
-                    float anchorElevation = 0;
-                    if (downloadedGrids.TryGetValue((anchorTile.I, anchorTile.J), out var anchorGrid))
+                    if (_loadedRoute?.AnchorElevation != null)
                     {
-                        anchorElevation = anchorGrid[38, 38];
+                        anchorElevation = (float)_loadedRoute.AnchorElevation.Value;
+                    }
+                    else if (_loadedGndBlocks.Count > 0)
+                    {
+                        if (_loadedGndBlocks.TryGetValue((0, 0), out var p0))
+                            anchorElevation = p0.Heights[38, 38];
+                        else
+                            anchorElevation = _loadedGndBlocks.Values.First().Heights[38, 38];
+                    }
+                    else
+                    {
+                        var anchorTile = _selectedTiles.FirstOrDefault(t => t.I == 0 && t.J == 0)
+                                         ?? _selectedTiles.OrderBy(t => t.Order).First();
+
+                        if (downloadedGrids.TryGetValue((anchorTile.I, anchorTile.J), out var anchorGrid))
+                        {
+                            anchorElevation = anchorGrid[38, 38];
+                        }
                     }
 
                     foreach (var kvp in downloadedGrids)
@@ -352,26 +546,107 @@ namespace TrainzBasemapMaker
                 labelProgress.Text = "Generowanie mapfile.gnd...";
                 toolStripStatusLabel1.Text = "Tworzenie struktury mapy Trainz...";
 
-                var blocks = new List<MapGridPart>();
                 foreach (var tile in _selectedTiles.OrderBy(t => t.Order))
                 {
                     if (downloadedGrids.TryGetValue((tile.I, tile.J), out var grid))
                     {
                         // Trainz baseboard coordinates: SegmentX = -J, SegmentY = I
-                        var part = new MapGridPart(-tile.J, tile.I);
-                        part.SetHeights(grid);
-                        blocks.Add(part);
+                        int segX = -tile.J;
+                        int segY = tile.I;
+                        var part = new MapGridPart(segX, segY, grid);
+                        _loadedGndBlocks[(segX, segY)] = part;
                     }
                 }
 
+                var blocks = _loadedGndBlocks.Values.ToList();
                 var writer = new GndWriter();
                 byte[] gndData = writer.CreateGndFile(blocks);
 
-                _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData);
+                var routeInfo = _loadedRoute ?? new TerrainRouteInfo();
+                routeInfo.RouteName = routeName;
+                routeInfo.KuidPart1 = kuidPart1;
+                routeInfo.KuidPart2 = kuidPart2;
+                routeInfo.Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+                routeInfo.IsRelative = isRelative;
+                if (isRelative)
+                {
+                    routeInfo.AnchorElevation = anchorElevation;
+                }
+                if (_currentAnchorX.HasValue) routeInfo.AnchorX = _currentAnchorX.Value;
+                if (_currentAnchorY.HasValue) routeInfo.AnchorY = _currentAnchorY.Value;
+
+                // Merge tiles list
+                var newCoords = _selectedTiles.Select(t => (t.I, t.J)).ToHashSet();
+                var updatedTiles = new List<TerrainTileInfo>();
+                int orderNum = 1;
+                foreach (var existingTile in routeInfo.Tiles)
+                {
+                    if (!newCoords.Contains((existingTile.I, existingTile.J)))
+                    {
+                        updatedTiles.Add(new TerrainTileInfo
+                        {
+                            Order = orderNum++,
+                            I = existingTile.I,
+                            J = existingTile.J,
+                            X = existingTile.X,
+                            Y = existingTile.Y
+                        });
+                    }
+                }
+                foreach (var tile in _selectedTiles.OrderBy(t => t.Order))
+                {
+                    updatedTiles.Add(new TerrainTileInfo
+                    {
+                        Order = orderNum++,
+                        I = tile.I,
+                        J = tile.J,
+                        X = tile.X,
+                        Y = tile.Y
+                    });
+                }
+                routeInfo.Tiles = updatedTiles;
+
+                string targetFolder = _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData, routeInfo);
+                routeInfo.FolderPath = targetFolder;
+                _loadedRoute = routeInfo;
+
+                buttonStartDownload.Text = "Aktualizuj teren (map.gnd)";
+                RoutesListBoxRefresh();
+
+                for (int idx = 0; idx < listBoxRoutes.Items.Count; idx++)
+                {
+                    if (listBoxRoutes.Items[idx] is TerrainRouteInfo r && r.FolderPath == targetFolder)
+                    {
+                        listBoxRoutes.SelectedIndex = idx;
+                        break;
+                    }
+                }
+
+                // Update WebView2 map so all generated tiles appear in green
+                if (routeInfo.AnchorX.HasValue && routeInfo.AnchorY.HasValue)
+                {
+                    var payload = new
+                    {
+                        epsg = routeInfo.Epsg,
+                        anchor = new { x = routeInfo.AnchorX.Value, y = routeInfo.AnchorY.Value },
+                        tiles = routeInfo.Tiles.Select(t => new
+                        {
+                            i = t.I,
+                            j = t.J,
+                            x = t.X,
+                            y = t.Y,
+                            counter = t.Order
+                        })
+                    };
+                    string jsonPayload = JsonSerializer.Serialize(payload);
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({jsonPayload})");
+                }
+
+                _selectedTiles.Clear();
 
                 labelProgress.Text = "Gotowe!";
-                toolStripStatusLabel1.Text = $"Wygenerowano trase ({blocks.Count} baseboardow)!";
-                MessageBox.Show($"Pomyslnie wygenerowano mape terenu ({blocks.Count} baseboardow) w folderze Kuids/{targetGroup}/route_{routeName}_{kuidPart1}_{kuidPart2}!", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                toolStripStatusLabel1.Text = $"Zapisano trasę ({blocks.Count} baseboardów)!";
+                MessageBox.Show($"Pomyślnie zapisano mapę terenu ({blocks.Count} baseboardów) w folderze:\n{targetFolder}", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (OperationCanceledException)
             {

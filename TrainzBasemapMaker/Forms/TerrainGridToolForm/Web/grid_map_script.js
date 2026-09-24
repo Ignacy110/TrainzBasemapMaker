@@ -16,6 +16,16 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
+// Report unhandled JS errors to C# host
+window.addEventListener("error", function(e) {
+    if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({
+            type: "js_error",
+            message: (e.message || "Unknown error") + " at " + (e.filename || "") + ":" + (e.lineno || "")
+        });
+    }
+});
+
 // Define Proj4 coordinate systems
 proj4.defs("EPSG:2180", "+proj=tmerc +lat_0=0 +lon_0=19 +k=0.9993 +x_0=500000 +y_0=-5300000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
 proj4.defs("EPSG:3857", "+proj=merc +a=6378137 +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null +wktext +no_defs");
@@ -69,7 +79,7 @@ L.control.layers(baseMaps).addTo(map);
 
 // State variables
 var currentEpsg = "EPSG:2180";
-var tileSize = 500; // 500 meters
+var tileSize = 720; // 720 meters baseboard for Trainz terrain
 
 function setTileSize(size) {
     tileSize = size;
@@ -257,7 +267,10 @@ function renderSelectedTiles(shouldNotify) {
         selectedLayerGroup.addLayer(poly);
 
         var center = getTileCenter(tile.i, tile.j);
-        var labelHtml = '<div class="tile-number-label done">#' + tile.counter + '</div>';
+        if (!center) return;
+
+        var counterText = (tile.counter !== undefined && tile.counter !== null) ? ('#' + tile.counter) : (tile.i + ',' + tile.j);
+        var labelHtml = '<div class="tile-number-label done">' + counterText + '</div>';
 
         var numIcon = L.divIcon({
             className: '',
@@ -365,10 +378,13 @@ function notifySelectionChanged() {
 function toggleTile(i, j) {
     if (!anchor) return;
     var key = i + "_" + j;
+    if (existingTiles.has(key)) return;
+
     if (selectedTiles.has(key)) {
         selectedTiles.delete(key);
     } else {
         var center = getTileCenter(i, j);
+        if (!center) return;
         selectedTiles.set(key, {
             i: i,
             j: j,
@@ -385,8 +401,11 @@ function toggleTile(i, j) {
 function addTile(i, j) {
     if (!anchor) return;
     var key = i + "_" + j;
+    if (existingTiles.has(key)) return;
+
     if (!selectedTiles.has(key)) {
         var center = getTileCenter(i, j);
+        if (!center) return;
         selectedTiles.set(key, {
             i: i,
             j: j,
@@ -484,6 +503,12 @@ mapContainer.addEventListener("mousedown", function(e) {
                 var idx = latLonToGridIndex(latlng.lat, latlng.lng);
                 if (idx) {
                     var key = idx.i + "_" + idx.j;
+                    if (existingTiles.has(key)) {
+                        initialTileInfo = null;
+                        e.preventDefault();
+                        return;
+                    }
+
                     var wasSelected = selectedTiles.has(key);
                     initialTileInfo = { i: idx.i, j: idx.j, wasSelected: wasSelected };
 
@@ -519,6 +544,8 @@ window.addEventListener("mousemove", function(e) {
         var idx = latLonToGridIndex(latlng.lat, latlng.lng);
         if (idx) {
             var key = idx.i + "_" + idx.j;
+            if (existingTiles.has(key)) return;
+
             if (initialTileInfo && (idx.i !== initialTileInfo.i || idx.j !== initialTileInfo.j)) {
                 paintMoved = true;
             }
@@ -732,19 +759,25 @@ function loadExistingFolderTiles(data) {
 
     if (data.tiles && data.tiles.length > 0) {
         data.tiles.forEach(function(tile) {
-            var tileLL = metersToLatLon(tile.x, tile.y);
-            var idx = latLonToGridIndex(tileLL.lat, tileLL.lon);
+            var idx;
+            if (tile.i !== undefined && tile.j !== undefined) {
+                idx = { i: tile.i, j: tile.j };
+            } else {
+                var tileLL = metersToLatLon(tile.x, tile.y);
+                idx = latLonToGridIndex(tileLL.lat, tileLL.lon);
+            }
             if (!idx) return;
 
             var key = idx.i + "_" + idx.j;
             var center = getTileCenter(idx.i, idx.j);
+            if (!center) return;
 
             existingTiles.set(key, {
                 i: idx.i,
                 j: idx.j,
                 x: center.x,
                 y: center.y,
-                counter: tile.counter,
+                counter: tile.counter !== undefined ? tile.counter : (idx.i + "," + idx.j),
                 status: "existing"
             });
 

@@ -30,11 +30,17 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
         
         public int SegmentX { get; }
         public int SegmentY { get; }
+        public float[,] Heights => _heights;
 
         public MapGridPart(int segmentX, int segmentY)
         {
             SegmentX = segmentX;
             SegmentY = segmentY;
+        }
+
+        public MapGridPart(int segmentX, int segmentY, float[,] heights) : this(segmentX, segmentY)
+        {
+            SetHeights(heights);
         }
 
         public void SetHeights(float[,] heights)
