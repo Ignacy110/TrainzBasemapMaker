@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -36,7 +36,7 @@ namespace TrainzBasemapMaker.Classes
         // Top-left origin coordinates for EPSG:2180 TileMatrixSet in Polish Geoportal
         private const double OriginX = 100000.0;
         private const double OriginY = 850000.0;
-        private const int WmtsTileSize = 512;
+        private const int WmtsTileSize = Constants.WmtsTilePixelSize;
 
         public static readonly IReadOnlyList<WmtsMatrixLevel> StandardOrtoLevels = new[]
         {
@@ -66,7 +66,7 @@ namespace TrainzBasemapMaker.Classes
             AllowsHighResolution = allowsHighResolution || MatrixLevels.Any(l => l.PixelSize <= 0.15);
         }
 
-        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
+        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default)
         {
             if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
             {
@@ -120,9 +120,9 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[]? tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds);
+                        byte[]? tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds, cancellationToken);
                         return (currentC, currentR, tileBytes);
-                    }));
+                    }, cancellationToken));
                 }
             }
 
@@ -188,34 +188,6 @@ namespace TrainzBasemapMaker.Classes
                 .OrderByDescending(l => l.PixelSize)
                 .FirstOrDefault()
                 ?? MatrixLevels.OrderBy(l => l.PixelSize).First();
-        }
-
-        private static async Task<byte[]?> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
-        {
-            int maxAttempts = Math.Max(1, maxRetries);
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    HttpResponseMessage response = await HttpClient.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadAsByteArrayAsync();
-                    }
-                }
-                catch
-                {
-                    // Retry on transient network errors
-                }
-
-                if (attempt < maxAttempts)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
-                }
-            }
-
-            return null;
         }
     }
 }

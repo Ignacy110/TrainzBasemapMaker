@@ -17,6 +17,7 @@
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
 using System.Text.Json;
+using TrainzBasemapMaker.Classes.TrainzTerrain;
 
 namespace TrainzBasemapMaker.Classes
 {
@@ -24,6 +25,7 @@ namespace TrainzBasemapMaker.Classes
     {
         private static readonly string RootFolder = Path.Combine(AppContext.BaseDirectory, "Kuids");
         public const string GroupInfoFileName = "group_info.json";
+        public const string TerrainInfoFileName = "terrain_info.json";
 
         /// <summary>
         /// Attempts to parse tile metadata from a basemap folder name.
@@ -71,6 +73,179 @@ namespace TrainzBasemapMaker.Classes
             return false;
         }
 
+        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null)
+        {
+            string groupPath = Path.Combine(RootFolder, basemapGroup);
+            if (!Directory.Exists(groupPath))
+            {
+                Directory.CreateDirectory(groupPath);
+            }
+
+            string safeRouteName = string.Join("_", routeName.Split(Path.GetInvalidFileNameChars()));
+            string targetFolderName = $"route_{safeRouteName}_{kuidPart1}_{kuidPart2}";
+            string targetFolder = Path.Combine(groupPath, targetFolderName);
+            Directory.CreateDirectory(targetFolder);
+
+            // Zapis mapfile.gnd (główny plik siatki)
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.gnd"), gndData);
+
+            // Zapis pustego mapfile.obs (obiekty - wymagane przez niektóre wersje Trainz)
+            byte[] emptyObs = { 0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.obs"), emptyObs);
+
+            // Zapis pustego mapfile.trk (tory - wymagane przez niektóre wersje Trainz)
+            byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
+
+            string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            2.9\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";
+            File.WriteAllText(Path.Combine(targetFolder, "config.txt"), configText);
+            File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
+
+            if (routeInfo != null)
+            {
+                routeInfo.FolderPath = targetFolder;
+                SaveTerrainRouteInfo(targetFolder, routeInfo);
+            }
+
+            return targetFolder;
+        }
+
+        public void SaveTerrainRouteInfo(string targetFolder, TerrainRouteInfo info)
+        {
+            if (string.IsNullOrWhiteSpace(targetFolder)) return;
+
+            if (!Directory.Exists(targetFolder))
+            {
+                Directory.CreateDirectory(targetFolder);
+            }
+
+            string jsonPath = Path.Combine(targetFolder, TerrainInfoFileName);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(info, options);
+            File.WriteAllText(jsonPath, json);
+        }
+
+        public void DeleteRouteFolder(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                Directory.Delete(folderPath, true);
+            }
+        }
+
+        public List<TerrainRouteInfo> GetTerrainRoutes()
+        {
+            var result = new List<TerrainRouteInfo>();
+            if (!Directory.Exists(RootFolder)) return result;
+
+            var gndFiles = Directory.GetFiles(RootFolder, "mapfile.gnd", SearchOption.AllDirectories);
+            foreach (var gndFile in gndFiles)
+            {
+                string folder = Path.GetDirectoryName(gndFile)!;
+                string infoJsonPath = Path.Combine(folder, TerrainInfoFileName);
+
+                TerrainRouteInfo? info = null;
+                if (File.Exists(infoJsonPath))
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(infoJsonPath);
+                        info = JsonSerializer.Deserialize<TerrainRouteInfo>(json);
+                    }
+                    catch
+                    {
+                        info = null;
+                    }
+                }
+
+                if (info == null)
+                {
+                    info = TryParseLegacyRouteFolder(folder, gndFile);
+                }
+
+                if (info != null)
+                {
+                    info.FolderPath = folder;
+                    result.Add(info);
+                }
+            }
+
+            return result.OrderBy(r => r.RouteName).ToList();
+        }
+
+        private TerrainRouteInfo? TryParseLegacyRouteFolder(string folder, string gndFile)
+        {
+            try
+            {
+                string routeName = Path.GetFileName(folder);
+                string kuid1 = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
+                string kuid2 = "1";
+
+                string configPath = Path.Combine(folder, "config.txt");
+                if (File.Exists(configPath))
+                {
+                    var lines = File.ReadAllLines(configPath);
+                    foreach (var line in lines)
+                    {
+                        var trimmed = line.Trim();
+                        if (trimmed.StartsWith("username", StringComparison.OrdinalIgnoreCase))
+                        {
+                            int firstQuote = trimmed.IndexOf('"');
+                            int lastQuote = trimmed.LastIndexOf('"');
+                            if (firstQuote != -1 && lastQuote > firstQuote)
+                            {
+                                routeName = trimmed.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+                            }
+                        }
+                        else if (trimmed.StartsWith("kuid", StringComparison.OrdinalIgnoreCase))
+                        {
+                            int startKuid = trimmed.IndexOf("<kuid:");
+                            int endKuid = trimmed.IndexOf(">");
+                            if (startKuid != -1 && endKuid > startKuid)
+                            {
+                                string inside = trimmed.Substring(startKuid + 6, endKuid - (startKuid + 6));
+                                var kuidParts = inside.Split(':');
+                                if (kuidParts.Length >= 2)
+                                {
+                                    kuid1 = kuidParts[0];
+                                    kuid2 = kuidParts[1];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var parts = GndReader.ReadGndFile(File.ReadAllBytes(gndFile));
+                var tiles = new List<TerrainTileInfo>();
+                int order = 1;
+                foreach (var p in parts)
+                {
+                    tiles.Add(new TerrainTileInfo
+                    {
+                        Order = order++,
+                        I = p.SegmentY,
+                        J = -p.SegmentX,
+                        X = 0,
+                        Y = 0
+                    });
+                }
+
+                return new TerrainRouteInfo
+                {
+                    RouteName = routeName,
+                    KuidPart1 = kuid1,
+                    KuidPart2 = kuid2,
+                    Epsg = "EPSG:2180",
+                    IsRelative = false,
+                    Tiles = tiles,
+                    FolderPath = folder
+                };
+            }
+            catch
+            {
+                return null;
+            }
+        }
         public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
         {
             // 1. building paths with Path.Combine
@@ -112,12 +287,12 @@ namespace TrainzBasemapMaker.Classes
             // 5. creating config.txt
             string configText = System.Text.Encoding.UTF8.GetString(Properties.Resources.config_txt);
 
-            configText = configText.Replace("value1", kuidPart1)
-                                   .Replace("value2", kuidPart2)
-                                   .Replace("designation", basemapGroupDesignation)
-                                   .Replace("counter", counter.ToString())
-                                   .Replace("lon", x.ToString())
-                                   .Replace("lat", y.ToString());
+            configText = configText.Replace("{{value1}}", kuidPart1)
+                                   .Replace("{{value2}}", kuidPart2)
+                                   .Replace("{{designation}}", basemapGroupDesignation)
+                                   .Replace("{{counter}}", counter.ToString())
+                                   .Replace("{{lon}}", x.ToString())
+                                   .Replace("{{lat}}", y.ToString());
 
             File.WriteAllText(Path.Combine(targetFolder, "config.txt"), configText);
 
@@ -266,3 +441,8 @@ namespace TrainzBasemapMaker.Classes
         }
     }
 }
+
+
+
+
+

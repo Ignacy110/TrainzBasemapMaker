@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -39,7 +39,7 @@ namespace TrainzBasemapMaker.Classes
             AllowsHighResolution = allowsHighResolution;
         }
 
-        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
+        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default)
         {
             if (!GeoHelperEPSG2180.IsWithin2180Bounds(xCenter, yCenter))
             {
@@ -67,12 +67,14 @@ namespace TrainzBasemapMaker.Classes
 
             for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 try
                 {
-                    HttpResponseMessage response = await HttpClient.GetAsync(url);
+                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken);
                     response.EnsureSuccessStatusCode();
 
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
 
                     // WMS servers sometimes return HTTP 200 OK with an XML error message instead of an image
                     if (IsWmsXmlException(bytes))
@@ -82,6 +84,10 @@ namespace TrainzBasemapMaker.Classes
 
                     return bytes;
                 }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     if (attempt == maxAttempts)
@@ -90,7 +96,7 @@ namespace TrainzBasemapMaker.Classes
                     }
 
                     // Delay for specified time before next attempt
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
                 }
             }
 

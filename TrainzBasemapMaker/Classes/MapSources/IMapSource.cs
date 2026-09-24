@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -47,7 +47,8 @@ namespace TrainzBasemapMaker.Classes
         /// <param name="resolution">Desired output image resolution in pixels.</param>
         /// <param name="maxRetries">Maximum number of retry attempts upon network failure.</param>
         /// <param name="delaySeconds">Delay in seconds between retry attempts.</param>
+        /// <param name="cancellationToken">Cancellation token for aborting the request.</param>
         /// <returns>Raw image bytes (JPEG format).</returns>
-        Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3);
+        Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default);
     }
 }

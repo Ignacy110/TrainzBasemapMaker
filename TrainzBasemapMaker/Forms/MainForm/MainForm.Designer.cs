@@ -86,6 +86,7 @@ namespace TrainzBasemapMaker
             toolStripMenuItem2 = new ToolStripSeparator();
             findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
             findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
+            terrainGeneratorToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             areaDownloadToolStripMenuItem = new ToolStripMenuItem();
             batchProcessingToolStripMenuItem = new ToolStripMenuItem();
@@ -646,10 +647,17 @@ namespace TrainzBasemapMaker
             // 
             // toolsToolStripMenuItem
             // 
-            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, areaDownloadToolStripMenuItem, batchProcessingToolStripMenuItem });
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, areaDownloadToolStripMenuItem, terrainGeneratorToolStripMenuItem, batchProcessingToolStripMenuItem });
             toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             toolsToolStripMenuItem.Size = new Size(70, 20);
             toolsToolStripMenuItem.Text = "&Narzędzia";
+            // 
+            // terrainGeneratorToolStripMenuItem
+            // 
+            terrainGeneratorToolStripMenuItem.Name = "terrainGeneratorToolStripMenuItem";
+            terrainGeneratorToolStripMenuItem.Size = new Size(276, 22);
+            terrainGeneratorToolStripMenuItem.Text = "Generator &terenu (map.gnd)";
+            terrainGeneratorToolStripMenuItem.Click += terrainGeneratorToolStripMenuItem_Click;
             // 
             // refreshFolderAndBasemapListToolStripMenuItem
             // 
@@ -811,6 +819,9 @@ namespace TrainzBasemapMaker
         private MenuStrip menuStrip1;
         private ToolStripMenuItem helpToolStripMenuItem;
         private ToolStripMenuItem websiteToolStripMenuItem;
+        private ToolStripMenuItem areaDownloadToolStripMenuItem;
+        private ToolStripMenuItem terrainGeneratorToolStripMenuItem;
+        private ToolStripMenuItem batchProcessingToolStripMenuItem;
         private ToolStripMenuItem aboutProgramToolStripMenuItem;
         private Label label4;
         private TextBox textBoxDestinationFolder;
@@ -836,8 +847,6 @@ namespace TrainzBasemapMaker
         private ToolStripMenuItem preferencesToolStripMenuItem;
         private Label label15;
         private ComboBox comboBoxMapType;
-        private ToolStripMenuItem batchProcessingToolStripMenuItem;
-        private ToolStripMenuItem areaDownloadToolStripMenuItem;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;

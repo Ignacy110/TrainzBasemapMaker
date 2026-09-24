@@ -1,4 +1,4 @@
-﻿kuid <kuid:value1:value2>
+kuid <kuid:{{value1}}:{{value2}}>
 
 kind							"scenery"
 trainz-build						3.3
@@ -6,8 +6,8 @@ light							1
 rotstep							90
 snapgrid						1
 
-username "Basemap_designation_counter_lon_lat_value1_value2"
-description "Basemap_designation_counter_lon_lat_value1_value2"
+username "Basemap_{{designation}}_{{counter}}_{{lon}}_{{lat}}_{{value1}}_{{value2}}"
+description "Basemap_{{designation}}_{{counter}}_{{lon}}_{{lat}}_{{value1}}_{{value2}}"
 
 category-class "BR"
 category-region "PL"
