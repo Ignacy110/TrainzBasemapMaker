@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
-    public class GndWriter
+    internal class GndWriter
     {
         private const int TEXTURE_COUNT = 250;
         private static readonly byte[] SettingsHeader = new byte[] {

@@ -1,3 +1,21 @@
+// Trainz Basemap Maker
+// https://github.com/Ignacy110/TrainzBasemapMaker
+//
+// Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, see (http://www.gnu.org/licenses/).
+
 namespace TrainzBasemapMaker
 {
     partial class TerrainGridToolForm
@@ -17,6 +35,7 @@ namespace TrainzBasemapMaker
             {
                 components.Dispose();
             }
+            webView21?.Dispose();
             base.Dispose(disposing);
         }
 
@@ -42,6 +61,9 @@ namespace TrainzBasemapMaker
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3Config = new GroupBox();
+            groupBoxElevation = new GroupBox();
+            radioButtonElevationRelative = new RadioButton();
+            radioButtonElevationAbsolute = new RadioButton();
             panelTrainzFiles = new Panel();
             labelKuidSeparator = new Label();
             textBoxKuidPart2 = new TextBox();
@@ -77,6 +99,7 @@ namespace TrainzBasemapMaker
             groupBoxMap.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)webView21).BeginInit();
             groupBox3Config.SuspendLayout();
+            groupBoxElevation.SuspendLayout();
             panelTrainzFiles.SuspendLayout();
             groupBox4Download.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -222,6 +245,7 @@ namespace TrainzBasemapMaker
             // groupBox3Config
             // 
             groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox3Config.Controls.Add(groupBoxElevation);
             groupBox3Config.Controls.Add(panelTrainzFiles);
             groupBox3Config.Controls.Add(radioButton512);
             groupBox3Config.Controls.Add(radioButton1024);
@@ -237,11 +261,43 @@ namespace TrainzBasemapMaker
             groupBox3Config.Size = new Size(217, 575);
             groupBox3Config.TabIndex = 3;
             groupBox3Config.TabStop = false;
-            groupBox3Config.Text = "3. Konfiguracja";
+            groupBox3Config.Text = "3. Konfiguracja trasy";
+            // 
+            // groupBoxElevation
+            // 
+            groupBoxElevation.Controls.Add(radioButtonElevationRelative);
+            groupBoxElevation.Controls.Add(radioButtonElevationAbsolute);
+            groupBoxElevation.Location = new Point(6, 160);
+            groupBoxElevation.Name = "groupBoxElevation";
+            groupBoxElevation.Size = new Size(205, 75);
+            groupBoxElevation.TabIndex = 10;
+            groupBoxElevation.TabStop = false;
+            groupBoxElevation.Text = "Tryb wysokości:";
+            // 
+            // radioButtonElevationRelative
+            // 
+            radioButtonElevationRelative.AutoSize = true;
+            radioButtonElevationRelative.Location = new Point(6, 45);
+            radioButtonElevationRelative.Name = "radioButtonElevationRelative";
+            radioButtonElevationRelative.Size = new Size(160, 19);
+            radioButtonElevationRelative.TabIndex = 1;
+            radioButtonElevationRelative.Text = "Wyrównaj do zera (wzgl.)";
+            radioButtonElevationRelative.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonElevationAbsolute
+            // 
+            radioButtonElevationAbsolute.AutoSize = true;
+            radioButtonElevationAbsolute.Checked = true;
+            radioButtonElevationAbsolute.Location = new Point(6, 20);
+            radioButtonElevationAbsolute.Name = "radioButtonElevationAbsolute";
+            radioButtonElevationAbsolute.Size = new Size(166, 19);
+            radioButtonElevationAbsolute.TabIndex = 0;
+            radioButtonElevationAbsolute.TabStop = true;
+            radioButtonElevationAbsolute.Text = "Rzeczywista n.p.m. (bezwzgl.)";
+            radioButtonElevationAbsolute.UseVisualStyleBackColor = true;
             // 
             // panelTrainzFiles
             // 
-            panelTrainzFiles.Controls.Add(buttonLoadFolder);
             panelTrainzFiles.Controls.Add(labelKuidSeparator);
             panelTrainzFiles.Controls.Add(textBoxKuidPart2);
             panelTrainzFiles.Controls.Add(textBoxKuidPart1);
@@ -253,16 +309,17 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.Controls.Add(textBoxDestinationFolder);
             panelTrainzFiles.Controls.Add(label4);
             panelTrainzFiles.Controls.Add(basemapFolderListBox);
+            panelTrainzFiles.Controls.Add(buttonLoadFolder);
             panelTrainzFiles.Controls.Add(label10);
-            panelTrainzFiles.Location = new Point(6, 175);
+            panelTrainzFiles.Location = new Point(6, 20);
             panelTrainzFiles.Name = "panelTrainzFiles";
-            panelTrainzFiles.Size = new Size(205, 394);
+            panelTrainzFiles.Size = new Size(205, 135);
             panelTrainzFiles.TabIndex = 9;
             // 
             // labelKuidSeparator
             // 
             labelKuidSeparator.AutoSize = true;
-            labelKuidSeparator.Location = new Point(94, 342);
+            labelKuidSeparator.Location = new Point(94, 98);
             labelKuidSeparator.Name = "labelKuidSeparator";
             labelKuidSeparator.Size = new Size(10, 15);
             labelKuidSeparator.TabIndex = 11;
@@ -270,7 +327,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxKuidPart2
             // 
-            textBoxKuidPart2.Location = new Point(108, 339);
+            textBoxKuidPart2.Location = new Point(108, 95);
             textBoxKuidPart2.Name = "textBoxKuidPart2";
             textBoxKuidPart2.Size = new Size(89, 23);
             textBoxKuidPart2.TabIndex = 10;
@@ -278,58 +335,60 @@ namespace TrainzBasemapMaker
             // 
             // textBoxKuidPart1
             // 
-            textBoxKuidPart1.Location = new Point(3, 339);
+            textBoxKuidPart1.Location = new Point(3, 95);
             textBoxKuidPart1.Name = "textBoxKuidPart1";
-            textBoxKuidPart1.Size = new Size(87, 23);
+            textBoxKuidPart1.Size = new Size(89, 23);
             textBoxKuidPart1.TabIndex = 9;
-            textBoxKuidPart1.TextAlign = HorizontalAlignment.Right;
             textBoxKuidPart1.KeyPress += OnlyNumbers_KeyPress;
             // 
             // label12
             // 
             label12.AutoSize = true;
-            label12.Location = new Point(3, 321);
+            label12.Location = new Point(3, 75);
             label12.Name = "label12";
-            label12.Size = new Size(111, 15);
+            label12.Size = new Size(37, 15);
             label12.TabIndex = 8;
-            label12.Text = "Oznaczenie KUID-u:";
+            label12.Text = "KUID:";
             // 
             // textBoxCounter
             // 
-            textBoxCounter.Location = new Point(108, 291);
+            textBoxCounter.Location = new Point(3, 200);
             textBoxCounter.Name = "textBoxCounter";
-            textBoxCounter.Size = new Size(89, 23);
+            textBoxCounter.Size = new Size(194, 23);
             textBoxCounter.TabIndex = 7;
-            textBoxCounter.KeyPress += OnlyNumbers_KeyPress;
+            textBoxCounter.Visible = false;
             // 
             // label11
             // 
             label11.AutoSize = true;
-            label11.Location = new Point(108, 273);
+            label11.Location = new Point(3, 182);
             label11.Name = "label11";
-            label11.Size = new Size(76, 15);
+            label11.Size = new Size(47, 15);
             label11.TabIndex = 6;
-            label11.Text = "Nr podkładu:";
+            label11.Text = "Licznik:";
+            label11.Visible = false;
             // 
             // textBoxDesignation
             // 
-            textBoxDesignation.Location = new Point(3, 291);
+            textBoxDesignation.Location = new Point(3, 155);
             textBoxDesignation.Name = "textBoxDesignation";
-            textBoxDesignation.Size = new Size(87, 23);
+            textBoxDesignation.Size = new Size(194, 23);
             textBoxDesignation.TabIndex = 5;
+            textBoxDesignation.Visible = false;
             // 
             // label13
             // 
             label13.AutoSize = true;
-            label13.Location = new Point(3, 273);
+            label13.Location = new Point(3, 137);
             label13.Name = "label13";
-            label13.Size = new Size(87, 15);
+            label13.Size = new Size(74, 15);
             label13.TabIndex = 4;
-            label13.Text = "Ozn. podkładu:";
+            label13.Text = "Oznaczenie:";
+            label13.Visible = false;
             // 
             // textBoxDestinationFolder
             // 
-            textBoxDestinationFolder.Location = new Point(3, 243);
+            textBoxDestinationFolder.Location = new Point(3, 23);
             textBoxDestinationFolder.Name = "textBoxDestinationFolder";
             textBoxDestinationFolder.Size = new Size(194, 23);
             textBoxDestinationFolder.TabIndex = 3;
@@ -338,21 +397,11 @@ namespace TrainzBasemapMaker
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(3, 225);
+            label4.Location = new Point(3, 5);
             label4.Name = "label4";
-            label4.Size = new Size(154, 15);
+            label4.Size = new Size(75, 15);
             label4.TabIndex = 2;
-            label4.Text = "Nazwa docelowego folderu:";
-            // 
-            // buttonLoadFolder
-            // 
-            buttonLoadFolder.Location = new Point(3, 194);
-            buttonLoadFolder.Name = "buttonLoadFolder";
-            buttonLoadFolder.Size = new Size(194, 26);
-            buttonLoadFolder.TabIndex = 12;
-            buttonLoadFolder.Text = "Wczytaj z folderu";
-            buttonLoadFolder.UseVisualStyleBackColor = true;
-            buttonLoadFolder.Click += buttonLoadFolder_Click;
+            label4.Text = "Nazwa trasy:";
             // 
             // basemapFolderListBox
             // 
@@ -360,10 +409,19 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.ItemHeight = 15;
             basemapFolderListBox.Location = new Point(3, 21);
             basemapFolderListBox.Name = "basemapFolderListBox";
-            basemapFolderListBox.Size = new Size(194, 169);
+            basemapFolderListBox.Size = new Size(194, 94);
             basemapFolderListBox.TabIndex = 1;
-            basemapFolderListBox.Click += basemapFolderListBox_Click;
-            basemapFolderListBox.DoubleClick += basemapFolderListBox_DoubleClick;
+            basemapFolderListBox.Visible = false;
+            // 
+            // buttonLoadFolder
+            // 
+            buttonLoadFolder.Location = new Point(3, 120);
+            buttonLoadFolder.Name = "buttonLoadFolder";
+            buttonLoadFolder.Size = new Size(194, 26);
+            buttonLoadFolder.TabIndex = 12;
+            buttonLoadFolder.Text = "Wczytaj z folderu";
+            buttonLoadFolder.UseVisualStyleBackColor = true;
+            buttonLoadFolder.Visible = false;
             // 
             // label10
             // 
@@ -373,6 +431,7 @@ namespace TrainzBasemapMaker
             label10.Size = new Size(80, 15);
             label10.TabIndex = 0;
             label10.Text = "Twoje foldery:";
+            label10.Visible = false;
             // 
             // radioButton512
             // 
@@ -383,6 +442,7 @@ namespace TrainzBasemapMaker
             radioButton512.TabIndex = 8;
             radioButton512.Text = "512 x 512";
             radioButton512.UseVisualStyleBackColor = true;
+            radioButton512.Visible = false;
             // 
             // radioButton1024
             // 
@@ -393,6 +453,7 @@ namespace TrainzBasemapMaker
             radioButton1024.TabIndex = 7;
             radioButton1024.Text = "1024 x 1024";
             radioButton1024.UseVisualStyleBackColor = true;
+            radioButton1024.Visible = false;
             // 
             // radioButton2048
             // 
@@ -405,6 +466,7 @@ namespace TrainzBasemapMaker
             radioButton2048.TabStop = true;
             radioButton2048.Text = "2048 x 2048";
             radioButton2048.UseVisualStyleBackColor = true;
+            radioButton2048.Visible = false;
             // 
             // radioButton4096
             // 
@@ -415,6 +477,7 @@ namespace TrainzBasemapMaker
             radioButton4096.TabIndex = 5;
             radioButton4096.Text = "4096 x 4096";
             radioButton4096.UseVisualStyleBackColor = true;
+            radioButton4096.Visible = false;
             // 
             // label2
             // 
@@ -424,6 +487,7 @@ namespace TrainzBasemapMaker
             label2.Size = new Size(134, 15);
             label2.TabIndex = 4;
             label2.Text = "Rozdzielczość podkładu:";
+            label2.Visible = false;
             // 
             // textBoxBasemapDate
             // 
@@ -433,7 +497,7 @@ namespace TrainzBasemapMaker
             textBoxBasemapDate.Size = new Size(72, 23);
             textBoxBasemapDate.TabIndex = 3;
             textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
-            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
+            textBoxBasemapDate.Visible = false;
             // 
             // label14
             // 
@@ -443,6 +507,7 @@ namespace TrainzBasemapMaker
             label14.Size = new Size(30, 15);
             label14.TabIndex = 2;
             label14.Text = "Rok:";
+            label14.Visible = false;
             // 
             // comboBoxMapType
             // 
@@ -452,7 +517,7 @@ namespace TrainzBasemapMaker
             comboBoxMapType.Name = "comboBoxMapType";
             comboBoxMapType.Size = new Size(124, 23);
             comboBoxMapType.TabIndex = 1;
-            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            comboBoxMapType.Visible = false;
             // 
             // label15
             // 
@@ -462,6 +527,7 @@ namespace TrainzBasemapMaker
             label15.Size = new Size(107, 15);
             label15.TabIndex = 0;
             label15.Text = "Rodzaj podkładów:";
+            label15.Visible = false;
             // 
             // groupBox4Download
             // 
@@ -475,7 +541,7 @@ namespace TrainzBasemapMaker
             groupBox4Download.Size = new Size(217, 179);
             groupBox4Download.TabIndex = 4;
             groupBox4Download.TabStop = false;
-            groupBox4Download.Text = "4. Pobieranie";
+            groupBox4Download.Text = "4. Generowanie trasy";
             // 
             // buttonCancel
             // 
@@ -494,7 +560,7 @@ namespace TrainzBasemapMaker
             buttonStartDownload.Name = "buttonStartDownload";
             buttonStartDownload.Size = new Size(205, 32);
             buttonStartDownload.TabIndex = 2;
-            buttonStartDownload.Text = "Pobierz podkłady";
+            buttonStartDownload.Text = "Generuj teren (map.gnd)";
             buttonStartDownload.UseVisualStyleBackColor = true;
             buttonStartDownload.Click += buttonStartDownload_Click;
             // 
@@ -503,7 +569,7 @@ namespace TrainzBasemapMaker
             labelProgress.AutoSize = true;
             labelProgress.Location = new Point(6, 58);
             labelProgress.Name = "labelProgress";
-            labelProgress.Size = new Size(125, 15);
+            labelProgress.Size = new Size(130, 15);
             labelProgress.TabIndex = 1;
             labelProgress.Text = "Gotowy do pobierania.";
             // 
@@ -530,7 +596,7 @@ namespace TrainzBasemapMaker
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
             // 
-            // GridToolForm
+            // TerrainGridToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -543,10 +609,10 @@ namespace TrainzBasemapMaker
             Controls.Add(groupBox1Selection);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MinimumSize = new Size(1209, 848);
-            Name = "GridToolForm";
+            Name = "TerrainGridToolForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
-            Text = "Generator terenu (siatka)";
+            Text = "Generator terenu (map.gnd)";
             FormClosing += TerrainGridToolForm_FormClosing;
             Load += TerrainGridToolForm_Load;
             groupBox1Selection.ResumeLayout(false);
@@ -557,6 +623,8 @@ namespace TrainzBasemapMaker
             ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
             groupBox3Config.ResumeLayout(false);
             groupBox3Config.PerformLayout();
+            groupBoxElevation.ResumeLayout(false);
+            groupBoxElevation.PerformLayout();
             panelTrainzFiles.ResumeLayout(false);
             panelTrainzFiles.PerformLayout();
             groupBox4Download.ResumeLayout(false);
@@ -605,6 +673,9 @@ namespace TrainzBasemapMaker
         private TextBox textBoxKuidPart2;
         private TextBox textBoxKuidPart1;
         private Label label12;
+        private GroupBox groupBoxElevation;
+        private RadioButton radioButtonElevationRelative;
+        private RadioButton radioButtonElevationAbsolute;
         private GroupBox groupBox4Download;
         private ProgressBar progressBar1;
         private Label labelProgress;
@@ -614,4 +685,3 @@ namespace TrainzBasemapMaker
         private ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
-

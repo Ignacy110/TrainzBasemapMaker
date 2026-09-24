@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+Ôªø// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -84,14 +84,14 @@ namespace TrainzBasemapMaker.Classes
             string targetFolder = Path.Combine(groupPath, targetFolderName);
             Directory.CreateDirectory(targetFolder);
 
-            // Zapis mapfile.gnd (g≥Ûwny plik siatki)
+            // Zapis mapfile.gnd (g≈Ç√≥wny plik siatki)
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.gnd"), gndData);
 
-            // Zapis pustego mapfile.obs (obiekty - wymagane przez niektÛre wersje Trainz)
+            // Zapis pustego mapfile.obs (obiekty - wymagane przez niekt√≥re wersje Trainz)
             byte[] emptyObs = { 0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.obs"), emptyObs);
 
-            // Zapis pustego mapfile.trk (tory - wymagane przez niektÛre wersje Trainz)
+            // Zapis pustego mapfile.trk (tory - wymagane przez niekt√≥re wersje Trainz)
             byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
 
@@ -140,12 +140,12 @@ namespace TrainzBasemapMaker.Classes
             // 5. creating config.txt
             string configText = System.Text.Encoding.UTF8.GetString(Properties.Resources.config_txt);
 
-            configText = configText.Replace("value1", kuidPart1)
-                                   .Replace("value2", kuidPart2)
-                                   .Replace("designation", basemapGroupDesignation)
-                                   .Replace("counter", counter.ToString())
-                                   .Replace("lon", x.ToString())
-                                   .Replace("lat", y.ToString());
+            configText = configText.Replace("{{value1}}", kuidPart1)
+                                   .Replace("{{value2}}", kuidPart2)
+                                   .Replace("{{designation}}", basemapGroupDesignation)
+                                   .Replace("{{counter}}", counter.ToString())
+                                   .Replace("{{lon}}", x.ToString())
+                                   .Replace("{{lat}}", y.ToString());
 
             File.WriteAllText(Path.Combine(targetFolder, "config.txt"), configText);
 
@@ -294,6 +294,7 @@ namespace TrainzBasemapMaker.Classes
         }
     }
 }
+
 
 
 

@@ -22,7 +22,7 @@ namespace TrainzBasemapMaker.Classes
     /// Metadata model saved as group_info.json inside each basemap group folder.
     /// Stores the reference anchor and generation settings for accurate grid alignment.
     /// </summary>
-    public class BasemapGroupInfo
+    internal class BasemapGroupInfo
     {
         public string? GroupName { get; set; }
         public string? Designation { get; set; }

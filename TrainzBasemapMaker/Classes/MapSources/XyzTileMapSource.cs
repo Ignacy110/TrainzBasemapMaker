@@ -38,7 +38,7 @@ namespace TrainzBasemapMaker.Classes
             OverlayUrl = overlayUrl;
         }
 
-        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3)
+        public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default)
         {
             const int zoom = 18;
             double n = Math.Pow(2, zoom);
@@ -118,14 +118,14 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[]? baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds);
+                        byte[]? baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds, cancellationToken);
                         byte[]? overlayBytes = null;
                         if (!string.IsNullOrEmpty(overlayUrlFormatted))
                         {
-                            overlayBytes = await FetchTileBytesWithRetryAsync(overlayUrlFormatted, maxRetries, delaySeconds);
+                            overlayBytes = await FetchTileBytesWithRetryAsync(overlayUrlFormatted, maxRetries, delaySeconds, cancellationToken);
                         }
                         return (currentTx, currentTy, baseBytes, overlayBytes);
-                    }));
+                    }, cancellationToken));
                 }
             }
 
@@ -136,8 +136,8 @@ namespace TrainzBasemapMaker.Classes
                 throw new HttpRequestException("Serwer kafelków XYZ nie zwrócił żadnych kafelków dla wybranego obszaru.");
             }
 
-            int stitchedWidth = tilesNumX * 256;
-            int stitchedHeight = tilesNumY * 256;
+            int stitchedWidth = tilesNumX * Constants.XyzTilePixelSize;
+            int stitchedHeight = tilesNumY * Constants.XyzTilePixelSize;
 
             using Bitmap stitchedBitmap = new Bitmap(stitchedWidth, stitchedHeight);
             using (Graphics gStitch = Graphics.FromImage(stitchedBitmap))
@@ -145,29 +145,29 @@ namespace TrainzBasemapMaker.Classes
                 gStitch.Clear(Color.White);
                 foreach (var result in results)
                 {
-                    int posX = (result.tx - minTileX) * 256;
-                    int posY = (result.ty - minTileY) * 256;
+                    int posX = (result.tx - minTileX) * Constants.XyzTilePixelSize;
+                    int posY = (result.ty - minTileY) * Constants.XyzTilePixelSize;
 
                     if (result.baseBytes != null && result.baseBytes.Length > 0)
                     {
                         using MemoryStream msBase = new MemoryStream(result.baseBytes);
                         using Image baseImg = Image.FromStream(msBase);
-                        gStitch.DrawImage(baseImg, posX, posY, 256, 256);
+                        gStitch.DrawImage(baseImg, posX, posY, Constants.XyzTilePixelSize, Constants.XyzTilePixelSize);
                     }
 
                     if (result.overlayBytes != null && result.overlayBytes.Length > 0)
                     {
                         using MemoryStream msOverlay = new MemoryStream(result.overlayBytes);
                         using Image overlayImg = Image.FromStream(msOverlay);
-                        gStitch.DrawImage(overlayImg, posX, posY, 256, 256);
+                        gStitch.DrawImage(overlayImg, posX, posY, Constants.XyzTilePixelSize, Constants.XyzTilePixelSize);
                     }
                 }
             }
 
             // Map stitched coordinates of EPSG:2180 box corners
-            PointF srcTL = new PointF((float)((tlX - minTileX) * 256.0), (float)((tlY - minTileY) * 256.0));
-            PointF srcTR = new PointF((float)((trX - minTileX) * 256.0), (float)((trY - minTileY) * 256.0));
-            PointF srcBL = new PointF((float)((blX - minTileX) * 256.0), (float)((blY - minTileY) * 256.0));
+            PointF srcTL = new PointF((float)((tlX - minTileX) * Constants.XyzTilePixelSize), (float)((tlY - minTileY) * Constants.XyzTilePixelSize));
+            PointF srcTR = new PointF((float)((trX - minTileX) * Constants.XyzTilePixelSize), (float)((trY - minTileY) * Constants.XyzTilePixelSize));
+            PointF srcBL = new PointF((float)((blX - minTileX) * Constants.XyzTilePixelSize), (float)((blY - minTileY) * Constants.XyzTilePixelSize));
 
             using Bitmap outputBitmap = new Bitmap(resolution, resolution);
             using (Graphics gOut = Graphics.FromImage(outputBitmap))
@@ -197,34 +197,6 @@ namespace TrainzBasemapMaker.Classes
             double latRad = lat * Math.PI / 180.0;
             double tileY = (1.0 - Math.Log(Math.Tan(latRad) + 1.0 / Math.Cos(latRad)) / Math.PI) / 2.0 * n;
             return (tileX, tileY);
-        }
-
-        private static async Task<byte[]?> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds)
-        {
-            int maxAttempts = Math.Max(1, maxRetries);
-
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    HttpResponseMessage response = await HttpClient.GetAsync(url);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadAsByteArrayAsync();
-                    }
-                }
-                catch
-                {
-                    // Retry on transient network errors
-                }
-
-                if (attempt < maxAttempts)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
-                }
-            }
-
-            return null;
         }
     }
 }

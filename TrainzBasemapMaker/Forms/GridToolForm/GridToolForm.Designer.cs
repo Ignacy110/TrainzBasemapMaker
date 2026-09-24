@@ -17,6 +17,7 @@ namespace TrainzBasemapMaker
             {
                 components.Dispose();
             }
+            webView21?.Dispose();
             base.Dispose(disposing);
         }
 

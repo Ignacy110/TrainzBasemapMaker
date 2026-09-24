@@ -28,10 +28,23 @@ namespace TrainzBasemapMaker.Classes
         /// </summary>
         public static long TileSize => Properties.Settings.Default.BasemapSize;
 
-        protected static readonly HttpClient HttpClient = new HttpClient();
+        protected static readonly HttpClient HttpClient;
 
         static MapSourceBase()
         {
+            var handler = new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+                MaxConnectionsPerServer = 10,
+                EnableMultipleHttp2Connections = true
+            };
+
+            HttpClient = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromSeconds(30),
+                DefaultRequestVersion = new Version(1, 1)
+            };
+
             if (!HttpClient.DefaultRequestHeaders.Contains("User-Agent"))
             {
                 HttpClient.DefaultRequestHeaders.Add("User-Agent", "TrainzBasemapMaker/1.0 (https://github.com/Ignacy110/TrainzBasemapMaker)");
@@ -50,6 +63,40 @@ namespace TrainzBasemapMaker.Classes
 
         public override string ToString() => Name;
 
-        public abstract Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3);
+        public abstract Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default);
+
+        protected static async Task<byte[]?> FetchTileBytesWithRetryAsync(string url, int maxRetries, int delaySeconds, CancellationToken cancellationToken = default)
+        {
+            int maxAttempts = Math.Max(1, maxRetries);
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                try
+                {
+                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch
+                {
+                    // Retry on transient network errors
+                }
+
+                if (attempt < maxAttempts)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
+                }
+            }
+
+            return null;
+        }
     }
 }

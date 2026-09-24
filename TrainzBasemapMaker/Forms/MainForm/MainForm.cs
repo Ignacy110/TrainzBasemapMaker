@@ -241,9 +241,7 @@ namespace TrainzBasemapMaker
                 {
                     try
                     {
-                        TrainzFileManager fileManager = new TrainzFileManager();
-
-                        bool success = fileManager.CreateTrainzFiles(
+                        bool success = _fileManager.CreateTrainzFiles(
                             imageBytes,
                             basemapGroup,
                             currentX,
@@ -258,7 +256,7 @@ namespace TrainzBasemapMaker
                         {
                             try
                             {
-                                var existingInfo = fileManager.GetGroupInfo(basemapGroup);
+                                var existingInfo = _fileManager.GetGroupInfo(basemapGroup);
                                 if (existingInfo == null)
                                 {
                                     double? anchorCosLat = null;
@@ -282,12 +280,12 @@ namespace TrainzBasemapMaker
                                         CreatedAt = DateTime.Now,
                                         LastUpdatedAt = DateTime.Now
                                     };
-                                    fileManager.SaveGroupInfo(basemapGroup, newInfo);
+                                    _fileManager.SaveGroupInfo(basemapGroup, newInfo);
                                 }
                                 else
                                 {
                                     existingInfo.LastUpdatedAt = DateTime.Now;
-                                    fileManager.SaveGroupInfo(basemapGroup, existingInfo);
+                                    _fileManager.SaveGroupInfo(basemapGroup, existingInfo);
                                 }
                             }
                             catch (Exception ex)
