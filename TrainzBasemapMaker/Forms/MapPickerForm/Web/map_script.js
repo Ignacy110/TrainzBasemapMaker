@@ -74,6 +74,9 @@ L.control.scale({ imperial: false, metric: true }).addTo(map);
 // Add the layer selection switcher menu to the top-right corner
 L.control.layers(baseMaps).addTo(map);
 
+// Initialize city/town search control
+initLeafletGeoSearch(map);
+
 var marker;
 var basemapSquare;
 

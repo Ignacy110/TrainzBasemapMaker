@@ -77,6 +77,9 @@ var baseMaps = {
 L.control.scale({ imperial: false, metric: true }).addTo(map);
 L.control.layers(baseMaps).addTo(map);
 
+// Initialize city/town search control
+initLeafletGeoSearch(map);
+
 // State variables
 var currentEpsg = "EPSG:2180";
 var tileSize = 720; // 720 meters baseboard for Trainz terrain
@@ -443,10 +446,17 @@ var boxStartPoint = null;
 
 // Prevent context menu so right click can be used for panning
 mapContainer.addEventListener("contextmenu", function(e) {
+    if (e.target && e.target.closest && e.target.closest('.leaflet-control')) {
+        return;
+    }
     e.preventDefault();
 });
 
 mapContainer.addEventListener("mousedown", function(e) {
+    if (e.target && e.target.closest && e.target.closest('.leaflet-control')) {
+        return;
+    }
+
     // 1. Right click (2) or Middle click (1) -> Pan Map
     if (e.button === 2 || e.button === 1) {
         isPanning = true;
