@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -66,32 +66,9 @@ namespace TrainzBasemapMaker
 
         private async void TerrainGridToolForm_Load(object? sender, EventArgs e)
         {
-            this.Size = Properties.Settings.Default.GridToolFormSize;
-            this.WindowState = Properties.Settings.Default.GridToolFormState;
+            this.Size = Properties.Settings.Default.TerrainGridToolFormSize;
+            this.WindowState = Properties.Settings.Default.TerrainGridToolFormState;
             ThemeManager.ApplyTheme(this);
-
-            this.Text = "Generator terenu (map.gnd)";
-            groupBox3Config.Text = "3. Konfiguracja trasy";
-            label4.Text = "Nazwa trasy:";
-            buttonStartDownload.Text = "Generuj teren (map.gnd)";
-
-            // Hide unused basemap-specific controls
-            comboBoxMapType.Visible = false;
-            label15.Visible = false;
-            radioButton4096.Visible = false;
-            radioButton2048.Visible = false;
-            radioButton1024.Visible = false;
-            radioButton512.Visible = false;
-            label2.Visible = false;
-            label14.Visible = false;
-            textBoxBasemapDate.Visible = false;
-            textBoxDesignation.Visible = false;
-            label13.Visible = false;
-            textBoxCounter.Visible = false;
-            label11.Visible = false;
-            label10.Visible = false;
-            basemapFolderListBox.Visible = false;
-            buttonLoadFolder.Visible = false;
 
             await InitBrowser();
         }
@@ -463,14 +440,14 @@ namespace TrainzBasemapMaker
                 _cancellationTokenSource?.Cancel();
             }
 
-            Properties.Settings.Default.GridToolFormState = this.WindowState;
+            Properties.Settings.Default.TerrainGridToolFormState = this.WindowState;
             if (this.WindowState == FormWindowState.Normal)
             {
-                Properties.Settings.Default.GridToolFormSize = this.Size;
+                Properties.Settings.Default.TerrainGridToolFormSize = this.Size;
             }
             else
             {
-                Properties.Settings.Default.GridToolFormSize = this.RestoreBounds.Size;
+                Properties.Settings.Default.TerrainGridToolFormSize = this.RestoreBounds.Size;
             }
             Properties.Settings.Default.Save();
         }

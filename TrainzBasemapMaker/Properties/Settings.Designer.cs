@@ -109,6 +109,30 @@ namespace TrainzBasemapMaker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1209, 848")]
+        public global::System.Drawing.Size TerrainGridToolFormSize {
+            get {
+                return ((global::System.Drawing.Size)(this["TerrainGridToolFormSize"]));
+            }
+            set {
+                this["TerrainGridToolFormSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::System.Windows.Forms.FormWindowState TerrainGridToolFormState {
+            get {
+                return ((global::System.Windows.Forms.FormWindowState)(this["TerrainGridToolFormState"]));
+            }
+            set {
+                this["TerrainGridToolFormState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("500")]
         public int BasemapSize {
             get {

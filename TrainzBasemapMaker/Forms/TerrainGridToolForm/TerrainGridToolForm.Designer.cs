@@ -61,32 +61,16 @@ namespace TrainzBasemapMaker
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3Config = new GroupBox();
-            groupBoxElevation = new GroupBox();
-            radioButtonElevationRelative = new RadioButton();
-            radioButtonElevationAbsolute = new RadioButton();
             panelTrainzFiles = new Panel();
             labelKuidSeparator = new Label();
             textBoxKuidPart2 = new TextBox();
             textBoxKuidPart1 = new TextBox();
             label12 = new Label();
-            textBoxCounter = new TextBox();
-            label11 = new Label();
-            textBoxDesignation = new TextBox();
-            label13 = new Label();
             textBoxDestinationFolder = new TextBox();
             label4 = new Label();
-            basemapFolderListBox = new ListBox();
-            buttonLoadFolder = new Button();
-            label10 = new Label();
-            radioButton512 = new RadioButton();
-            radioButton1024 = new RadioButton();
-            radioButton2048 = new RadioButton();
-            radioButton4096 = new RadioButton();
-            label2 = new Label();
-            textBoxBasemapDate = new TextBox();
-            label14 = new Label();
-            comboBoxMapType = new ComboBox();
-            label15 = new Label();
+            groupBoxElevation = new GroupBox();
+            radioButtonElevationRelative = new RadioButton();
+            radioButtonElevationAbsolute = new RadioButton();
             groupBox4Download = new GroupBox();
             buttonCancel = new Button();
             buttonStartDownload = new Button();
@@ -245,20 +229,11 @@ namespace TrainzBasemapMaker
             // groupBox3Config
             // 
             groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox3Config.Controls.Add(groupBoxElevation);
             groupBox3Config.Controls.Add(panelTrainzFiles);
-            groupBox3Config.Controls.Add(radioButton512);
-            groupBox3Config.Controls.Add(radioButton1024);
-            groupBox3Config.Controls.Add(radioButton2048);
-            groupBox3Config.Controls.Add(radioButton4096);
-            groupBox3Config.Controls.Add(label2);
-            groupBox3Config.Controls.Add(textBoxBasemapDate);
-            groupBox3Config.Controls.Add(label14);
-            groupBox3Config.Controls.Add(comboBoxMapType);
-            groupBox3Config.Controls.Add(label15);
+            groupBox3Config.Controls.Add(groupBoxElevation);
             groupBox3Config.Location = new Point(962, 12);
             groupBox3Config.Name = "groupBox3Config";
-            groupBox3Config.Size = new Size(217, 575);
+            groupBox3Config.Size = new Size(217, 215);
             groupBox3Config.TabIndex = 3;
             groupBox3Config.TabStop = false;
             groupBox3Config.Text = "3. Konfiguracja trasy";
@@ -267,10 +242,10 @@ namespace TrainzBasemapMaker
             // 
             groupBoxElevation.Controls.Add(radioButtonElevationRelative);
             groupBoxElevation.Controls.Add(radioButtonElevationAbsolute);
-            groupBoxElevation.Location = new Point(6, 160);
+            groupBoxElevation.Location = new Point(6, 130);
             groupBoxElevation.Name = "groupBoxElevation";
             groupBoxElevation.Size = new Size(205, 75);
-            groupBoxElevation.TabIndex = 10;
+            groupBoxElevation.TabIndex = 1;
             groupBoxElevation.TabStop = false;
             groupBoxElevation.Text = "Tryb wysokości:";
             // 
@@ -302,97 +277,12 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.Controls.Add(textBoxKuidPart2);
             panelTrainzFiles.Controls.Add(textBoxKuidPart1);
             panelTrainzFiles.Controls.Add(label12);
-            panelTrainzFiles.Controls.Add(textBoxCounter);
-            panelTrainzFiles.Controls.Add(label11);
-            panelTrainzFiles.Controls.Add(textBoxDesignation);
-            panelTrainzFiles.Controls.Add(label13);
             panelTrainzFiles.Controls.Add(textBoxDestinationFolder);
             panelTrainzFiles.Controls.Add(label4);
-            panelTrainzFiles.Controls.Add(basemapFolderListBox);
-            panelTrainzFiles.Controls.Add(buttonLoadFolder);
-            panelTrainzFiles.Controls.Add(label10);
             panelTrainzFiles.Location = new Point(6, 20);
             panelTrainzFiles.Name = "panelTrainzFiles";
-            panelTrainzFiles.Size = new Size(205, 135);
-            panelTrainzFiles.TabIndex = 9;
-            // 
-            // labelKuidSeparator
-            // 
-            labelKuidSeparator.AutoSize = true;
-            labelKuidSeparator.Location = new Point(94, 98);
-            labelKuidSeparator.Name = "labelKuidSeparator";
-            labelKuidSeparator.Size = new Size(10, 15);
-            labelKuidSeparator.TabIndex = 11;
-            labelKuidSeparator.Text = ":";
-            // 
-            // textBoxKuidPart2
-            // 
-            textBoxKuidPart2.Location = new Point(108, 95);
-            textBoxKuidPart2.Name = "textBoxKuidPart2";
-            textBoxKuidPart2.Size = new Size(89, 23);
-            textBoxKuidPart2.TabIndex = 10;
-            textBoxKuidPart2.KeyPress += OnlyNumbers_KeyPress;
-            // 
-            // textBoxKuidPart1
-            // 
-            textBoxKuidPart1.Location = new Point(3, 95);
-            textBoxKuidPart1.Name = "textBoxKuidPart1";
-            textBoxKuidPart1.Size = new Size(89, 23);
-            textBoxKuidPart1.TabIndex = 9;
-            textBoxKuidPart1.KeyPress += OnlyNumbers_KeyPress;
-            // 
-            // label12
-            // 
-            label12.AutoSize = true;
-            label12.Location = new Point(3, 75);
-            label12.Name = "label12";
-            label12.Size = new Size(37, 15);
-            label12.TabIndex = 8;
-            label12.Text = "KUID:";
-            // 
-            // textBoxCounter
-            // 
-            textBoxCounter.Location = new Point(3, 200);
-            textBoxCounter.Name = "textBoxCounter";
-            textBoxCounter.Size = new Size(194, 23);
-            textBoxCounter.TabIndex = 7;
-            textBoxCounter.Visible = false;
-            // 
-            // label11
-            // 
-            label11.AutoSize = true;
-            label11.Location = new Point(3, 182);
-            label11.Name = "label11";
-            label11.Size = new Size(47, 15);
-            label11.TabIndex = 6;
-            label11.Text = "Licznik:";
-            label11.Visible = false;
-            // 
-            // textBoxDesignation
-            // 
-            textBoxDesignation.Location = new Point(3, 155);
-            textBoxDesignation.Name = "textBoxDesignation";
-            textBoxDesignation.Size = new Size(194, 23);
-            textBoxDesignation.TabIndex = 5;
-            textBoxDesignation.Visible = false;
-            // 
-            // label13
-            // 
-            label13.AutoSize = true;
-            label13.Location = new Point(3, 137);
-            label13.Name = "label13";
-            label13.Size = new Size(74, 15);
-            label13.TabIndex = 4;
-            label13.Text = "Oznaczenie:";
-            label13.Visible = false;
-            // 
-            // textBoxDestinationFolder
-            // 
-            textBoxDestinationFolder.Location = new Point(3, 23);
-            textBoxDestinationFolder.Name = "textBoxDestinationFolder";
-            textBoxDestinationFolder.Size = new Size(194, 23);
-            textBoxDestinationFolder.TabIndex = 3;
-            textBoxDestinationFolder.TextChanged += textBoxDestinationFolder_TextChanged;
+            panelTrainzFiles.Size = new Size(205, 105);
+            panelTrainzFiles.TabIndex = 0;
             // 
             // label4
             // 
@@ -400,134 +290,50 @@ namespace TrainzBasemapMaker
             label4.Location = new Point(3, 5);
             label4.Name = "label4";
             label4.Size = new Size(75, 15);
-            label4.TabIndex = 2;
+            label4.TabIndex = 0;
             label4.Text = "Nazwa trasy:";
             // 
-            // basemapFolderListBox
+            // textBoxDestinationFolder
             // 
-            basemapFolderListBox.FormattingEnabled = true;
-            basemapFolderListBox.ItemHeight = 15;
-            basemapFolderListBox.Location = new Point(3, 21);
-            basemapFolderListBox.Name = "basemapFolderListBox";
-            basemapFolderListBox.Size = new Size(194, 94);
-            basemapFolderListBox.TabIndex = 1;
-            basemapFolderListBox.Visible = false;
+            textBoxDestinationFolder.Location = new Point(3, 23);
+            textBoxDestinationFolder.Name = "textBoxDestinationFolder";
+            textBoxDestinationFolder.Size = new Size(194, 23);
+            textBoxDestinationFolder.TabIndex = 1;
+            textBoxDestinationFolder.TextChanged += textBoxDestinationFolder_TextChanged;
             // 
-            // buttonLoadFolder
+            // label12
             // 
-            buttonLoadFolder.Location = new Point(3, 120);
-            buttonLoadFolder.Name = "buttonLoadFolder";
-            buttonLoadFolder.Size = new Size(194, 26);
-            buttonLoadFolder.TabIndex = 12;
-            buttonLoadFolder.Text = "Wczytaj z folderu";
-            buttonLoadFolder.UseVisualStyleBackColor = true;
-            buttonLoadFolder.Visible = false;
+            label12.AutoSize = true;
+            label12.Location = new Point(3, 53);
+            label12.Name = "label12";
+            label12.Size = new Size(37, 15);
+            label12.TabIndex = 2;
+            label12.Text = "KUID:";
             // 
-            // label10
+            // textBoxKuidPart1
             // 
-            label10.AutoSize = true;
-            label10.Location = new Point(3, 3);
-            label10.Name = "label10";
-            label10.Size = new Size(80, 15);
-            label10.TabIndex = 0;
-            label10.Text = "Twoje foldery:";
-            label10.Visible = false;
+            textBoxKuidPart1.Location = new Point(3, 73);
+            textBoxKuidPart1.Name = "textBoxKuidPart1";
+            textBoxKuidPart1.Size = new Size(89, 23);
+            textBoxKuidPart1.TabIndex = 3;
+            textBoxKuidPart1.KeyPress += OnlyNumbers_KeyPress;
             // 
-            // radioButton512
+            // labelKuidSeparator
             // 
-            radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(109, 147);
-            radioButton512.Name = "radioButton512";
-            radioButton512.Size = new Size(73, 19);
-            radioButton512.TabIndex = 8;
-            radioButton512.Text = "512 x 512";
-            radioButton512.UseVisualStyleBackColor = true;
-            radioButton512.Visible = false;
+            labelKuidSeparator.AutoSize = true;
+            labelKuidSeparator.Location = new Point(94, 76);
+            labelKuidSeparator.Name = "labelKuidSeparator";
+            labelKuidSeparator.Size = new Size(10, 15);
+            labelKuidSeparator.TabIndex = 4;
+            labelKuidSeparator.Text = ":";
             // 
-            // radioButton1024
+            // textBoxKuidPart2
             // 
-            radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(9, 147);
-            radioButton1024.Name = "radioButton1024";
-            radioButton1024.Size = new Size(85, 19);
-            radioButton1024.TabIndex = 7;
-            radioButton1024.Text = "1024 x 1024";
-            radioButton1024.UseVisualStyleBackColor = true;
-            radioButton1024.Visible = false;
-            // 
-            // radioButton2048
-            // 
-            radioButton2048.AutoSize = true;
-            radioButton2048.Checked = true;
-            radioButton2048.Location = new Point(109, 122);
-            radioButton2048.Name = "radioButton2048";
-            radioButton2048.Size = new Size(85, 19);
-            radioButton2048.TabIndex = 6;
-            radioButton2048.TabStop = true;
-            radioButton2048.Text = "2048 x 2048";
-            radioButton2048.UseVisualStyleBackColor = true;
-            radioButton2048.Visible = false;
-            // 
-            // radioButton4096
-            // 
-            radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(9, 122);
-            radioButton4096.Name = "radioButton4096";
-            radioButton4096.Size = new Size(85, 19);
-            radioButton4096.TabIndex = 5;
-            radioButton4096.Text = "4096 x 4096";
-            radioButton4096.UseVisualStyleBackColor = true;
-            radioButton4096.Visible = false;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(6, 102);
-            label2.Name = "label2";
-            label2.Size = new Size(134, 15);
-            label2.TabIndex = 4;
-            label2.Text = "Rozdzielczość podkładu:";
-            label2.Visible = false;
-            // 
-            // textBoxBasemapDate
-            // 
-            textBoxBasemapDate.Location = new Point(136, 68);
-            textBoxBasemapDate.MaxLength = 4;
-            textBoxBasemapDate.Name = "textBoxBasemapDate";
-            textBoxBasemapDate.Size = new Size(72, 23);
-            textBoxBasemapDate.TabIndex = 3;
-            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
-            textBoxBasemapDate.Visible = false;
-            // 
-            // label14
-            // 
-            label14.AutoSize = true;
-            label14.Location = new Point(136, 50);
-            label14.Name = "label14";
-            label14.Size = new Size(30, 15);
-            label14.TabIndex = 2;
-            label14.Text = "Rok:";
-            label14.Visible = false;
-            // 
-            // comboBoxMapType
-            // 
-            comboBoxMapType.DropDownWidth = 280;
-            comboBoxMapType.FormattingEnabled = true;
-            comboBoxMapType.Location = new Point(6, 68);
-            comboBoxMapType.Name = "comboBoxMapType";
-            comboBoxMapType.Size = new Size(124, 23);
-            comboBoxMapType.TabIndex = 1;
-            comboBoxMapType.Visible = false;
-            // 
-            // label15
-            // 
-            label15.AutoSize = true;
-            label15.Location = new Point(6, 50);
-            label15.Name = "label15";
-            label15.Size = new Size(107, 15);
-            label15.TabIndex = 0;
-            label15.Text = "Rodzaj podkładów:";
-            label15.Visible = false;
+            textBoxKuidPart2.Location = new Point(108, 73);
+            textBoxKuidPart2.Name = "textBoxKuidPart2";
+            textBoxKuidPart2.Size = new Size(89, 23);
+            textBoxKuidPart2.TabIndex = 5;
+            textBoxKuidPart2.KeyPress += OnlyNumbers_KeyPress;
             // 
             // groupBox4Download
             // 
@@ -536,7 +342,7 @@ namespace TrainzBasemapMaker
             groupBox4Download.Controls.Add(buttonStartDownload);
             groupBox4Download.Controls.Add(labelProgress);
             groupBox4Download.Controls.Add(progressBar1);
-            groupBox4Download.Location = new Point(962, 593);
+            groupBox4Download.Location = new Point(962, 237);
             groupBox4Download.Name = "groupBox4Download";
             groupBox4Download.Size = new Size(217, 179);
             groupBox4Download.TabIndex = 4;
@@ -650,25 +456,9 @@ namespace TrainzBasemapMaker
         private GroupBox groupBoxMap;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private GroupBox groupBox3Config;
-        private ComboBox comboBoxMapType;
-        private Label label15;
-        private TextBox textBoxBasemapDate;
-        private Label label14;
-        private RadioButton radioButton512;
-        private RadioButton radioButton1024;
-        private RadioButton radioButton2048;
-        private RadioButton radioButton4096;
-        private Label label2;
         private Panel panelTrainzFiles;
-        private ListBox basemapFolderListBox;
-        private Button buttonLoadFolder;
-        private Label label10;
         private TextBox textBoxDestinationFolder;
         private Label label4;
-        private TextBox textBoxDesignation;
-        private Label label13;
-        private TextBox textBoxCounter;
-        private Label label11;
         private Label labelKuidSeparator;
         private TextBox textBoxKuidPart2;
         private TextBox textBoxKuidPart1;
