@@ -57,6 +57,13 @@ namespace TrainzBasemapMaker
             // Set initial control states
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
+            textBoxKuidPart1.TextChanged += (s, e) =>
+            {
+                if (_loadedRoute == null && Properties.Settings.Default.AutoKuidNumber)
+                {
+                    UpdateNextFreeKuidPart2();
+                }
+            };
 
             radioButtonEpsg2180.Checked = true;
             radioButtonModeClick.Checked = true;
@@ -402,12 +409,12 @@ namespace TrainzBasemapMaker
         {
             try
             {
-                int nextKuid = _fileManager.GetNextFreeKuidPart2();
+                int nextKuid = _fileManager.GetNextFreeKuidPart2(textBoxKuidPart1.Text.Trim());
                 textBoxKuidPart2.Text = nextKuid.ToString();
             }
             catch
             {
-                textBoxKuidPart2.Text = "1";
+                textBoxKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
             }
         }
 

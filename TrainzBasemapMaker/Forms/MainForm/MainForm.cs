@@ -86,6 +86,7 @@ namespace TrainzBasemapMaker
             label7.Text = radioButtonEpsg2180.Checked ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             textBoxLat.TextChanged += TextBoxLatLon_TextChanged;
             textBoxLon.TextChanged += TextBoxLatLon_TextChanged;
+            textBoxKuidPart1.TextChanged += TextBoxKuidPart1_TextChanged;
 
             // Initialize dynamic data and lists
             UpdateNextFreeKuidPart2();
@@ -178,17 +179,25 @@ namespace TrainzBasemapMaker
             basemapFolderListBox.Items.AddRange(groups.ToArray());
         }
 
+        private void TextBoxKuidPart1_TextChanged(object? sender, EventArgs e)
+        {
+            if (Properties.Settings.Default.AutoKuidNumber)
+            {
+                UpdateNextFreeKuidPart2();
+            }
+        }
+
         // Automatically finds and sets the next available KUID part 2 to avoid overwriting existing assets
         private void UpdateNextFreeKuidPart2()
         {
             try
             {
-                int nextKuid = _fileManager.GetNextFreeKuidPart2();
+                int nextKuid = _fileManager.GetNextFreeKuidPart2(textBoxKuidPart1.Text.Trim());
                 textBoxKuidPart2.Text = nextKuid.ToString();
             }
             catch (Exception ex)
             {
-                textBoxKuidPart2.Text = "1";
+                textBoxKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
                 toolStripStatusLabel1.Text = "Błąd automatycznego wyznaczania oznaczenia kuidu (część 2)";
                 MessageBox.Show("Błąd automatycznego wyznaczania oznaczenia kuidu (część 2):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -673,6 +682,10 @@ namespace TrainzBasemapMaker
             using (PreferencesForm info = new PreferencesForm())
             {
                 info.ShowDialog();
+                if (Properties.Settings.Default.AutoKuidNumber)
+                {
+                    UpdateNextFreeKuidPart2();
+                }
             }
         }
 

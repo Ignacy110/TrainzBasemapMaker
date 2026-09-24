@@ -335,17 +335,24 @@ namespace TrainzBasemapMaker.Classes
             return Path.Combine(RootFolder, groupName, folderName, "basemap.jpg");
         }
 
-        public int GetNextFreeKuidPart2()
+        public int GetNextFreeKuidPart2(string? targetKuidPart1 = null)
         {
             if (!Directory.Exists(RootFolder))
             {
-                return 1;
+                return Math.Max(1, Properties.Settings.Default.MinKuidPart2);
             }
+
+            bool filterByPart1 = Properties.Settings.Default.KuidAutoCountPerFirstPart;
+            if (string.IsNullOrWhiteSpace(targetKuidPart1))
+            {
+                targetKuidPart1 = Properties.Settings.Default.DefaultKuidFirstPart ?? "0";
+            }
+            targetKuidPart1 = targetKuidPart1.Trim();
+
+            HashSet<int> usedKuidsPart2 = new HashSet<int>();
 
             // Find all folders in all subdirectories whose name starts with "basemap_"
             var allFolders = Directory.GetDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories);
-
-            HashSet<int> usedKuidsPart2 = new HashSet<int>();
 
             foreach (var folder in allFolders)
             {
@@ -353,12 +360,36 @@ namespace TrainzBasemapMaker.Classes
                 if (TryParseTileFolderName(folderName, out var tileInfo) &&
                     int.TryParse(tileInfo.KuidPart2, out int parsedKuidPart2))
                 {
-                    usedKuidsPart2.Add(parsedKuidPart2);
+                    if (!filterByPart1 || string.Equals(tileInfo.KuidPart1?.Trim(), targetKuidPart1, StringComparison.OrdinalIgnoreCase))
+                    {
+                        usedKuidsPart2.Add(parsedKuidPart2);
+                    }
                 }
             }
 
-            // Find the smallest unused value starting from 1
-            int freeKuid = 1;
+            // Find all folders in all subdirectories whose name starts with "route_"
+            var routeFolders = Directory.GetDirectories(RootFolder, "route_*", SearchOption.AllDirectories);
+
+            foreach (var folder in routeFolders)
+            {
+                string folderName = new DirectoryInfo(folder).Name;
+                string[] parts = folderName.Split('_');
+                if (parts.Length >= 4 &&
+                    int.TryParse(parts[parts.Length - 1], out int parsedKuidPart2))
+                {
+                    string routeKuid1 = parts[parts.Length - 2].Trim();
+                    if (!filterByPart1 || string.Equals(routeKuid1, targetKuidPart1, StringComparison.OrdinalIgnoreCase))
+                    {
+                        usedKuidsPart2.Add(parsedKuidPart2);
+                    }
+                }
+            }
+
+            int minKuid = Properties.Settings.Default.MinKuidPart2;
+            if (minKuid < 1) minKuid = 1;
+
+            // Find the smallest unused value starting from minKuid
+            int freeKuid = minKuid;
             while (usedKuidsPart2.Contains(freeKuid))
             {
                 freeKuid++;

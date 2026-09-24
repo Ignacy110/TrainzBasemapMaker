@@ -154,5 +154,29 @@ namespace TrainzBasemapMaker.Properties {
                 this["DarkMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool KuidAutoCountPerFirstPart {
+            get {
+                return ((bool)(this["KuidAutoCountPerFirstPart"]));
+            }
+            set {
+                this["KuidAutoCountPerFirstPart"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int MinKuidPart2 {
+            get {
+                return ((int)(this["MinKuidPart2"]));
+            }
+            set {
+                this["MinKuidPart2"] = value;
+            }
+        }
     }
 }

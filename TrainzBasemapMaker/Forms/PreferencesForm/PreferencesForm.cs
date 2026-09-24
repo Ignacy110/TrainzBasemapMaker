@@ -31,7 +31,9 @@ namespace TrainzBasemapMaker
             // Load user preferences from application settings upon initialization
             checkBoxAutoCounter.Checked = Properties.Settings.Default.AutoCounterNumber;
             checkBoxAutoKuid.Checked = Properties.Settings.Default.AutoKuidNumber;
+            checkBoxKuidAutoCountPerFirstPart.Checked = Properties.Settings.Default.KuidAutoCountPerFirstPart;
             textBoxDefaultKuidFirstPart.Text = Properties.Settings.Default.DefaultKuidFirstPart;
+            textBoxMinKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
             checkBoxDarkMode.Checked = Properties.Settings.Default.DarkMode;
             comboBoxBasemapSize.SelectedItem = Properties.Settings.Default.BasemapSize.ToString();
             
@@ -78,7 +80,16 @@ namespace TrainzBasemapMaker
             // Transfer UI state to the Settings object
             Properties.Settings.Default.AutoCounterNumber = checkBoxAutoCounter.Checked;
             Properties.Settings.Default.AutoKuidNumber = checkBoxAutoKuid.Checked;
+            Properties.Settings.Default.KuidAutoCountPerFirstPart = checkBoxKuidAutoCountPerFirstPart.Checked;
             Properties.Settings.Default.DefaultKuidFirstPart = textBoxDefaultKuidFirstPart.Text;
+            if (int.TryParse(textBoxMinKuidPart2.Text, out int minKuid) && minKuid >= 1)
+            {
+                Properties.Settings.Default.MinKuidPart2 = minKuid;
+            }
+            else
+            {
+                Properties.Settings.Default.MinKuidPart2 = 1;
+            }
             if (int.TryParse(comboBoxBasemapSize.SelectedItem?.ToString(), out int size))
             {
                 Properties.Settings.Default.BasemapSize = size;
