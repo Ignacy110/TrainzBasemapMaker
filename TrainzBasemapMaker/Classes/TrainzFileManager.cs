@@ -278,10 +278,53 @@ namespace TrainzBasemapMaker.Classes
             // 4. writing files
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap.jpg"), imageBytes);
             File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
-            if (Properties.Settings.Default.BasemapSize == 720)
-                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap720_im);
-            else
-                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap_im);
+            
+            bool imGenerated = false;
+            string imPath = Path.Combine(targetFolder, "basemap.im");
+            string logPath = Path.Combine(targetFolder, "3d_generation_log.txt");
+            
+            if (Properties.Settings.Default.Generate3DBasemaps)
+            {
+                if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath))
+                {
+                    File.WriteAllText(logPath, "Nie podano ścieżki do Trainz Mesh Importer w ustawieniach.");
+                }
+                else if (!File.Exists(Properties.Settings.Default.TrainzMeshImporterPath))
+                {
+                    File.WriteAllText(logPath, $"Plik Trainz Mesh Importer nie istnieje pod podaną ścieżką: {Properties.Settings.Default.TrainzMeshImporterPath}");
+                }
+                else
+                {
+                    try
+                    {
+                        var wcs = new WcsElevationProvider();
+                        var elevationGrid = wcs.GetElevationGridAsync(x, y).GetAwaiter().GetResult();
+                        imGenerated = TrainzMeshGenerator.Generate3DBasemap(
+                            elevationGrid, 
+                            imPath, 
+                            Properties.Settings.Default.BasemapSize, 
+                            Properties.Settings.Default.TrainzMeshImporterPath);
+                            
+                        if (!imGenerated)
+                        {
+                            File.WriteAllText(logPath, "TrainzMeshGenerator.Generate3DBasemap zwróciło false. Prawdopodobnie TrainzMeshImporter.exe nie wygenerował pliku .im (błąd w argumentach, crash narzędzia, lub zła struktura XML). Sprawdź czy TrainzMeshImporter obsługuje te argumenty, uruchamiając go ręcznie.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        File.WriteAllText(logPath, $"Wystąpił błąd podczas generowania siatki:\n{ex.ToString()}");
+                    }
+                }
+            }
+            
+            if (!imGenerated)
+            {
+                if (Properties.Settings.Default.BasemapSize == 720)
+                    File.WriteAllBytes(imPath, Properties.Resources.basemap720_im);
+                else
+                    File.WriteAllBytes(imPath, Properties.Resources.basemap_im);
+            }
+            
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap-basemap.texture.txt"), Properties.Resources.basemap_basemap_texture_txt);
 
             // 5. creating config.txt

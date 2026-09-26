@@ -178,5 +178,29 @@ namespace TrainzBasemapMaker.Properties {
                 this["MinKuidPart2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Generate3DBasemaps {
+            get {
+                return ((bool)(this["Generate3DBasemaps"]));
+            }
+            set {
+                this["Generate3DBasemaps"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TrainzMeshImporterPath {
+            get {
+                return ((string)(this["TrainzMeshImporterPath"]));
+            }
+            set {
+                this["TrainzMeshImporterPath"] = value;
+            }
+        }
     }
 }

@@ -37,6 +37,44 @@ namespace TrainzBasemapMaker
             checkBoxDarkMode.Checked = Properties.Settings.Default.DarkMode;
             comboBoxBasemapSize.SelectedItem = Properties.Settings.Default.BasemapSize.ToString();
             
+            // 3D basemaps settings UI
+            CheckBox checkBoxGenerate3D = new CheckBox();
+            checkBoxGenerate3D.AutoSize = true;
+            checkBoxGenerate3D.Location = new Point(38, 270);
+            checkBoxGenerate3D.Size = new Size(350, 19);
+            checkBoxGenerate3D.Text = "Generuj trójwymiarowe podkłady (wymaga Trainz Mesh Importer)";
+            checkBoxGenerate3D.Checked = Properties.Settings.Default.Generate3DBasemaps;
+            checkBoxGenerate3D.CheckedChanged += (s, e) => Properties.Settings.Default.Generate3DBasemaps = checkBoxGenerate3D.Checked;
+            this.Controls.Add(checkBoxGenerate3D);
+
+            Label labelTMI = new Label();
+            labelTMI.AutoSize = true;
+            labelTMI.Location = new Point(38, 295);
+            labelTMI.Text = "Ścieżka do TrainzMeshImporter.exe:";
+            this.Controls.Add(labelTMI);
+
+            TextBox textBoxTMI = new TextBox();
+            textBoxTMI.Location = new Point(38, 315);
+            textBoxTMI.Width = 300;
+            textBoxTMI.Text = Properties.Settings.Default.TrainzMeshImporterPath;
+            textBoxTMI.TextChanged += (s, e) => Properties.Settings.Default.TrainzMeshImporterPath = textBoxTMI.Text;
+            this.Controls.Add(textBoxTMI);
+
+            Button buttonBrowseTMI = new Button();
+            buttonBrowseTMI.Location = new Point(345, 314);
+            buttonBrowseTMI.Text = "Przeglądaj...";
+            buttonBrowseTMI.Click += (s, e) => {
+                using (OpenFileDialog ofd = new OpenFileDialog()) {
+                    ofd.Filter = "TrainzMeshImporter.exe|TrainzMeshImporter.exe|Wszystkie pliki (*.*)|*.*";
+                    if (ofd.ShowDialog() == DialogResult.OK) {
+                        textBoxTMI.Text = ofd.FileName;
+                    }
+                }
+            };
+            this.Controls.Add(buttonBrowseTMI);
+
+            this.Height = Math.Max(this.Height, 420);
+
             TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
 
             // Subscribe to CheckedChanged event for immediate theme application
