@@ -8,7 +8,7 @@ namespace TrainzBasemapMaker.Classes
 {
     internal class TrainzMeshGenerator
     {
-        public static bool Generate3DBasemap(float[,] elevationGrid, string outputImPath, int size, string tmiPath)
+        public static bool Generate3DBasemap(float[,] elevationGrid, string outputImPath, int size, string tmiPath, float zOffset = 0f)
         {
             if (elevationGrid.GetLength(0) != 76 || elevationGrid.GetLength(1) != 76)
                 return false;
@@ -50,39 +50,37 @@ namespace TrainzBasemapMaker.Classes
                     float y1 = (y + 1) * 10f;
 
                     float u0 = (float)x / steps;
-                    float v0 = 1.0f - ((float)y / steps); // Invert V
+                    float v0 = (float)y / steps; // y=0 is North, v=0 is Top of texture
                     float u1 = (float)(x + 1) / steps;
-                    float v1 = 1.0f - ((float)(y + 1) / steps);
+                    float v1 = (float)(y + 1) / steps;
 
-                    // Trainz uses center as 0,0 typically for basemaps?
-                    // Actually basemap720 is usually 720x720 around the origin, or offset?
-                    // Usually origin is at center: -360 to +360.
+                    // Trainz coords: Z is up, +Y is North, +X is East
                     float halfSize = size / 2f;
                     float p_x0 = x0 - halfSize;
-                    float p_y0 = y0 - halfSize;
+                    float p_y0 = halfSize - y0; // INVERTED Y (y=0 is North, so +360)
                     float p_x1 = x1 - halfSize;
-                    float p_y1 = y1 - halfSize;
+                    float p_y1 = halfSize - y1; // INVERTED Y
 
-                    float z00 = elevationGrid[gx, gy];
-                    float z10 = elevationGrid[gx + 1, gy];
-                    float z01 = elevationGrid[gx, gy + 1];
-                    float z11 = elevationGrid[gx + 1, gy + 1];
+                    float z00 = elevationGrid[gx, gy] + zOffset;
+                    float z10 = elevationGrid[gx + 1, gy] + zOffset;
+                    float z01 = elevationGrid[gx, gy + 1] + zOffset;
+                    float z11 = elevationGrid[gx + 1, gy + 1] + zOffset;
 
                     // Trainz coords: Z is up
-                    // Triangle 1 (0,0 -> 1,0 -> 0,1)
+                    // Triangle 1 (Top-Left -> Bottom-Left -> Top-Right)
                     xml.AppendLine("      <triangle>");
                     xml.AppendLine("        <materialId>0</materialId>");
                     AddVertex(xml, p_x0, p_y0, z00, u0, v0);
-                    AddVertex(xml, p_x1, p_y0, z10, u1, v0);
                     AddVertex(xml, p_x0, p_y1, z01, u0, v1);
+                    AddVertex(xml, p_x1, p_y0, z10, u1, v0);
                     xml.AppendLine("      </triangle>");
                     
-                    // Triangle 2 (1,0 -> 1,1 -> 0,1)
+                    // Triangle 2 (Bottom-Left -> Bottom-Right -> Top-Right)
                     xml.AppendLine("      <triangle>");
                     xml.AppendLine("        <materialId>0</materialId>");
-                    AddVertex(xml, p_x1, p_y0, z10, u1, v0);
-                    AddVertex(xml, p_x1, p_y1, z11, u1, v1);
                     AddVertex(xml, p_x0, p_y1, z01, u0, v1);
+                    AddVertex(xml, p_x1, p_y1, z11, u1, v1);
+                    AddVertex(xml, p_x1, p_y0, z10, u1, v0);
                     xml.AppendLine("      </triangle>");
                 }
             }

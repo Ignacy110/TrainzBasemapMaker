@@ -246,7 +246,7 @@ namespace TrainzBasemapMaker.Classes
                 return null;
             }
         }
-        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
+        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,] providedElevationGrid = null, float zOffset = 0f)
         {
             // 1. building paths with Path.Combine
             string groupPath = Path.Combine(RootFolder, basemapGroup);
@@ -283,7 +283,7 @@ namespace TrainzBasemapMaker.Classes
             string imPath = Path.Combine(targetFolder, "basemap.im");
             string logPath = Path.Combine(targetFolder, "3d_generation_log.txt");
             
-            if (Properties.Settings.Default.Generate3DBasemaps)
+            if (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null)
             {
                 if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath))
                 {
@@ -297,13 +297,18 @@ namespace TrainzBasemapMaker.Classes
                 {
                     try
                     {
-                        var wcs = new WcsElevationProvider();
-                        var elevationGrid = wcs.GetElevationGridAsync(x, y).GetAwaiter().GetResult();
+                        var elevationGrid = providedElevationGrid;
+                        if (elevationGrid == null)
+                        {
+                            var wcs = new WcsElevationProvider();
+                            elevationGrid = wcs.GetElevationGridAsync(x, y).GetAwaiter().GetResult();
+                        }
                         imGenerated = TrainzMeshGenerator.Generate3DBasemap(
                             elevationGrid, 
                             imPath, 
                             Properties.Settings.Default.BasemapSize, 
-                            Properties.Settings.Default.TrainzMeshImporterPath);
+                            Properties.Settings.Default.TrainzMeshImporterPath,
+                            zOffset);
                             
                         if (!imGenerated)
                         {
