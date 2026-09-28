@@ -35,7 +35,6 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             // Set default UI states
-            radioButton2048.Checked = true;
             radioButtonEpsg2180.Checked = true;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
@@ -400,12 +399,14 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Helper method to determine the requested image resolution from the radio buttons.
         /// </summary>
+                private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Designer requirement
+        }
+
         private int GetSelectedResolution()
         {
-            if (radioButton4096.Checked) return 4096;
-            if (radioButton1024.Checked) return 1024;
-            if (radioButton512.Checked) return 512;
-            return 2048; // Default fallback resolution
+            return (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
         }
 
         /// <summary>
@@ -431,14 +432,7 @@ namespace TrainzBasemapMaker
                 // Enable or disable the year input based on whether the source supports historical data
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
 
-                // 4096px resolution is enabled dynamically based on provider capabilities
-                radioButton4096.Enabled = selected.AllowsHighResolution;
-
-                // Fallback to 2048px if 4096px was selected but is no longer supported
-                if (!selected.AllowsHighResolution && radioButton4096.Checked)
-                {
-                    radioButton2048.Checked = true;
-                }
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
             }
         }
 

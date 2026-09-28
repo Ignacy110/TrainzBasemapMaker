@@ -60,8 +60,6 @@ namespace TrainzBasemapMaker
                     UpdateNextFreeKuidPart2();
                 }
             };
-
-            radioButton2048.Checked = true;
             radioButtonEpsg2180.Checked = true;
             radioButtonModeClick.Checked = true;
 
@@ -631,12 +629,14 @@ namespace TrainzBasemapMaker
             Cursor = downloading ? Cursors.WaitCursor : Cursors.Default;
         }
 
+                private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Event handler required for designer
+        }
+
         private int GetSelectedResolution()
         {
-            if (radioButton4096.Checked) return 4096;
-            if (radioButton1024.Checked) return 1024;
-            if (radioButton512.Checked) return 512;
-            return 2048;
+            return (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
         }
 
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
@@ -646,11 +646,7 @@ namespace TrainzBasemapMaker
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
                 label14.Enabled = selected.SupportsTime;
 
-                radioButton4096.Enabled = selected.AllowsHighResolution;
-                if (!selected.AllowsHighResolution && radioButton4096.Checked)
-                {
-                    radioButton2048.Checked = true;
-                }
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
 
                 // Auto-suggest the native EPSG for the selected provider while keeping both options enabled
                 if (selected is XyzTileMapSource)

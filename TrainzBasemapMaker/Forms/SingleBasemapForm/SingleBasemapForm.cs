@@ -65,7 +65,6 @@ namespace TrainzBasemapMaker
             textBoxLon.Text = "17.923025";
 
             // Apply default UI settings
-            radioButton2048.Checked = true;
             checkBoxCreateFiles.Checked = true;
             textBoxDestinationFolder.Text = basemapGroup;
             textBoxDesignation.Text = basemapGroupDesignation;
@@ -435,12 +434,9 @@ namespace TrainzBasemapMaker
             PerformConversion();
         }
 
-        private void radioButtons_CheckedChanged(object sender, EventArgs e)
+                private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (radioButton4096.Checked) resolution = 4096;
-            else if (radioButton2048.Checked) resolution = 2048;
-            else if (radioButton1024.Checked) resolution = 1024;
-            else if (radioButton512.Checked) resolution = 512;
+            resolution = (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
         }
 
         private async void buttonConfAndDownload_Click(object sender, EventArgs e)
@@ -679,14 +675,7 @@ namespace TrainzBasemapMaker
                 // Enable or disable the year text box depending on the map provider's capabilities
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
 
-                // 4096px resolution is enabled dynamically based on provider capabilities
-                radioButton4096.Enabled = selected.AllowsHighResolution;
-
-                // Fallback to 2048px if the unsupported 4096px was currently selected
-                if (!selected.AllowsHighResolution && radioButton4096.Checked)
-                {
-                    radioButton2048.Checked = true;
-                }
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
 
                 UpdateCoordinateSystemAvailability();
 

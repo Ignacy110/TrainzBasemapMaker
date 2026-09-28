@@ -29,6 +29,7 @@ namespace TrainzBasemapMaker
         /// </summary>
         private void InitializeComponent()
         {
+            this.comboBoxResolution = new System.Windows.Forms.ComboBox();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GridToolForm));
             groupBox1Selection = new GroupBox();
             labelArea = new Label();
@@ -57,10 +58,6 @@ namespace TrainzBasemapMaker
             label4 = new Label();
             basemapFolderListBox = new ListBox();
             label10 = new Label();
-            radioButton512 = new RadioButton();
-            radioButton1024 = new RadioButton();
-            radioButton2048 = new RadioButton();
-            radioButton4096 = new RadioButton();
             label2 = new Label();
             textBoxBasemapDate = new TextBox();
             label14 = new Label();
@@ -78,6 +75,7 @@ namespace TrainzBasemapMaker
             groupBoxMap.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)webView21).BeginInit();
             groupBox3Config.SuspendLayout();
+            groupBox3Config.Controls.Add(this.comboBoxResolution);
             panelTrainzFiles.SuspendLayout();
             groupBox4Download.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -224,10 +222,6 @@ namespace TrainzBasemapMaker
             // 
             groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             groupBox3Config.Controls.Add(panelTrainzFiles);
-            groupBox3Config.Controls.Add(radioButton512);
-            groupBox3Config.Controls.Add(radioButton1024);
-            groupBox3Config.Controls.Add(radioButton2048);
-            groupBox3Config.Controls.Add(radioButton4096);
             groupBox3Config.Controls.Add(label2);
             groupBox3Config.Controls.Add(textBoxBasemapDate);
             groupBox3Config.Controls.Add(label14);
@@ -375,47 +369,13 @@ namespace TrainzBasemapMaker
             label10.TabIndex = 0;
             label10.Text = "Twoje foldery:";
             // 
-            // radioButton512
             // 
-            radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(109, 147);
-            radioButton512.Name = "radioButton512";
-            radioButton512.Size = new Size(73, 19);
-            radioButton512.TabIndex = 8;
-            radioButton512.Text = "512 x 512";
-            radioButton512.UseVisualStyleBackColor = true;
             // 
-            // radioButton1024
             // 
-            radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(9, 147);
-            radioButton1024.Name = "radioButton1024";
-            radioButton1024.Size = new Size(85, 19);
-            radioButton1024.TabIndex = 7;
-            radioButton1024.Text = "1024 x 1024";
-            radioButton1024.UseVisualStyleBackColor = true;
             // 
-            // radioButton2048
             // 
-            radioButton2048.AutoSize = true;
-            radioButton2048.Checked = true;
-            radioButton2048.Location = new Point(109, 122);
-            radioButton2048.Name = "radioButton2048";
-            radioButton2048.Size = new Size(85, 19);
-            radioButton2048.TabIndex = 6;
-            radioButton2048.TabStop = true;
-            radioButton2048.Text = "2048 x 2048";
-            radioButton2048.UseVisualStyleBackColor = true;
             // 
-            // radioButton4096
             // 
-            radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(9, 122);
-            radioButton4096.Name = "radioButton4096";
-            radioButton4096.Size = new Size(85, 19);
-            radioButton4096.TabIndex = 5;
-            radioButton4096.Text = "4096 x 4096";
-            radioButton4096.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -556,6 +516,16 @@ namespace TrainzBasemapMaker
             groupBox2CoordSystem.PerformLayout();
             groupBoxMap.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
+                        // 
+            // comboBoxResolution
+            // 
+            this.comboBoxResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxResolution.FormattingEnabled = true;
+            this.comboBoxResolution.Location = new System.Drawing.Point(13, 131);
+            this.comboBoxResolution.Name = "comboBoxResolution";
+            this.comboBoxResolution.Size = new System.Drawing.Size(120, 23);
+            this.comboBoxResolution.TabIndex = 20;
+            this.comboBoxResolution.SelectedIndexChanged += new System.EventHandler(this.comboBoxResolution_SelectedIndexChanged);
             groupBox3Config.ResumeLayout(false);
             groupBox3Config.PerformLayout();
             panelTrainzFiles.ResumeLayout(false);
@@ -584,13 +554,10 @@ namespace TrainzBasemapMaker
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private GroupBox groupBox3Config;
         private ComboBox comboBoxMapType;
+        private System.Windows.Forms.ComboBox comboBoxResolution;
         private Label label15;
         private TextBox textBoxBasemapDate;
         private Label label14;
-        private RadioButton radioButton512;
-        private RadioButton radioButton1024;
-        private RadioButton radioButton2048;
-        private RadioButton radioButton4096;
         private Label label2;
         private Panel panelTrainzFiles;
         private ListBox basemapFolderListBox;

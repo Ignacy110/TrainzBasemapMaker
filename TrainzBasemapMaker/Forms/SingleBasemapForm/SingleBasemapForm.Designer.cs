@@ -29,6 +29,7 @@ namespace TrainzBasemapMaker
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SingleBasemapForm));
+            comboBoxResolution = new ComboBox();
             label1 = new Label();
             textBoxLat = new TextBox();
             buttonConfAndDownload = new Button();
@@ -56,13 +57,9 @@ namespace TrainzBasemapMaker
             basemapFolderListBox = new ListBox();
             textBoxDestinationFolder = new TextBox();
             label4 = new Label();
-            radioButton512 = new RadioButton();
             checkBoxCreateFiles = new CheckBox();
-            radioButton1024 = new RadioButton();
             label8 = new Label();
-            radioButton2048 = new RadioButton();
             label7 = new Label();
-            radioButton4096 = new RadioButton();
             label9 = new Label();
             textBoxY = new TextBox();
             textBoxX = new TextBox();
@@ -86,9 +83,9 @@ namespace TrainzBasemapMaker
             toolStripMenuItem2 = new ToolStripSeparator();
             findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
             findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
-            terrainGeneratorToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripSeparator();
             areaDownloadToolStripMenuItem = new ToolStripMenuItem();
+            terrainGeneratorToolStripMenuItem = new ToolStripMenuItem();
             batchProcessingToolStripMenuItem = new ToolStripMenuItem();
             preferencesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
@@ -106,6 +103,16 @@ namespace TrainzBasemapMaker
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             SuspendLayout();
+            // 
+            // comboBoxResolution
+            // 
+            comboBoxResolution.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxResolution.FormattingEnabled = true;
+            comboBoxResolution.Location = new Point(13, 131);
+            comboBoxResolution.Name = "comboBoxResolution";
+            comboBoxResolution.Size = new Size(93, 23);
+            comboBoxResolution.TabIndex = 20;
+            comboBoxResolution.SelectedIndexChanged += comboBoxResolution_SelectedIndexChanged;
             // 
             // label1
             // 
@@ -191,18 +198,15 @@ namespace TrainzBasemapMaker
             // 
             // groupBox2Configurator
             // 
+            groupBox2Configurator.Controls.Add(comboBoxResolution);
             groupBox2Configurator.Controls.Add(comboBoxMapType);
             groupBox2Configurator.Controls.Add(label15);
             groupBox2Configurator.Controls.Add(textBoxBasemapDate);
             groupBox2Configurator.Controls.Add(label14);
             groupBox2Configurator.Controls.Add(panel1);
-            groupBox2Configurator.Controls.Add(radioButton512);
             groupBox2Configurator.Controls.Add(checkBoxCreateFiles);
-            groupBox2Configurator.Controls.Add(radioButton1024);
             groupBox2Configurator.Controls.Add(label8);
-            groupBox2Configurator.Controls.Add(radioButton2048);
             groupBox2Configurator.Controls.Add(label7);
-            groupBox2Configurator.Controls.Add(radioButton4096);
             groupBox2Configurator.Controls.Add(label9);
             groupBox2Configurator.Controls.Add(textBoxY);
             groupBox2Configurator.Controls.Add(textBoxX);
@@ -378,18 +382,6 @@ namespace TrainzBasemapMaker
             label4.TabIndex = 21;
             label4.Text = "Nazwa docelowego folderu:";
             // 
-            // radioButton512
-            // 
-            radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(13, 206);
-            radioButton512.Name = "radioButton512";
-            radioButton512.Size = new Size(73, 19);
-            radioButton512.TabIndex = 19;
-            radioButton512.TabStop = true;
-            radioButton512.Text = "512 x 512";
-            radioButton512.UseVisualStyleBackColor = true;
-            radioButton512.CheckedChanged += radioButtons_CheckedChanged;
-            // 
             // checkBoxCreateFiles
             // 
             checkBoxCreateFiles.AutoSize = true;
@@ -401,18 +393,6 @@ namespace TrainzBasemapMaker
             checkBoxCreateFiles.UseVisualStyleBackColor = true;
             checkBoxCreateFiles.CheckedChanged += checkBoxCreateFiles_CheckedChanged;
             // 
-            // radioButton1024
-            // 
-            radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(13, 181);
-            radioButton1024.Name = "radioButton1024";
-            radioButton1024.Size = new Size(85, 19);
-            radioButton1024.TabIndex = 18;
-            radioButton1024.TabStop = true;
-            radioButton1024.Text = "1024 x 1024";
-            radioButton1024.UseVisualStyleBackColor = true;
-            radioButton1024.CheckedChanged += radioButtons_CheckedChanged;
-            // 
             // label8
             // 
             label8.AutoSize = true;
@@ -422,18 +402,6 @@ namespace TrainzBasemapMaker
             label8.TabIndex = 17;
             label8.Text = "długość (lon)";
             // 
-            // radioButton2048
-            // 
-            radioButton2048.AutoSize = true;
-            radioButton2048.Location = new Point(13, 156);
-            radioButton2048.Name = "radioButton2048";
-            radioButton2048.Size = new Size(85, 19);
-            radioButton2048.TabIndex = 17;
-            radioButton2048.TabStop = true;
-            radioButton2048.Text = "2048 x 2048";
-            radioButton2048.UseVisualStyleBackColor = true;
-            radioButton2048.CheckedChanged += radioButtons_CheckedChanged;
-            // 
             // label7
             // 
             label7.AutoSize = true;
@@ -442,18 +410,6 @@ namespace TrainzBasemapMaker
             label7.Size = new Size(132, 15);
             label7.TabIndex = 16;
             label7.Text = "Współrzędne EPSG:2180";
-            // 
-            // radioButton4096
-            // 
-            radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(13, 131);
-            radioButton4096.Name = "radioButton4096";
-            radioButton4096.Size = new Size(85, 19);
-            radioButton4096.TabIndex = 16;
-            radioButton4096.TabStop = true;
-            radioButton4096.Text = "4096 x 4096";
-            radioButton4096.UseVisualStyleBackColor = true;
-            radioButton4096.CheckedChanged += radioButtons_CheckedChanged;
             // 
             // label9
             // 
@@ -652,14 +608,6 @@ namespace TrainzBasemapMaker
             toolsToolStripMenuItem.Size = new Size(70, 20);
             toolsToolStripMenuItem.Text = "&Narzędzia";
             // 
-            // terrainGeneratorToolStripMenuItem
-            // 
-            terrainGeneratorToolStripMenuItem.Name = "terrainGeneratorToolStripMenuItem";
-            terrainGeneratorToolStripMenuItem.Size = new Size(276, 22);
-            terrainGeneratorToolStripMenuItem.Text = "Generator &terenu (map.gnd)";
-            terrainGeneratorToolStripMenuItem.Visible = false;
-            terrainGeneratorToolStripMenuItem.Click += terrainGeneratorToolStripMenuItem_Click;
-            // 
             // refreshFolderAndBasemapListToolStripMenuItem
             // 
             refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
@@ -698,6 +646,14 @@ namespace TrainzBasemapMaker
             areaDownloadToolStripMenuItem.Text = "&Pobieranie obszarowe (siatka)";
             areaDownloadToolStripMenuItem.Visible = false;
             areaDownloadToolStripMenuItem.Click += areaDownloadToolStripMenuItem_Click;
+            // 
+            // terrainGeneratorToolStripMenuItem
+            // 
+            terrainGeneratorToolStripMenuItem.Name = "terrainGeneratorToolStripMenuItem";
+            terrainGeneratorToolStripMenuItem.Size = new Size(276, 22);
+            terrainGeneratorToolStripMenuItem.Text = "Generator &terenu (map.gnd)";
+            terrainGeneratorToolStripMenuItem.Visible = false;
+            terrainGeneratorToolStripMenuItem.Click += terrainGeneratorToolStripMenuItem_Click;
             // 
             // batchProcessingToolStripMenuItem
             // 
@@ -750,7 +706,7 @@ namespace TrainzBasemapMaker
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(0, 17);
             // 
-            // MainForm
+            // SingleBasemapForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -811,10 +767,6 @@ namespace TrainzBasemapMaker
         private Label label7;
         private Label label9;
         private CheckBox checkBoxCreateFiles;
-        private RadioButton radioButton4096;
-        private RadioButton radioButton2048;
-        private RadioButton radioButton512;
-        private RadioButton radioButton1024;
         private ListBox kuidsInFolderListBox;
         private GroupBox groupBox5BasemapViewer;
         private GroupBox groupBox4KuidList;
@@ -849,6 +801,7 @@ namespace TrainzBasemapMaker
         private ToolStripMenuItem preferencesToolStripMenuItem;
         private Label label15;
         private ComboBox comboBoxMapType;
+        private System.Windows.Forms.ComboBox comboBoxResolution;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;
