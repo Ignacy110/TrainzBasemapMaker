@@ -50,9 +50,20 @@ namespace TrainzBasemapMaker
         private TerrainRouteInfo? _loadedRoute;
         private readonly Dictionary<(int SegmentX, int SegmentY), MapGridPart> _loadedGndBlocks = new Dictionary<(int SegmentX, int SegmentY), MapGridPart>();
 
+        private CheckBox _checkBoxGenerateBasemaps;
+
         public TerrainGridToolForm()
         {
             InitializeComponent();
+
+            _checkBoxGenerateBasemaps = new CheckBox
+            {
+                Text = "Wygeneruj także podkłady 3D (Ortofotomapa WMTS)",
+                AutoSize = true,
+                Location = new Point(10, 290), // Position appropriately within groupBox3Config
+                Checked = false
+            };
+            groupBox3Config.Controls.Add(_checkBoxGenerateBasemaps);
 
             // Set initial control states
             textBoxDestinationFolder.Text = "Nowa_Trasa";
@@ -613,7 +624,60 @@ namespace TrainzBasemapMaker
                 }
                 routeInfo.Tiles = updatedTiles;
 
-                string targetFolder = _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData, routeInfo);
+                var obsObjects = new System.Collections.Generic.List<TrainzBasemapMaker.Classes.TrainzTerrain.ObsObject>();
+
+                // Generate 3D basemaps if requested
+                if (_checkBoxGenerateBasemaps.Checked)
+                {
+                    labelProgress.Text = "Pobieranie tekstur satelitarnych...";
+                    toolStripStatusLabel1.Text = "Tworzenie podkładów 3D...";
+
+                    IMapSource ortoSource = MapSources.AvailableMaps.FirstOrDefault(m => m.Name.Contains("Ortofotomapa WMTS") || m.Name.Contains("WMTS")) ?? MapSources.AvailableMaps.First();
+                    int res = 2048; // Standard resolution for basemaps
+                    int baseCounter = 1;
+                    if (int.TryParse(kuidPart2, out int parsedKuid))
+                    {
+                        baseCounter = parsedKuid + 1000; // Offset basemaps by 1000 to avoid conflicting with the route or other things
+                    }
+
+                    int bmCounter = 0;
+                    foreach (var tile in _selectedTiles.OrderBy(t => t.Order))
+                    {
+                        if (downloadedGrids.TryGetValue((tile.I, tile.J), out var grid))
+                        {
+                            labelProgress.Text = $"Podkład 3D: {bmCounter + 1}/{_selectedTiles.Count}";
+                            byte[] imageBytes = await ortoSource.GetMapImageAsync("", tile.X, tile.Y, res, cancellationToken: token);
+
+                            string currentKuid2 = (baseCounter + bmCounter).ToString();
+                            float baseHeight = grid[38, 38];
+
+                            _fileManager.CreateTrainzFiles(
+                                imageBytes,
+                                "Podklady_" + routeName,
+                                tile.X, tile.Y,
+                                routeName,
+                                bmCounter + 1,
+                                kuidPart1,
+                                currentKuid2,
+                                grid,
+                                0.2f, // restored zOffset to prevent flickering (Z-fighting)
+                                baseHeight
+                            );
+                            obsObjects.Add(new TrainzBasemapMaker.Classes.TrainzTerrain.ObsObject
+                            {
+                                KuidPart1 = int.Parse(kuidPart1),
+                                KuidPart2 = int.Parse(currentKuid2),
+                                X = (-tile.J) * 720f + 360f,
+                                Y = tile.I * 720f + 360f,
+                                Z = baseHeight,
+                                RotZ = (float)(Math.PI / 2.0)
+                            });
+                            bmCounter++;
+                        }
+                    }
+                }
+
+                string targetFolder = _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData, routeInfo, obsObjects);
                 routeInfo.FolderPath = targetFolder;
                 _loadedRoute = routeInfo;
 

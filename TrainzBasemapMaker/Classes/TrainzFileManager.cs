@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker.Classes
             return false;
         }
 
-        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null)
+        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null, List<TrainzTerrain.ObsObject>? obsObjects = null)
         {
             string groupPath = Path.Combine(RootFolder, basemapGroup);
             if (!Directory.Exists(groupPath))
@@ -90,14 +90,36 @@ namespace TrainzBasemapMaker.Classes
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.gnd"), gndData);
 
             // Zapis pustego mapfile.obs (obiekty - wymagane przez niektóre wersje Trainz)
-            byte[] emptyObs = { 0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
-            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.obs"), emptyObs);
+            byte[] obsData;
+            if (obsObjects != null && obsObjects.Count > 0)
+            {
+                var obsWriter = new TrainzTerrain.ObsWriter();
+                obsData = obsWriter.CreateObsFile(obsObjects);
+            }
+            else
+            {
+                obsData = new byte[] { 0x07, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
+            }
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.obs"), obsData);
 
             // Zapis pustego mapfile.trk (tory - wymagane przez niektóre wersje Trainz)
             byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
 
-            string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            2.9\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";
+            byte[] lyrData = new byte[] { 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x72, 0x6F, 0x75, 0x74, 0x65, 0x2D, 0x6C, 0x61, 0x79, 0x65, 0x72, 0x00, 0x01 };
+            File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.lyr"), lyrData);
+
+            string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            3.3\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";
+            if (obsObjects != null && obsObjects.Count > 0)
+            {
+                var uniqueKuids = System.Linq.Enumerable.ToList(System.Linq.Enumerable.Distinct(System.Linq.Enumerable.Select(obsObjects, o => $"<kuid:{o.KuidPart1}:{o.KuidPart2}>")));
+                configText += "\r\nkuid-table\r\n{\r\n";
+                for (int i = 0; i < uniqueKuids.Count; i++)
+                {
+                    configText += $"  {i}                                   {uniqueKuids[i]}\r\n";
+                }
+                configText += "}\r\n";
+            }
             File.WriteAllText(Path.Combine(targetFolder, "config.txt"), configText);
             File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
 
@@ -246,7 +268,7 @@ namespace TrainzBasemapMaker.Classes
                 return null;
             }
         }
-        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2)
+        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,] providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f)
         {
             // 1. building paths with Path.Combine
             string groupPath = Path.Combine(RootFolder, basemapGroup);
@@ -278,10 +300,59 @@ namespace TrainzBasemapMaker.Classes
             // 4. writing files
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap.jpg"), imageBytes);
             File.WriteAllBytes(Path.Combine(targetFolder, "thumbnail.jpg"), Properties.Resources.thumbnail_jpg);
-            if (Properties.Settings.Default.BasemapSize == 720)
-                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap720_im);
-            else
-                File.WriteAllBytes(Path.Combine(targetFolder, "basemap.im"), Properties.Resources.basemap_im);
+            
+            bool imGenerated = false;
+            string imPath = Path.Combine(targetFolder, "basemap.im");
+            string logPath = Path.Combine(targetFolder, "3d_generation_log.txt");
+            
+            if (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null)
+            {
+                if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath))
+                {
+                    File.WriteAllText(logPath, "Nie podano ścieżki do Trainz Mesh Importer w ustawieniach.");
+                }
+                else if (!File.Exists(Properties.Settings.Default.TrainzMeshImporterPath))
+                {
+                    File.WriteAllText(logPath, $"Plik Trainz Mesh Importer nie istnieje pod podaną ścieżką: {Properties.Settings.Default.TrainzMeshImporterPath}");
+                }
+                else
+                {
+                    try
+                    {
+                        var elevationGrid = providedElevationGrid;
+                        if (elevationGrid == null)
+                        {
+                            var wcs = new WcsElevationProvider();
+                            elevationGrid = wcs.GetElevationGridAsync(x, y).GetAwaiter().GetResult();
+                        }
+                        imGenerated = TrainzMeshGenerator.Generate3DBasemap(
+                            elevationGrid, 
+                            imPath, 
+                            Properties.Settings.Default.BasemapSize, 
+                            Properties.Settings.Default.TrainzMeshImporterPath,
+                            zOffset,
+                            baseHeight);
+                            
+                        if (!imGenerated)
+                        {
+                            File.WriteAllText(logPath, "TrainzMeshGenerator.Generate3DBasemap zwróciło false. Prawdopodobnie TrainzMeshImporter.exe nie wygenerował pliku .im (błąd w argumentach, crash narzędzia, lub zła struktura XML). Sprawdź czy TrainzMeshImporter obsługuje te argumenty, uruchamiając go ręcznie.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        File.WriteAllText(logPath, $"Wystąpił błąd podczas generowania siatki:\n{ex.ToString()}");
+                    }
+                }
+            }
+            
+            if (!imGenerated)
+            {
+                if (Properties.Settings.Default.BasemapSize == 720)
+                    File.WriteAllBytes(imPath, Properties.Resources.basemap720_im);
+                else
+                    File.WriteAllBytes(imPath, Properties.Resources.basemap_im);
+            }
+            
             File.WriteAllBytes(Path.Combine(targetFolder, "basemap-basemap.texture.txt"), Properties.Resources.basemap_basemap_texture_txt);
 
             // 5. creating config.txt
