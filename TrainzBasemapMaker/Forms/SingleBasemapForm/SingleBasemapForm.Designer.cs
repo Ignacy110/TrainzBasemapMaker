@@ -1,0 +1,859 @@
+namespace TrainzBasemapMaker
+{
+    partial class SingleBasemapForm
+    {
+        /// <summary>
+        ///  Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        ///  Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SingleBasemapForm));
+            label1 = new Label();
+            textBoxLat = new TextBox();
+            buttonConfAndDownload = new Button();
+            textBoxLon = new TextBox();
+            buttonUp = new Button();
+            buttonLeft = new Button();
+            buttonRight = new Button();
+            buttonDown = new Button();
+            label2 = new Label();
+            groupBox2Configurator = new GroupBox();
+            comboBoxMapType = new ComboBox();
+            label15 = new Label();
+            textBoxBasemapDate = new TextBox();
+            label14 = new Label();
+            panel1 = new Panel();
+            textBoxKuidPart2 = new TextBox();
+            label13 = new Label();
+            textBoxDesignation = new TextBox();
+            labelKuidSeparator = new Label();
+            textBoxKuidPart1 = new TextBox();
+            label12 = new Label();
+            textBoxCounter = new TextBox();
+            label11 = new Label();
+            label10 = new Label();
+            basemapFolderListBox = new ListBox();
+            textBoxDestinationFolder = new TextBox();
+            label4 = new Label();
+            radioButton512 = new RadioButton();
+            checkBoxCreateFiles = new CheckBox();
+            radioButton1024 = new RadioButton();
+            label8 = new Label();
+            radioButton2048 = new RadioButton();
+            label7 = new Label();
+            radioButton4096 = new RadioButton();
+            label9 = new Label();
+            textBoxY = new TextBox();
+            textBoxX = new TextBox();
+            buttonConvert = new Button();
+            groupBox3Navigator = new GroupBox();
+            label3 = new Label();
+            pictureBox1 = new PictureBox();
+            label5 = new Label();
+            label6 = new Label();
+            groupBox1Converter = new GroupBox();
+            radioButtonEpsg3857 = new RadioButton();
+            radioButtonEpsg2180 = new RadioButton();
+            label16 = new Label();
+            buttonMarkPointMap = new Button();
+            kuidsInFolderListBox = new ListBox();
+            groupBox5BasemapViewer = new GroupBox();
+            groupBox4KuidList = new GroupBox();
+            menuStrip1 = new MenuStrip();
+            toolsToolStripMenuItem = new ToolStripMenuItem();
+            refreshFolderAndBasemapListToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem2 = new ToolStripSeparator();
+            findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
+            findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
+            terrainGeneratorToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripSeparator();
+            areaDownloadToolStripMenuItem = new ToolStripMenuItem();
+            batchProcessingToolStripMenuItem = new ToolStripMenuItem();
+            preferencesToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            websiteToolStripMenuItem = new ToolStripMenuItem();
+            aboutProgramToolStripMenuItem = new ToolStripMenuItem();
+            statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            groupBox2Configurator.SuspendLayout();
+            panel1.SuspendLayout();
+            groupBox3Navigator.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            groupBox1Converter.SuspendLayout();
+            groupBox5BasemapViewer.SuspendLayout();
+            groupBox4KuidList.SuspendLayout();
+            menuStrip1.SuspendLayout();
+            statusStrip1.SuspendLayout();
+            SuspendLayout();
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(6, 21);
+            label1.Name = "label1";
+            label1.Size = new Size(149, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Współrzędne geograficzne:";
+            // 
+            // textBoxLat
+            // 
+            textBoxLat.Location = new Point(6, 68);
+            textBoxLat.Name = "textBoxLat";
+            textBoxLat.Size = new Size(100, 23);
+            textBoxLat.TabIndex = 1;
+            // 
+            // buttonConfAndDownload
+            // 
+            buttonConfAndDownload.Location = new Point(6, 530);
+            buttonConfAndDownload.Name = "buttonConfAndDownload";
+            buttonConfAndDownload.Size = new Size(188, 23);
+            buttonConfAndDownload.TabIndex = 2;
+            buttonConfAndDownload.Text = "Skonfiguruj i pobierz";
+            buttonConfAndDownload.UseVisualStyleBackColor = true;
+            buttonConfAndDownload.Click += buttonConfAndDownload_Click;
+            // 
+            // textBoxLon
+            // 
+            textBoxLon.Location = new Point(6, 97);
+            textBoxLon.Name = "textBoxLon";
+            textBoxLon.Size = new Size(100, 23);
+            textBoxLon.TabIndex = 3;
+            // 
+            // buttonUp
+            // 
+            buttonUp.Location = new Point(70, 53);
+            buttonUp.Name = "buttonUp";
+            buttonUp.Size = new Size(80, 23);
+            buttonUp.TabIndex = 4;
+            buttonUp.Text = "W górę";
+            buttonUp.UseVisualStyleBackColor = true;
+            buttonUp.Click += buttonUp_Click;
+            // 
+            // buttonLeft
+            // 
+            buttonLeft.Location = new Point(27, 82);
+            buttonLeft.Name = "buttonLeft";
+            buttonLeft.Size = new Size(80, 23);
+            buttonLeft.TabIndex = 5;
+            buttonLeft.Text = "W lewo";
+            buttonLeft.UseVisualStyleBackColor = true;
+            buttonLeft.Click += buttonLeft_Click;
+            // 
+            // buttonRight
+            // 
+            buttonRight.Location = new Point(113, 82);
+            buttonRight.Name = "buttonRight";
+            buttonRight.Size = new Size(80, 23);
+            buttonRight.TabIndex = 6;
+            buttonRight.Text = "W prawo";
+            buttonRight.UseVisualStyleBackColor = true;
+            buttonRight.Click += buttonRight_Click;
+            // 
+            // buttonDown
+            // 
+            buttonDown.Location = new Point(70, 111);
+            buttonDown.Name = "buttonDown";
+            buttonDown.Size = new Size(80, 23);
+            buttonDown.TabIndex = 7;
+            buttonDown.Text = "W dół";
+            buttonDown.UseVisualStyleBackColor = true;
+            buttonDown.Click += buttonDown_Click;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(6, 98);
+            label2.Name = "label2";
+            label2.Size = new Size(93, 30);
+            label2.TabIndex = 9;
+            label2.Text = "Rozdzielczość\r\npodkładów [px]:";
+            // 
+            // groupBox2Configurator
+            // 
+            groupBox2Configurator.Controls.Add(comboBoxMapType);
+            groupBox2Configurator.Controls.Add(label15);
+            groupBox2Configurator.Controls.Add(textBoxBasemapDate);
+            groupBox2Configurator.Controls.Add(label14);
+            groupBox2Configurator.Controls.Add(panel1);
+            groupBox2Configurator.Controls.Add(radioButton512);
+            groupBox2Configurator.Controls.Add(checkBoxCreateFiles);
+            groupBox2Configurator.Controls.Add(radioButton1024);
+            groupBox2Configurator.Controls.Add(label8);
+            groupBox2Configurator.Controls.Add(radioButton2048);
+            groupBox2Configurator.Controls.Add(label7);
+            groupBox2Configurator.Controls.Add(radioButton4096);
+            groupBox2Configurator.Controls.Add(label9);
+            groupBox2Configurator.Controls.Add(textBoxY);
+            groupBox2Configurator.Controls.Add(textBoxX);
+            groupBox2Configurator.Controls.Add(buttonConfAndDownload);
+            groupBox2Configurator.Controls.Add(label2);
+            groupBox2Configurator.Location = new Point(12, 225);
+            groupBox2Configurator.Name = "groupBox2Configurator";
+            groupBox2Configurator.Size = new Size(200, 559);
+            groupBox2Configurator.TabIndex = 11;
+            groupBox2Configurator.TabStop = false;
+            groupBox2Configurator.Text = "2. Konfiguracja";
+            // 
+            // comboBoxMapType
+            // 
+            comboBoxMapType.DropDownWidth = 310;
+            comboBoxMapType.FormattingEnabled = true;
+            comboBoxMapType.Location = new Point(118, 131);
+            comboBoxMapType.Name = "comboBoxMapType";
+            comboBoxMapType.Size = new Size(67, 23);
+            comboBoxMapType.TabIndex = 32;
+            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(118, 98);
+            label15.Name = "label15";
+            label15.Size = new Size(69, 30);
+            label15.TabIndex = 31;
+            label15.Text = "Rodzaj\r\npodkładów:";
+            // 
+            // textBoxBasemapDate
+            // 
+            textBoxBasemapDate.Location = new Point(118, 205);
+            textBoxBasemapDate.MaxLength = 4;
+            textBoxBasemapDate.Name = "textBoxBasemapDate";
+            textBoxBasemapDate.Size = new Size(67, 23);
+            textBoxBasemapDate.TabIndex = 30;
+            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
+            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Location = new Point(118, 170);
+            label14.Name = "label14";
+            label14.Size = new Size(69, 30);
+            label14.TabIndex = 21;
+            label14.Text = "Rok\r\npodkładów:";
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(textBoxKuidPart2);
+            panel1.Controls.Add(label13);
+            panel1.Controls.Add(textBoxDesignation);
+            panel1.Controls.Add(labelKuidSeparator);
+            panel1.Controls.Add(textBoxKuidPart1);
+            panel1.Controls.Add(label12);
+            panel1.Controls.Add(textBoxCounter);
+            panel1.Controls.Add(label11);
+            panel1.Controls.Add(label10);
+            panel1.Controls.Add(basemapFolderListBox);
+            panel1.Controls.Add(textBoxDestinationFolder);
+            panel1.Controls.Add(label4);
+            panel1.Location = new Point(13, 261);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(178, 263);
+            panel1.TabIndex = 20;
+            // 
+            // textBoxKuidPart2
+            // 
+            textBoxKuidPart2.Location = new Point(97, 236);
+            textBoxKuidPart2.Name = "textBoxKuidPart2";
+            textBoxKuidPart2.Size = new Size(75, 23);
+            textBoxKuidPart2.TabIndex = 29;
+            textBoxKuidPart2.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Location = new Point(3, 170);
+            label13.Name = "label13";
+            label13.Size = new Size(87, 15);
+            label13.TabIndex = 28;
+            label13.Text = "Ozn. podkładu:";
+            // 
+            // textBoxDesignation
+            // 
+            textBoxDesignation.Location = new Point(3, 188);
+            textBoxDesignation.Name = "textBoxDesignation";
+            textBoxDesignation.Size = new Size(75, 23);
+            textBoxDesignation.TabIndex = 27;
+            textBoxDesignation.TextChanged += textBoxDesignation_TextChanged;
+            // 
+            // labelKuidSeparator
+            // 
+            labelKuidSeparator.AutoSize = true;
+            labelKuidSeparator.Location = new Point(84, 239);
+            labelKuidSeparator.Name = "labelKuidSeparator";
+            labelKuidSeparator.Size = new Size(10, 15);
+            labelKuidSeparator.TabIndex = 26;
+            labelKuidSeparator.Text = ":";
+            // 
+            // textBoxKuidPart1
+            // 
+            textBoxKuidPart1.Location = new Point(3, 236);
+            textBoxKuidPart1.Name = "textBoxKuidPart1";
+            textBoxKuidPart1.Size = new Size(75, 23);
+            textBoxKuidPart1.TabIndex = 25;
+            textBoxKuidPart1.TextAlign = HorizontalAlignment.Right;
+            textBoxKuidPart1.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(3, 218);
+            label12.Name = "label12";
+            label12.Size = new Size(111, 15);
+            label12.TabIndex = 24;
+            label12.Text = "Oznaczenie KUID-u:";
+            // 
+            // textBoxCounter
+            // 
+            textBoxCounter.Location = new Point(97, 188);
+            textBoxCounter.Name = "textBoxCounter";
+            textBoxCounter.Size = new Size(75, 23);
+            textBoxCounter.TabIndex = 23;
+            textBoxCounter.TextChanged += textBoxCounter_TextChanged;
+            textBoxCounter.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(97, 170);
+            label11.Name = "label11";
+            label11.Size = new Size(76, 15);
+            label11.TabIndex = 22;
+            label11.Text = "Nr podkładu:";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(3, 0);
+            label10.Name = "label10";
+            label10.Size = new Size(80, 15);
+            label10.TabIndex = 0;
+            label10.Text = "Twoje foldery:";
+            // 
+            // basemapFolderListBox
+            // 
+            basemapFolderListBox.FormattingEnabled = true;
+            basemapFolderListBox.ItemHeight = 15;
+            basemapFolderListBox.Location = new Point(3, 18);
+            basemapFolderListBox.Name = "basemapFolderListBox";
+            basemapFolderListBox.Size = new Size(169, 94);
+            basemapFolderListBox.TabIndex = 1;
+            basemapFolderListBox.Click += basemapFolderListBox_Click;
+            // 
+            // textBoxDestinationFolder
+            // 
+            textBoxDestinationFolder.Location = new Point(3, 140);
+            textBoxDestinationFolder.Name = "textBoxDestinationFolder";
+            textBoxDestinationFolder.Size = new Size(169, 23);
+            textBoxDestinationFolder.TabIndex = 20;
+            textBoxDestinationFolder.TextChanged += textBoxDestinationFolder_TextChanged;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(3, 122);
+            label4.Name = "label4";
+            label4.Size = new Size(154, 15);
+            label4.TabIndex = 21;
+            label4.Text = "Nazwa docelowego folderu:";
+            // 
+            // radioButton512
+            // 
+            radioButton512.AutoSize = true;
+            radioButton512.Location = new Point(13, 206);
+            radioButton512.Name = "radioButton512";
+            radioButton512.Size = new Size(73, 19);
+            radioButton512.TabIndex = 19;
+            radioButton512.TabStop = true;
+            radioButton512.Text = "512 x 512";
+            radioButton512.UseVisualStyleBackColor = true;
+            radioButton512.CheckedChanged += radioButtons_CheckedChanged;
+            // 
+            // checkBoxCreateFiles
+            // 
+            checkBoxCreateFiles.AutoSize = true;
+            checkBoxCreateFiles.Location = new Point(6, 236);
+            checkBoxCreateFiles.Name = "checkBoxCreateFiles";
+            checkBoxCreateFiles.Size = new Size(160, 19);
+            checkBoxCreateFiles.TabIndex = 18;
+            checkBoxCreateFiles.Text = "Twórz foldery i pliki Trainz";
+            checkBoxCreateFiles.UseVisualStyleBackColor = true;
+            checkBoxCreateFiles.CheckedChanged += checkBoxCreateFiles_CheckedChanged;
+            // 
+            // radioButton1024
+            // 
+            radioButton1024.AutoSize = true;
+            radioButton1024.Location = new Point(13, 181);
+            radioButton1024.Name = "radioButton1024";
+            radioButton1024.Size = new Size(85, 19);
+            radioButton1024.TabIndex = 18;
+            radioButton1024.TabStop = true;
+            radioButton1024.Text = "1024 x 1024";
+            radioButton1024.UseVisualStyleBackColor = true;
+            radioButton1024.CheckedChanged += radioButtons_CheckedChanged;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(112, 71);
+            label8.Name = "label8";
+            label8.Size = new Size(77, 15);
+            label8.TabIndex = 17;
+            label8.Text = "długość (lon)";
+            // 
+            // radioButton2048
+            // 
+            radioButton2048.AutoSize = true;
+            radioButton2048.Location = new Point(13, 156);
+            radioButton2048.Name = "radioButton2048";
+            radioButton2048.Size = new Size(85, 19);
+            radioButton2048.TabIndex = 17;
+            radioButton2048.TabStop = true;
+            radioButton2048.Text = "2048 x 2048";
+            radioButton2048.UseVisualStyleBackColor = true;
+            radioButton2048.CheckedChanged += radioButtons_CheckedChanged;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(6, 21);
+            label7.Name = "label7";
+            label7.Size = new Size(132, 15);
+            label7.TabIndex = 16;
+            label7.Text = "Współrzędne EPSG:2180";
+            // 
+            // radioButton4096
+            // 
+            radioButton4096.AutoSize = true;
+            radioButton4096.Location = new Point(13, 131);
+            radioButton4096.Name = "radioButton4096";
+            radioButton4096.Size = new Size(85, 19);
+            radioButton4096.TabIndex = 16;
+            radioButton4096.TabStop = true;
+            radioButton4096.Text = "4096 x 4096";
+            radioButton4096.UseVisualStyleBackColor = true;
+            radioButton4096.CheckedChanged += radioButtons_CheckedChanged;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(112, 47);
+            label9.Name = "label9";
+            label9.Size = new Size(82, 15);
+            label9.TabIndex = 16;
+            label9.Text = "szerokość (lat)";
+            // 
+            // textBoxY
+            // 
+            textBoxY.Location = new Point(6, 67);
+            textBoxY.Name = "textBoxY";
+            textBoxY.Size = new Size(100, 23);
+            textBoxY.TabIndex = 12;
+            // 
+            // textBoxX
+            // 
+            textBoxX.Location = new Point(6, 39);
+            textBoxX.Name = "textBoxX";
+            textBoxX.Size = new Size(100, 23);
+            textBoxX.TabIndex = 11;
+            // 
+            // buttonConvert
+            // 
+            buttonConvert.Location = new Point(6, 163);
+            buttonConvert.Name = "buttonConvert";
+            buttonConvert.Size = new Size(188, 23);
+            buttonConvert.TabIndex = 13;
+            buttonConvert.Text = "Konwertuj na EPSG:2180";
+            buttonConvert.UseVisualStyleBackColor = true;
+            buttonConvert.Click += buttonConvert_Click;
+            // 
+            // groupBox3Navigator
+            // 
+            groupBox3Navigator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox3Navigator.Controls.Add(label3);
+            groupBox3Navigator.Controls.Add(buttonLeft);
+            groupBox3Navigator.Controls.Add(buttonUp);
+            groupBox3Navigator.Controls.Add(buttonDown);
+            groupBox3Navigator.Controls.Add(buttonRight);
+            groupBox3Navigator.Location = new Point(962, 27);
+            groupBox3Navigator.Name = "groupBox3Navigator";
+            groupBox3Navigator.Size = new Size(217, 159);
+            groupBox3Navigator.TabIndex = 12;
+            groupBox3Navigator.TabStop = false;
+            groupBox3Navigator.Text = "3. Nawigacja";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(7, 21);
+            label3.Name = "label3";
+            label3.Size = new Size(102, 15);
+            label3.TabIndex = 11;
+            label3.Text = "Nawiguj i pobierz:";
+            // 
+            // pictureBox1
+            // 
+            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pictureBox1.Location = new Point(6, 28);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(726, 726);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 13;
+            pictureBox1.TabStop = false;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(112, 71);
+            label5.Name = "label5";
+            label5.Size = new Size(82, 15);
+            label5.TabIndex = 14;
+            label5.Text = "szerokość (lat)";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(112, 100);
+            label6.Name = "label6";
+            label6.Size = new Size(77, 15);
+            label6.TabIndex = 15;
+            label6.Text = "długość (lon)";
+            // 
+            // groupBox1Converter
+            // 
+            groupBox1Converter.Controls.Add(radioButtonEpsg3857);
+            groupBox1Converter.Controls.Add(radioButtonEpsg2180);
+            groupBox1Converter.Controls.Add(label16);
+            groupBox1Converter.Controls.Add(buttonMarkPointMap);
+            groupBox1Converter.Controls.Add(label6);
+            groupBox1Converter.Controls.Add(label5);
+            groupBox1Converter.Controls.Add(label1);
+            groupBox1Converter.Controls.Add(buttonConvert);
+            groupBox1Converter.Controls.Add(textBoxLon);
+            groupBox1Converter.Controls.Add(textBoxLat);
+            groupBox1Converter.Location = new Point(12, 27);
+            groupBox1Converter.Name = "groupBox1Converter";
+            groupBox1Converter.Size = new Size(200, 192);
+            groupBox1Converter.TabIndex = 15;
+            groupBox1Converter.TabStop = false;
+            groupBox1Converter.Text = "1. Konwerter";
+            // 
+            // radioButtonEpsg3857
+            // 
+            radioButtonEpsg3857.AutoSize = true;
+            radioButtonEpsg3857.Location = new Point(112, 141);
+            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
+            radioButtonEpsg3857.Size = new Size(79, 19);
+            radioButtonEpsg3857.TabIndex = 34;
+            radioButtonEpsg3857.TabStop = true;
+            radioButtonEpsg3857.Text = "EPSG:3857";
+            radioButtonEpsg3857.UseVisualStyleBackColor = true;
+            // 
+            // radioButtonEpsg2180
+            // 
+            radioButtonEpsg2180.AutoSize = true;
+            radioButtonEpsg2180.Location = new Point(7, 141);
+            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
+            radioButtonEpsg2180.Size = new Size(79, 19);
+            radioButtonEpsg2180.TabIndex = 33;
+            radioButtonEpsg2180.TabStop = true;
+            radioButtonEpsg2180.Text = "EPSG:2180";
+            radioButtonEpsg2180.UseVisualStyleBackColor = true;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(6, 123);
+            label16.Name = "label16";
+            label16.Size = new Size(122, 15);
+            label16.TabIndex = 17;
+            label16.Text = "Układ współrzędnych:";
+            // 
+            // buttonMarkPointMap
+            // 
+            buttonMarkPointMap.Location = new Point(6, 39);
+            buttonMarkPointMap.Name = "buttonMarkPointMap";
+            buttonMarkPointMap.Size = new Size(188, 23);
+            buttonMarkPointMap.TabIndex = 16;
+            buttonMarkPointMap.Text = "Wybierz na mapie";
+            buttonMarkPointMap.UseVisualStyleBackColor = true;
+            buttonMarkPointMap.Click += buttonMarkPointMap_Click;
+            // 
+            // kuidsInFolderListBox
+            // 
+            kuidsInFolderListBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            kuidsInFolderListBox.FormattingEnabled = true;
+            kuidsInFolderListBox.ItemHeight = 15;
+            kuidsInFolderListBox.Location = new Point(6, 21);
+            kuidsInFolderListBox.Name = "kuidsInFolderListBox";
+            kuidsInFolderListBox.Size = new Size(205, 559);
+            kuidsInFolderListBox.TabIndex = 16;
+            kuidsInFolderListBox.SelectedIndexChanged += kuidsInFolderListBox_SelectedIndexChanged;
+            kuidsInFolderListBox.DoubleClick += kuidsInFolderListBox_DoubleClick;
+            // 
+            // groupBox5BasemapViewer
+            // 
+            groupBox5BasemapViewer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox5BasemapViewer.Controls.Add(pictureBox1);
+            groupBox5BasemapViewer.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
+            groupBox5BasemapViewer.Location = new Point(218, 24);
+            groupBox5BasemapViewer.Name = "groupBox5BasemapViewer";
+            groupBox5BasemapViewer.Size = new Size(738, 760);
+            groupBox5BasemapViewer.TabIndex = 17;
+            groupBox5BasemapViewer.TabStop = false;
+            groupBox5BasemapViewer.Text = "Podgląd pobranego podkładu:";
+            // 
+            // groupBox4KuidList
+            // 
+            groupBox4KuidList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            groupBox4KuidList.Controls.Add(kuidsInFolderListBox);
+            groupBox4KuidList.Location = new Point(962, 192);
+            groupBox4KuidList.Name = "groupBox4KuidList";
+            groupBox4KuidList.Size = new Size(217, 592);
+            groupBox4KuidList.TabIndex = 18;
+            groupBox4KuidList.TabStop = false;
+            groupBox4KuidList.Text = "Lista podkładów do Trainz:";
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(20, 20);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolsToolStripMenuItem, preferencesToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1193, 24);
+            menuStrip1.TabIndex = 19;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // toolsToolStripMenuItem
+            // 
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, areaDownloadToolStripMenuItem, terrainGeneratorToolStripMenuItem, batchProcessingToolStripMenuItem });
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            toolsToolStripMenuItem.Size = new Size(70, 20);
+            toolsToolStripMenuItem.Text = "&Narzędzia";
+            // 
+            // terrainGeneratorToolStripMenuItem
+            // 
+            terrainGeneratorToolStripMenuItem.Name = "terrainGeneratorToolStripMenuItem";
+            terrainGeneratorToolStripMenuItem.Size = new Size(276, 22);
+            terrainGeneratorToolStripMenuItem.Text = "Generator &terenu (map.gnd)";
+            terrainGeneratorToolStripMenuItem.Visible = false;
+            terrainGeneratorToolStripMenuItem.Click += terrainGeneratorToolStripMenuItem_Click;
+            // 
+            // refreshFolderAndBasemapListToolStripMenuItem
+            // 
+            refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
+            refreshFolderAndBasemapListToolStripMenuItem.Size = new Size(276, 22);
+            refreshFolderAndBasemapListToolStripMenuItem.Text = "&Odśwież listę folderów i podkładów";
+            refreshFolderAndBasemapListToolStripMenuItem.Click += refreshFolderAndBasemapListToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem2
+            // 
+            toolStripMenuItem2.Name = "toolStripMenuItem2";
+            toolStripMenuItem2.Size = new Size(273, 6);
+            // 
+            // findSmallestFreeBasemapNumberToolStripMenuItem
+            // 
+            findSmallestFreeBasemapNumberToolStripMenuItem.Name = "findSmallestFreeBasemapNumberToolStripMenuItem";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Size = new Size(276, 22);
+            findSmallestFreeBasemapNumberToolStripMenuItem.Text = "&Znajdź najmniejszy wolny nr podkładu";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Click += findSmallestFreeBasemapNumberToolStripMenuItem_Click;
+            // 
+            // findFreeKuidToolStripMenuItem
+            // 
+            findFreeKuidToolStripMenuItem.Name = "findFreeKuidToolStripMenuItem";
+            findFreeKuidToolStripMenuItem.Size = new Size(276, 22);
+            findFreeKuidToolStripMenuItem.Text = "Z&najdź wolny Kuid";
+            findFreeKuidToolStripMenuItem.Click += findFreeKuidToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem1
+            // 
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(273, 6);
+            // 
+            // areaDownloadToolStripMenuItem
+            // 
+            areaDownloadToolStripMenuItem.Name = "areaDownloadToolStripMenuItem";
+            areaDownloadToolStripMenuItem.Size = new Size(276, 22);
+            areaDownloadToolStripMenuItem.Text = "&Pobieranie obszarowe (siatka)";
+            areaDownloadToolStripMenuItem.Visible = false;
+            areaDownloadToolStripMenuItem.Click += areaDownloadToolStripMenuItem_Click;
+            // 
+            // batchProcessingToolStripMenuItem
+            // 
+            batchProcessingToolStripMenuItem.Name = "batchProcessingToolStripMenuItem";
+            batchProcessingToolStripMenuItem.Size = new Size(276, 22);
+            batchProcessingToolStripMenuItem.Text = "&Przetwarzanie seryjne";
+            batchProcessingToolStripMenuItem.Click += batchProcessingToolStripMenuItem_Click;
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            preferencesToolStripMenuItem.Size = new Size(78, 20);
+            preferencesToolStripMenuItem.Text = "P&referencje";
+            preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
+            // 
+            // helpToolStripMenuItem
+            // 
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { websiteToolStripMenuItem, aboutProgramToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(57, 20);
+            helpToolStripMenuItem.Text = "&Pomoc";
+            // 
+            // websiteToolStripMenuItem
+            // 
+            websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
+            websiteToolStripMenuItem.Size = new Size(213, 22);
+            websiteToolStripMenuItem.Text = "&Strona programu - GitHub";
+            websiteToolStripMenuItem.Click += websiteToolStripMenuItem_Click;
+            // 
+            // aboutProgramToolStripMenuItem
+            // 
+            aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
+            aboutProgramToolStripMenuItem.Size = new Size(213, 22);
+            aboutProgramToolStripMenuItem.Text = "&O programie";
+            aboutProgramToolStripMenuItem.Click += aboutProgramToolStripMenuItem_Click;
+            // 
+            // statusStrip1
+            // 
+            statusStrip1.ImageScalingSize = new Size(20, 20);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Location = new Point(0, 787);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(1193, 22);
+            statusStrip1.TabIndex = 20;
+            statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(0, 17);
+            // 
+            // MainForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1193, 809);
+            Controls.Add(statusStrip1);
+            Controls.Add(groupBox4KuidList);
+            Controls.Add(groupBox5BasemapViewer);
+            Controls.Add(groupBox1Converter);
+            Controls.Add(groupBox3Navigator);
+            Controls.Add(groupBox2Configurator);
+            Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = menuStrip1;
+            MinimumSize = new Size(1209, 848);
+            Name = "SingleBasemapForm";
+            Text = "Trainz Basemap Maker";
+            groupBox2Configurator.ResumeLayout(false);
+            groupBox2Configurator.PerformLayout();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
+            groupBox3Navigator.ResumeLayout(false);
+            groupBox3Navigator.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            groupBox1Converter.ResumeLayout(false);
+            groupBox1Converter.PerformLayout();
+            groupBox5BasemapViewer.ResumeLayout(false);
+            groupBox4KuidList.ResumeLayout(false);
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        #endregion
+
+        private Label label1;
+        private TextBox textBoxLat;
+        private Button buttonConfAndDownload;
+        private TextBox textBoxLon;
+        private Button buttonUp;
+        private Button buttonLeft;
+        private Button buttonRight;
+        private Button buttonDown;
+        private Label label2;
+        private GroupBox groupBox2Configurator;
+        private GroupBox groupBox3Navigator;
+        private Label label3;
+        private PictureBox pictureBox1;
+        private TextBox textBoxY;
+        private TextBox textBoxX;
+        private Button buttonConvert;
+        private Label label6;
+        private Label label5;
+        private GroupBox groupBox1Converter;
+        private Label label8;
+        private Label label7;
+        private Label label9;
+        private CheckBox checkBoxCreateFiles;
+        private RadioButton radioButton4096;
+        private RadioButton radioButton2048;
+        private RadioButton radioButton512;
+        private RadioButton radioButton1024;
+        private ListBox kuidsInFolderListBox;
+        private GroupBox groupBox5BasemapViewer;
+        private GroupBox groupBox4KuidList;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem helpToolStripMenuItem;
+        private ToolStripMenuItem websiteToolStripMenuItem;
+        private ToolStripMenuItem areaDownloadToolStripMenuItem;
+        private ToolStripMenuItem terrainGeneratorToolStripMenuItem;
+        private ToolStripMenuItem batchProcessingToolStripMenuItem;
+        private ToolStripMenuItem aboutProgramToolStripMenuItem;
+        private Label label4;
+        private TextBox textBoxDestinationFolder;
+        private Label label10;
+        private ListBox basemapFolderListBox;
+        private Panel panel1;
+        private TextBox textBoxCounter;
+        private Label label11;
+        private StatusStrip statusStrip1;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+        private TextBox textBoxKuidPart1;
+        private Label label12;
+        private Label labelKuidSeparator;
+        private TextBox textBoxDesignation;
+        private Label label13;
+        private TextBox textBoxKuidPart2;
+        private ToolStripMenuItem toolsToolStripMenuItem;
+        private ToolStripMenuItem findFreeKuidToolStripMenuItem;
+        private ToolStripMenuItem findSmallestFreeBasemapNumberToolStripMenuItem;
+        private ToolStripMenuItem refreshFolderAndBasemapListToolStripMenuItem;
+        private TextBox textBoxBasemapDate;
+        private Label label14;
+        private ToolStripMenuItem preferencesToolStripMenuItem;
+        private Label label15;
+        private ComboBox comboBoxMapType;
+        private ToolStripSeparator toolStripMenuItem1;
+        private ToolStripSeparator toolStripMenuItem2;
+        private Button buttonMarkPointMap;
+        private Label label16;
+        private RadioButton radioButtonEpsg3857;
+        private RadioButton radioButtonEpsg2180;
+    }
+}
