@@ -624,21 +624,7 @@ namespace TrainzBasemapMaker
                 }
                 routeInfo.Tiles = updatedTiles;
 
-                string targetFolder = _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData, routeInfo);
-                routeInfo.FolderPath = targetFolder;
-                _loadedRoute = routeInfo;
-
-                buttonStartDownload.Text = "Aktualizuj teren (map.gnd)";
-                RoutesListBoxRefresh();
-
-                for (int idx = 0; idx < listBoxRoutes.Items.Count; idx++)
-                {
-                    if (listBoxRoutes.Items[idx] is TerrainRouteInfo r && r.FolderPath == targetFolder)
-                    {
-                        listBoxRoutes.SelectedIndex = idx;
-                        break;
-                    }
-                }
+                var obsObjects = new System.Collections.Generic.List<TrainzBasemapMaker.Classes.TrainzTerrain.ObsObject>();
 
                 // Generate 3D basemaps if requested
                 if (_checkBoxGenerateBasemaps.Checked)
@@ -663,20 +649,47 @@ namespace TrainzBasemapMaker
                             byte[] imageBytes = await ortoSource.GetMapImageAsync("", tile.X, tile.Y, res, cancellationToken: token);
 
                             string currentKuid2 = (baseCounter + bmCounter).ToString();
+                            float baseHeight = grid[38, 38];
 
                             _fileManager.CreateTrainzFiles(
                                 imageBytes,
-                                routeName,
+                                "Podklady_" + routeName,
                                 tile.X, tile.Y,
                                 routeName,
                                 bmCounter + 1,
                                 kuidPart1,
                                 currentKuid2,
                                 grid,
-                                0.2f // zOffset to render slightly above terrain
+                                0.2f, // restored zOffset to prevent flickering (Z-fighting)
+                                baseHeight
                             );
+                            obsObjects.Add(new TrainzBasemapMaker.Classes.TrainzTerrain.ObsObject
+                            {
+                                KuidPart1 = int.Parse(kuidPart1),
+                                KuidPart2 = int.Parse(currentKuid2),
+                                X = (-tile.J) * 720f + 360f,
+                                Y = tile.I * 720f + 360f,
+                                Z = baseHeight,
+                                RotZ = (float)(Math.PI / 2.0)
+                            });
                             bmCounter++;
                         }
+                    }
+                }
+
+                string targetFolder = _fileManager.CreateRouteFiles(routeName, targetGroup, kuidPart1, kuidPart2, gndData, routeInfo, obsObjects);
+                routeInfo.FolderPath = targetFolder;
+                _loadedRoute = routeInfo;
+
+                buttonStartDownload.Text = "Aktualizuj teren (map.gnd)";
+                RoutesListBoxRefresh();
+
+                for (int idx = 0; idx < listBoxRoutes.Items.Count; idx++)
+                {
+                    if (listBoxRoutes.Items[idx] is TerrainRouteInfo r && r.FolderPath == targetFolder)
+                    {
+                        listBoxRoutes.SelectedIndex = idx;
+                        break;
                     }
                 }
 

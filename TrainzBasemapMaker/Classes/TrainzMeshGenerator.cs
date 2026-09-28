@@ -8,7 +8,7 @@ namespace TrainzBasemapMaker.Classes
 {
     internal class TrainzMeshGenerator
     {
-        public static bool Generate3DBasemap(float[,] elevationGrid, string outputImPath, int size, string tmiPath, float zOffset = 0f)
+        public static bool Generate3DBasemap(float[,] elevationGrid, string outputImPath, int size, string tmiPath, float zOffset = 0f, float baseHeight = 0f)
         {
             if (elevationGrid.GetLength(0) != 76 || elevationGrid.GetLength(1) != 76)
                 return false;
@@ -61,10 +61,10 @@ namespace TrainzBasemapMaker.Classes
                     float p_x1 = x1 - halfSize;
                     float p_y1 = halfSize - y1; // INVERTED Y
 
-                    float z00 = elevationGrid[gx, gy] + zOffset;
-                    float z10 = elevationGrid[gx + 1, gy] + zOffset;
-                    float z01 = elevationGrid[gx, gy + 1] + zOffset;
-                    float z11 = elevationGrid[gx + 1, gy + 1] + zOffset;
+                    float z00 = elevationGrid[gx, gy] - baseHeight + zOffset;
+                    float z10 = elevationGrid[gx + 1, gy] - baseHeight + zOffset;
+                    float z01 = elevationGrid[gx, gy + 1] - baseHeight + zOffset;
+                    float z11 = elevationGrid[gx + 1, gy + 1] - baseHeight + zOffset;
 
                     // Trainz coords: Z is up
                     // Triangle 1 (Top-Left -> Bottom-Left -> Top-Right)
