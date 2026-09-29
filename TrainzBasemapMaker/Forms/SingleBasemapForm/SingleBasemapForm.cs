@@ -79,10 +79,8 @@ namespace TrainzBasemapMaker
             comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
             // Configure coordinate system radio buttons
-            radioButtonEpsg2180.Checked = true;
-            radioButtonEpsg2180.CheckedChanged += RadioButtonEpsg_CheckedChanged;
-            radioButtonEpsg3857.CheckedChanged += RadioButtonEpsg_CheckedChanged;
-            label7.Text = radioButtonEpsg2180.Checked ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
+            comboBoxEpsg.SelectedIndex = 0;
+            label7.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             textBoxLat.TextChanged += TextBoxLatLon_TextChanged;
             textBoxLon.TextChanged += TextBoxLatLon_TextChanged;
             textBoxKuidPart1.TextChanged += TextBoxKuidPart1_TextChanged;
@@ -115,13 +113,13 @@ namespace TrainzBasemapMaker
 
         private void UpdateLatLonDisplayFromCurrentXY()
         {
-            if (radioButtonEpsg2180.Checked && GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))
+            if ((comboBoxEpsg.SelectedIndex == 0) && GeoHelperEPSG2180.IsWithin2180Bounds(currentX, currentY))
             {
                 var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
                 textBoxLat.Text = lat.ToString("F7", CultureInfo.InvariantCulture);
                 textBoxLon.Text = lon.ToString("F7", CultureInfo.InvariantCulture);
             }
-            else if (radioButtonEpsg3857.Checked)
+            else if ((comboBoxEpsg.SelectedIndex == 1))
             {
                 var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
                 textBoxLat.Text = lat.ToString("F7", CultureInfo.InvariantCulture);
@@ -251,7 +249,7 @@ namespace TrainzBasemapMaker
                                 if (existingInfo == null)
                                 {
                                     double? anchorCosLat = null;
-                                    if (radioButtonEpsg3857.Checked)
+                                    if ((comboBoxEpsg.SelectedIndex == 1))
                                     {
                                         var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(currentX, currentY);
                                         anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
@@ -261,7 +259,7 @@ namespace TrainzBasemapMaker
                                     {
                                         GroupName = basemapGroup,
                                         Designation = basemapGroupDesignation,
-                                        Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                                        Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857",
                                         AnchorX = currentX,
                                         AnchorY = currentY,
                                         AnchorCosLat = _anchorCosLat ?? anchorCosLat,
@@ -326,10 +324,12 @@ namespace TrainzBasemapMaker
         private void UiEnabled(bool enabled)
         {
             Cursor = enabled ? Cursors.Default : Cursors.WaitCursor;
-            groupBox1Converter.Enabled = enabled;
-            groupBox2Configurator.Enabled = enabled;
-            groupBox3Navigator.Enabled = enabled;
-            groupBox4KuidList.Enabled = enabled;
+            groupBox1GeoCoords.Enabled = enabled;
+            groupBox2TargetCoords.Enabled = enabled;
+            groupBox4BasemapParams.Enabled = enabled;
+            groupBox3Configurator.Enabled = enabled;
+            groupBox5Navigator.Enabled = enabled;
+            groupBox6KuidList.Enabled = enabled;
         }
 
         // Updates EPSG radio buttons based on geographic coordinates (in Poland both 2180 and 3857 are allowed; outside Poland only 3857)
@@ -344,23 +344,17 @@ namespace TrainzBasemapMaker
                 bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
                 if (inPoland)
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg3857.Enabled = true;
                 }
                 else
                 {
-                    radioButtonEpsg2180.Enabled = false;
-                    radioButtonEpsg3857.Enabled = true;
-                    if (radioButtonEpsg2180.Checked)
+                    if ((comboBoxEpsg.SelectedIndex == 0))
                     {
-                        radioButtonEpsg3857.Checked = true;
+                        comboBoxEpsg.SelectedIndex = 1;
                     }
                 }
             }
             else
             {
-                radioButtonEpsg2180.Enabled = true;
-                radioButtonEpsg3857.Enabled = true;
             }
         }
 
@@ -369,14 +363,16 @@ namespace TrainzBasemapMaker
             UpdateCoordinateSystemAvailability();
         }
 
-        private void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
+        
+
+        // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 or EPSG:3857)
+        private void ComboBoxEpsg_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            buttonConvert.Text = radioButtonEpsg2180.Checked ? "Konwertuj na EPSG:2180" : "Konwertuj na EPSG:3857";
-            label7.Text = radioButtonEpsg2180.Checked ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
+            buttonConvert.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Konwertuj na EPSG:2180" : "Konwertuj na EPSG:3857";
+            label7.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             PerformConversion();
         }
 
-        // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 or EPSG:3857)
         private void PerformConversion()
         {
             string latText = textBoxLat.Text.Replace(',', '.');
@@ -389,15 +385,13 @@ namespace TrainzBasemapMaker
 
                 if (!inPoland)
                 {
-                    radioButtonEpsg2180.Enabled = false;
-                    radioButtonEpsg3857.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 }
                 else
                 {
-                    radioButtonEpsg2180.Enabled = true;
                 }
 
-                if (radioButtonEpsg2180.Checked && inPoland)
+                if ((comboBoxEpsg.SelectedIndex == 0) && inPoland)
                 {
                     var (x, y) = GeoHelperEPSG2180.LatLonToMeters2180(lat, lon);
                     currentX = (long)Math.Round(x);
@@ -457,7 +451,7 @@ namespace TrainzBasemapMaker
 
         private (double stepX, double stepY) GetNavigationStep()
         {
-            if (radioButtonEpsg2180.Checked)
+            if ((comboBoxEpsg.SelectedIndex == 0))
             {
                 return (MapSourceBase.TileSize, MapSourceBase.TileSize);
             }
@@ -540,8 +534,7 @@ namespace TrainzBasemapMaker
                             var (lat, lon) = GeoHelperEPSG2180.Meters2180ToLatLon(currentX, currentY);
                             textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
                             textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
-                            radioButtonEpsg2180.Enabled = true;
-                            radioButtonEpsg2180.Checked = true;
+                            comboBoxEpsg.SelectedIndex = 0;
                         }
                         else
                         {
@@ -549,8 +542,7 @@ namespace TrainzBasemapMaker
                             textBoxLat.Text = lat.ToString(CultureInfo.InvariantCulture);
                             textBoxLon.Text = lon.ToString(CultureInfo.InvariantCulture);
                             bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
-                            radioButtonEpsg2180.Enabled = inPoland;
-                            radioButtonEpsg3857.Checked = true;
+                            comboBoxEpsg.SelectedIndex = 1;
                         }
                     }
                     else
@@ -682,11 +674,20 @@ namespace TrainzBasemapMaker
                 // Auto-suggest the native EPSG for the selected provider while keeping both options switchable
                 if (selected is XyzTileMapSource)
                 {
-                    radioButtonEpsg3857.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 }
-                else if (radioButtonEpsg2180.Enabled)
+                else
                 {
-                    radioButtonEpsg2180.Checked = true;
+                    string latText = textBoxLat.Text.Replace(',', '.');
+                    string lonText = textBoxLon.Text.Replace(',', '.');
+                    if (double.TryParse(latText, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lat) &&
+                        double.TryParse(lonText, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double lon))
+                    {
+                        if (GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon))
+                        {
+                            comboBoxEpsg.SelectedIndex = 0;
+                        }
+                    }
                 }
 
                 PerformConversion();

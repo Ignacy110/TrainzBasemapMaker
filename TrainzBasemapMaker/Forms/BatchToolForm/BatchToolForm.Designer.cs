@@ -46,8 +46,7 @@ namespace TrainzBasemapMaker
             label1 = new Label();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
-            radioButtonEpsg3857 = new RadioButton();
-            radioButtonEpsg2180 = new RadioButton();
+            comboBoxEpsg = new ComboBox();
             labelProgress = new Label();
             groupBox3 = new GroupBox();
             groupBox1.SuspendLayout();
@@ -217,27 +216,15 @@ namespace TrainzBasemapMaker
             groupBox2.TabStop = false;
             groupBox2.Text = "3. Ustaw parametry docelowe";
             // 
-            // radioButtonEpsg3857
+            // comboBoxEpsg
             // 
-            radioButtonEpsg3857.AutoSize = true;
-            radioButtonEpsg3857.Location = new Point(128, 21);
-            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
-            radioButtonEpsg3857.Size = new Size(79, 19);
-            radioButtonEpsg3857.TabIndex = 48;
-            radioButtonEpsg3857.TabStop = true;
-            radioButtonEpsg3857.Text = "EPSG:3857";
-            radioButtonEpsg3857.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonEpsg2180
-            // 
-            radioButtonEpsg2180.AutoSize = true;
-            radioButtonEpsg2180.Location = new Point(13, 21);
-            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
-            radioButtonEpsg2180.Size = new Size(79, 19);
-            radioButtonEpsg2180.TabIndex = 47;
-            radioButtonEpsg2180.TabStop = true;
-            radioButtonEpsg2180.Text = "EPSG:2180";
-            radioButtonEpsg2180.UseVisualStyleBackColor = true;
+            comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxEpsg.FormattingEnabled = true;
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Location = new Point(13, 21);
+            comboBoxEpsg.Name = "comboBoxEpsg";
+            comboBoxEpsg.Size = new Size(188, 23);
+            comboBoxEpsg.TabIndex = 47;
             // 
             // labelProgress
             // 
@@ -251,8 +238,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox3
             // 
-            groupBox3.Controls.Add(radioButtonEpsg2180);
-            groupBox3.Controls.Add(radioButtonEpsg3857);
+            groupBox3.Controls.Add(comboBoxEpsg);
             groupBox3.Location = new Point(225, 56);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(395, 49);
@@ -319,8 +305,7 @@ namespace TrainzBasemapMaker
         private GroupBox groupBox1;
         private GroupBox groupBox2;
         private Label labelProgress;
-        private RadioButton radioButtonEpsg2180;
-        private RadioButton radioButtonEpsg3857;
+        private ComboBox comboBoxEpsg;
         private GroupBox groupBox3;
     }
 }

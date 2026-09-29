@@ -35,7 +35,7 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             // Set default UI states
-            radioButtonEpsg2180.Checked = true;
+            comboBoxEpsg.SelectedIndex = 0;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             // Bind available map sources to the dropdown list
@@ -84,9 +84,9 @@ namespace TrainzBasemapMaker
 
                 if (groupInfo.Epsg == "EPSG:2180")
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg2180.Checked = true;
+                    // comboBoxEpsg.Enabled = true;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -94,9 +94,9 @@ namespace TrainzBasemapMaker
                     long ay = groupInfo.AnchorY ?? 0;
                     var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(ax, ay);
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
-                    radioButtonEpsg2180.Enabled = inPoland;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg3857.Checked = true;
+                    // comboBoxEpsg.Enabled = inPoland;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 }
                 return;
             }
@@ -114,9 +114,9 @@ namespace TrainzBasemapMaker
 
                 if (GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y))
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg2180.Checked = true;
+                    // comboBoxEpsg.Enabled = true;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -124,14 +124,14 @@ namespace TrainzBasemapMaker
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
                     if (inPoland)
                     {
-                        radioButtonEpsg2180.Enabled = true;
-                        radioButtonEpsg3857.Enabled = true;
+                        // comboBoxEpsg.Enabled = true;
+                        // comboBoxEpsg.Enabled = true;
                     }
                     else
                     {
-                        radioButtonEpsg2180.Enabled = false;
-                        radioButtonEpsg3857.Enabled = true;
-                        radioButtonEpsg3857.Checked = true;
+                        // comboBoxEpsg.Enabled = false;
+                        // comboBoxEpsg.Enabled = true;
+                        comboBoxEpsg.SelectedIndex = 1;
                     }
                 }
             }
@@ -229,7 +229,7 @@ namespace TrainzBasemapMaker
 
                             bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y);
 
-                            if (radioButtonEpsg2180.Checked)
+                            if ((comboBoxEpsg.SelectedIndex == 0))
                             {
                                 if (!srcIs2180)
                                 {
@@ -242,7 +242,7 @@ namespace TrainzBasemapMaker
                                     }
                                 }
                             }
-                            else if (radioButtonEpsg3857.Checked)
+                            else if ((comboBoxEpsg.SelectedIndex == 1))
                             {
                                 if (srcIs2180)
                                 {
@@ -305,7 +305,7 @@ namespace TrainzBasemapMaker
                         if (anchorX == null && folders.Count > 0 && TrainzFileManager.TryParseTileFolderName(folders[0], out var firstTile))
                         {
                             bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(firstTile.X, firstTile.Y);
-                            if (radioButtonEpsg2180.Checked)
+                            if ((comboBoxEpsg.SelectedIndex == 0))
                             {
                                 if (srcIs2180)
                                 {
@@ -337,7 +337,7 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        if (radioButtonEpsg3857.Checked && anchorX.HasValue && anchorY.HasValue && anchorCosLat == null)
+                        if ((comboBoxEpsg.SelectedIndex == 1) && anchorX.HasValue && anchorY.HasValue && anchorCosLat == null)
                         {
                             var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(anchorX.Value, anchorY.Value);
                             anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
@@ -347,7 +347,7 @@ namespace TrainzBasemapMaker
                         {
                             GroupName = targetGroup,
                             Designation = targetDesignation,
-                            Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                            Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857",
                             AnchorX = anchorX,
                             AnchorY = anchorY,
                             AnchorCosLat = anchorCosLat,

@@ -76,7 +76,7 @@ namespace TrainzBasemapMaker
                 }
             };
 
-            radioButtonEpsg2180.Checked = true;
+            comboBoxEpsg.SelectedIndex = 0;
             radioButtonModeClick.Checked = true;
             radioButtonElevationAbsolute.Checked = true;
 
@@ -203,9 +203,9 @@ namespace TrainzBasemapMaker
                 textBoxKuidPart2.Text = selectedRoute.KuidPart2;
 
                 if (selectedRoute.Epsg == "EPSG:3857")
-                    radioButtonEpsg3857.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 else
-                    radioButtonEpsg2180.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 0;
 
                 if (selectedRoute.IsRelative)
                     radioButtonElevationRelative.Checked = true;
@@ -373,11 +373,11 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync($"setSelectionMode('{mode}')");
         }
 
-        private async void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
+        private async void ComboBoxEpsg_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (webView21.CoreWebView2 == null) return;
 
-            string epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+            string epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857";
             await webView21.CoreWebView2.ExecuteScriptAsync($"setCoordinateSystem('{epsg}')");
         }
 
@@ -442,12 +442,12 @@ namespace TrainzBasemapMaker
                 return;
             }
 
-            if (radioButtonEpsg3857.Checked)
+            if ((comboBoxEpsg.SelectedIndex == 1))
             {
                 var res = MessageBox.Show("Pobieranie wysokosci NMT z Geoportalu wymaga ukladu EPSG:2180 (obszar Polski).\nCzy chcesz automatycznie przelaczyc uklad na EPSG:2180?", "Uklad wspolrzednych", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                 {
-                    radioButtonEpsg2180.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -584,7 +584,7 @@ namespace TrainzBasemapMaker
                 routeInfo.RouteName = routeName;
                 routeInfo.KuidPart1 = kuidPart1;
                 routeInfo.KuidPart2 = kuidPart2;
-                routeInfo.Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+                routeInfo.Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857";
                 routeInfo.IsRelative = isRelative;
                 if (isRelative)
                 {

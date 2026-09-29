@@ -56,8 +56,7 @@ namespace TrainzBasemapMaker
             radioButtonModeBox = new RadioButton();
             radioButtonModeClick = new RadioButton();
             groupBox2CoordSystem = new GroupBox();
-            radioButtonEpsg3857 = new RadioButton();
-            radioButtonEpsg2180 = new RadioButton();
+            comboBoxEpsg = new ComboBox();
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3Config = new GroupBox();
@@ -173,8 +172,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox2CoordSystem
             // 
-            groupBox2CoordSystem.Controls.Add(radioButtonEpsg3857);
-            groupBox2CoordSystem.Controls.Add(radioButtonEpsg2180);
+            groupBox2CoordSystem.Controls.Add(comboBoxEpsg);
             groupBox2CoordSystem.Location = new Point(12, 233);
             groupBox2CoordSystem.Name = "groupBox2CoordSystem";
             groupBox2CoordSystem.Size = new Size(200, 85);
@@ -182,29 +180,16 @@ namespace TrainzBasemapMaker
             groupBox2CoordSystem.TabStop = false;
             groupBox2CoordSystem.Text = "2. Układ współrzędnych";
             // 
-            // radioButtonEpsg3857
+            // comboBoxEpsg
             // 
-            radioButtonEpsg3857.AutoSize = true;
-            radioButtonEpsg3857.Location = new Point(6, 51);
-            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
-            radioButtonEpsg3857.Size = new Size(140, 19);
-            radioButtonEpsg3857.TabIndex = 1;
-            radioButtonEpsg3857.Text = "EPSG:3857 (Globalny)";
-            radioButtonEpsg3857.UseVisualStyleBackColor = true;
-            radioButtonEpsg3857.CheckedChanged += RadioButtonEpsg_CheckedChanged;
-            // 
-            // radioButtonEpsg2180
-            // 
-            radioButtonEpsg2180.AutoSize = true;
-            radioButtonEpsg2180.Checked = true;
-            radioButtonEpsg2180.Location = new Point(6, 26);
-            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
-            radioButtonEpsg2180.Size = new Size(130, 19);
-            radioButtonEpsg2180.TabIndex = 0;
-            radioButtonEpsg2180.TabStop = true;
-            radioButtonEpsg2180.Text = "EPSG:2180 (Polska)";
-            radioButtonEpsg2180.UseVisualStyleBackColor = true;
-            radioButtonEpsg2180.CheckedChanged += RadioButtonEpsg_CheckedChanged;
+            comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxEpsg.FormattingEnabled = true;
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Location = new Point(6, 26);
+            comboBoxEpsg.Name = "comboBoxEpsg";
+            comboBoxEpsg.Size = new Size(188, 23);
+            comboBoxEpsg.TabIndex = 0;
+            comboBoxEpsg.SelectedIndexChanged += ComboBoxEpsg_SelectedIndexChanged;
             // 
             // groupBoxMap
             // 
@@ -499,8 +484,7 @@ namespace TrainzBasemapMaker
         private Label labelTileCount;
         private Label labelArea;
         private GroupBox groupBox2CoordSystem;
-        private RadioButton radioButtonEpsg3857;
-        private RadioButton radioButtonEpsg2180;
+        private ComboBox comboBoxEpsg;
         private GroupBox groupBoxMap;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
         private GroupBox groupBox3Config;

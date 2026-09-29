@@ -60,7 +60,7 @@ namespace TrainzBasemapMaker
                     UpdateNextFreeKuidPart2();
                 }
             };
-            radioButtonEpsg2180.Checked = true;
+            comboBoxEpsg.SelectedIndex = 0;
             radioButtonModeClick.Checked = true;
 
             // Bind map providers
@@ -222,11 +222,11 @@ namespace TrainzBasemapMaker
 
             if (isEpsg2180)
             {
-                radioButtonEpsg2180.Checked = true;
+                comboBoxEpsg.SelectedIndex = 0;
             }
             else
             {
-                radioButtonEpsg3857.Checked = true;
+                comboBoxEpsg.SelectedIndex = 1;
             }
 
             textBoxDestinationFolder.Text = selectedGroup;
@@ -341,11 +341,11 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync($"setSelectionMode('{mode}')");
         }
 
-        private async void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
+        private async void ComboBoxEpsg_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (webView21.CoreWebView2 == null) return;
 
-            string epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+            string epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857";
             await webView21.CoreWebView2.ExecuteScriptAsync($"setCoordinateSystem('{epsg}')");
         }
 
@@ -471,7 +471,7 @@ namespace TrainzBasemapMaker
                     long anchorY = _currentAnchorY ?? tilesToDownload[0].Y;
                     double? anchorCosLat = null;
 
-                    if (radioButtonEpsg3857.Checked)
+                    if ((comboBoxEpsg.SelectedIndex == 1))
                     {
                         var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(anchorX, anchorY);
                         anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
@@ -481,7 +481,7 @@ namespace TrainzBasemapMaker
                     {
                         GroupName = targetGroup,
                         Designation = targetDesignation,
-                        Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                        Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857",
                         AnchorX = anchorX,
                         AnchorY = anchorY,
                         AnchorCosLat = anchorCosLat,
@@ -651,14 +651,14 @@ namespace TrainzBasemapMaker
                 // Auto-suggest the native EPSG for the selected provider while keeping both options enabled
                 if (selected is XyzTileMapSource)
                 {
-                    radioButtonEpsg3857.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 }
                 else
                 {
-                    radioButtonEpsg2180.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
-                radioButtonEpsg2180.Enabled = true;
-                radioButtonEpsg3857.Enabled = true;
+                // comboBoxEpsg.Enabled = true;
+                // comboBoxEpsg.Enabled = true;
             }
         }
 
