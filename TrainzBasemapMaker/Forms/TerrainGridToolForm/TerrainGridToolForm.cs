@@ -29,7 +29,7 @@ using TrainzBasemapMaker.Classes.TrainzTerrain;
 
 namespace TrainzBasemapMaker
 {
-    public partial class TerrainGridToolForm : Form
+    public partial class TerrainGridToolForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
     {
         private class SelectedTileModel
         {
@@ -797,6 +797,21 @@ namespace TrainzBasemapMaker
             }
             Properties.Settings.Default.Save();
         }
+            public void FindSmallestFreeBasemapNumber()
+        {
+            // Not applicable
+        }
+
+        public void FindFreeKuid()
+        {
+            UpdateNextFreeKuidPart2();
+            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
+        }
+
+        public void RefreshLists()
+        {
+            RoutesListBoxRefresh();
+            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
+        }
     }
 }
-

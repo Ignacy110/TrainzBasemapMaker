@@ -74,20 +74,6 @@ namespace TrainzBasemapMaker
             kuidsInFolderListBox = new ListBox();
             groupBox7BasemapViewer = new GroupBox();
             groupBox6KuidList = new GroupBox();
-            menuStrip1 = new MenuStrip();
-            toolsToolStripMenuItem = new ToolStripMenuItem();
-            refreshFolderAndBasemapListToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem2 = new ToolStripSeparator();
-            findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
-            findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripSeparator();
-            areaDownloadToolStripMenuItem = new ToolStripMenuItem();
-            terrainGeneratorToolStripMenuItem = new ToolStripMenuItem();
-            batchProcessingToolStripMenuItem = new ToolStripMenuItem();
-            preferencesToolStripMenuItem = new ToolStripMenuItem();
-            helpToolStripMenuItem = new ToolStripMenuItem();
-            websiteToolStripMenuItem = new ToolStripMenuItem();
-            aboutProgramToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             groupBox2TargetCoords = new GroupBox();
@@ -99,7 +85,6 @@ namespace TrainzBasemapMaker
             groupBox1GeoCoords.SuspendLayout();
             groupBox7BasemapViewer.SuspendLayout();
             groupBox6KuidList.SuspendLayout();
-            menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             groupBox2TargetCoords.SuspendLayout();
             groupBox4BasemapParams.SuspendLayout();
@@ -198,7 +183,7 @@ namespace TrainzBasemapMaker
             groupBox3Configurator.Controls.Add(label8);
             groupBox3Configurator.Controls.Add(label7);
             groupBox3Configurator.Controls.Add(buttonConfAndDownload);
-            groupBox3Configurator.Location = new Point(12, 243);
+            groupBox3Configurator.Location = new Point(12, 228);
             groupBox3Configurator.Name = "groupBox3Configurator";
             groupBox3Configurator.Size = new Size(214, 455);
             groupBox3Configurator.TabIndex = 11;
@@ -441,7 +426,7 @@ namespace TrainzBasemapMaker
             groupBox5Navigator.Controls.Add(buttonUp);
             groupBox5Navigator.Controls.Add(buttonDown);
             groupBox5Navigator.Controls.Add(buttonRight);
-            groupBox5Navigator.Location = new Point(818, 27);
+            groupBox5Navigator.Location = new Point(818, 12);
             groupBox5Navigator.Name = "groupBox5Navigator";
             groupBox5Navigator.Size = new Size(217, 159);
             groupBox5Navigator.TabIndex = 12;
@@ -492,7 +477,7 @@ namespace TrainzBasemapMaker
             groupBox1GeoCoords.Controls.Add(label5);
             groupBox1GeoCoords.Controls.Add(textBoxLon);
             groupBox1GeoCoords.Controls.Add(textBoxLat);
-            groupBox1GeoCoords.Location = new Point(12, 27);
+            groupBox1GeoCoords.Location = new Point(12, 12);
             groupBox1GeoCoords.Name = "groupBox1GeoCoords";
             groupBox1GeoCoords.Size = new Size(214, 115);
             groupBox1GeoCoords.TabIndex = 15;
@@ -537,7 +522,7 @@ namespace TrainzBasemapMaker
             groupBox7BasemapViewer.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBox7BasemapViewer.Controls.Add(pictureBox1);
             groupBox7BasemapViewer.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            groupBox7BasemapViewer.Location = new Point(232, 118);
+            groupBox7BasemapViewer.Location = new Point(232, 103);
             groupBox7BasemapViewer.Name = "groupBox7BasemapViewer";
             groupBox7BasemapViewer.Size = new Size(580, 580);
             groupBox7BasemapViewer.TabIndex = 17;
@@ -548,111 +533,12 @@ namespace TrainzBasemapMaker
             // 
             groupBox6KuidList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             groupBox6KuidList.Controls.Add(kuidsInFolderListBox);
-            groupBox6KuidList.Location = new Point(818, 192);
+            groupBox6KuidList.Location = new Point(818, 177);
             groupBox6KuidList.Name = "groupBox6KuidList";
             groupBox6KuidList.Size = new Size(217, 506);
             groupBox6KuidList.TabIndex = 18;
             groupBox6KuidList.TabStop = false;
             groupBox6KuidList.Text = "Lista podkładów do Trainz:";
-            // 
-            // menuStrip1
-            // 
-            menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { toolsToolStripMenuItem, preferencesToolStripMenuItem, helpToolStripMenuItem });
-            menuStrip1.Location = new Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1047, 24);
-            menuStrip1.TabIndex = 19;
-            menuStrip1.Text = "menuStrip1";
-            // 
-            // toolsToolStripMenuItem
-            // 
-            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem2, findSmallestFreeBasemapNumberToolStripMenuItem, findFreeKuidToolStripMenuItem, toolStripMenuItem1, areaDownloadToolStripMenuItem, terrainGeneratorToolStripMenuItem, batchProcessingToolStripMenuItem });
-            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            toolsToolStripMenuItem.Size = new Size(70, 20);
-            toolsToolStripMenuItem.Text = "&Narzędzia";
-            // 
-            // refreshFolderAndBasemapListToolStripMenuItem
-            // 
-            refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
-            refreshFolderAndBasemapListToolStripMenuItem.Size = new Size(276, 22);
-            refreshFolderAndBasemapListToolStripMenuItem.Text = "&Odśwież listę folderów i podkładów";
-            refreshFolderAndBasemapListToolStripMenuItem.Click += refreshFolderAndBasemapListToolStripMenuItem_Click;
-            // 
-            // toolStripMenuItem2
-            // 
-            toolStripMenuItem2.Name = "toolStripMenuItem2";
-            toolStripMenuItem2.Size = new Size(273, 6);
-            // 
-            // findSmallestFreeBasemapNumberToolStripMenuItem
-            // 
-            findSmallestFreeBasemapNumberToolStripMenuItem.Name = "findSmallestFreeBasemapNumberToolStripMenuItem";
-            findSmallestFreeBasemapNumberToolStripMenuItem.Size = new Size(276, 22);
-            findSmallestFreeBasemapNumberToolStripMenuItem.Text = "&Znajdź najmniejszy wolny nr podkładu";
-            findSmallestFreeBasemapNumberToolStripMenuItem.Click += findSmallestFreeBasemapNumberToolStripMenuItem_Click;
-            // 
-            // findFreeKuidToolStripMenuItem
-            // 
-            findFreeKuidToolStripMenuItem.Name = "findFreeKuidToolStripMenuItem";
-            findFreeKuidToolStripMenuItem.Size = new Size(276, 22);
-            findFreeKuidToolStripMenuItem.Text = "Z&najdź wolny Kuid";
-            findFreeKuidToolStripMenuItem.Click += findFreeKuidToolStripMenuItem_Click;
-            // 
-            // toolStripMenuItem1
-            // 
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(273, 6);
-            // 
-            // areaDownloadToolStripMenuItem
-            // 
-            areaDownloadToolStripMenuItem.Name = "areaDownloadToolStripMenuItem";
-            areaDownloadToolStripMenuItem.Size = new Size(276, 22);
-            areaDownloadToolStripMenuItem.Text = "&Pobieranie obszarowe (siatka)";
-            areaDownloadToolStripMenuItem.Visible = false;
-            areaDownloadToolStripMenuItem.Click += areaDownloadToolStripMenuItem_Click;
-            // 
-            // terrainGeneratorToolStripMenuItem
-            // 
-            terrainGeneratorToolStripMenuItem.Name = "terrainGeneratorToolStripMenuItem";
-            terrainGeneratorToolStripMenuItem.Size = new Size(276, 22);
-            terrainGeneratorToolStripMenuItem.Text = "Generator &terenu (map.gnd)";
-            terrainGeneratorToolStripMenuItem.Visible = false;
-            terrainGeneratorToolStripMenuItem.Click += terrainGeneratorToolStripMenuItem_Click;
-            // 
-            // batchProcessingToolStripMenuItem
-            // 
-            batchProcessingToolStripMenuItem.Name = "batchProcessingToolStripMenuItem";
-            batchProcessingToolStripMenuItem.Size = new Size(276, 22);
-            batchProcessingToolStripMenuItem.Text = "&Przetwarzanie seryjne";
-            batchProcessingToolStripMenuItem.Click += batchProcessingToolStripMenuItem_Click;
-            // 
-            // preferencesToolStripMenuItem
-            // 
-            preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            preferencesToolStripMenuItem.Size = new Size(78, 20);
-            preferencesToolStripMenuItem.Text = "P&referencje";
-            preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
-            // 
-            // helpToolStripMenuItem
-            // 
-            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { websiteToolStripMenuItem, aboutProgramToolStripMenuItem });
-            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            helpToolStripMenuItem.Size = new Size(57, 20);
-            helpToolStripMenuItem.Text = "&Pomoc";
-            // 
-            // websiteToolStripMenuItem
-            // 
-            websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
-            websiteToolStripMenuItem.Size = new Size(213, 22);
-            websiteToolStripMenuItem.Text = "&Strona programu - GitHub";
-            websiteToolStripMenuItem.Click += websiteToolStripMenuItem_Click;
-            // 
-            // aboutProgramToolStripMenuItem
-            // 
-            aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
-            aboutProgramToolStripMenuItem.Size = new Size(213, 22);
-            aboutProgramToolStripMenuItem.Text = "&O programie";
-            aboutProgramToolStripMenuItem.Click += aboutProgramToolStripMenuItem_Click;
             // 
             // statusStrip1
             // 
@@ -674,7 +560,7 @@ namespace TrainzBasemapMaker
             // 
             groupBox2TargetCoords.Controls.Add(comboBoxEpsg);
             groupBox2TargetCoords.Controls.Add(buttonConvert);
-            groupBox2TargetCoords.Location = new Point(12, 148);
+            groupBox2TargetCoords.Location = new Point(12, 133);
             groupBox2TargetCoords.Name = "groupBox2TargetCoords";
             groupBox2TargetCoords.Size = new Size(214, 89);
             groupBox2TargetCoords.TabIndex = 21;
@@ -690,7 +576,7 @@ namespace TrainzBasemapMaker
             groupBox4BasemapParams.Controls.Add(label15);
             groupBox4BasemapParams.Controls.Add(label14);
             groupBox4BasemapParams.Controls.Add(label2);
-            groupBox4BasemapParams.Location = new Point(232, 27);
+            groupBox4BasemapParams.Location = new Point(232, 12);
             groupBox4BasemapParams.Name = "groupBox4BasemapParams";
             groupBox4BasemapParams.Size = new Size(580, 85);
             groupBox4BasemapParams.TabIndex = 22;
@@ -710,9 +596,7 @@ namespace TrainzBasemapMaker
             Controls.Add(groupBox1GeoCoords);
             Controls.Add(groupBox5Navigator);
             Controls.Add(groupBox3Configurator);
-            Controls.Add(menuStrip1);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MainMenuStrip = menuStrip1;
             MinimumSize = new Size(1063, 769);
             Name = "SingleBasemapForm";
             Text = "Trainz Basemap Maker";
@@ -727,8 +611,6 @@ namespace TrainzBasemapMaker
             groupBox1GeoCoords.PerformLayout();
             groupBox7BasemapViewer.ResumeLayout(false);
             groupBox6KuidList.ResumeLayout(false);
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();
             groupBox2TargetCoords.ResumeLayout(false);
@@ -764,13 +646,6 @@ namespace TrainzBasemapMaker
         private ListBox kuidsInFolderListBox;
         private GroupBox groupBox7BasemapViewer;
         private GroupBox groupBox6KuidList;
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem helpToolStripMenuItem;
-        private ToolStripMenuItem websiteToolStripMenuItem;
-        private ToolStripMenuItem areaDownloadToolStripMenuItem;
-        private ToolStripMenuItem terrainGeneratorToolStripMenuItem;
-        private ToolStripMenuItem batchProcessingToolStripMenuItem;
-        private ToolStripMenuItem aboutProgramToolStripMenuItem;
         private Label label4;
         private TextBox textBoxDestinationFolder;
         private Label label10;
@@ -786,18 +661,11 @@ namespace TrainzBasemapMaker
         private TextBox textBoxDesignation;
         private Label label13;
         private TextBox textBoxKuidPart2;
-        private ToolStripMenuItem toolsToolStripMenuItem;
-        private ToolStripMenuItem findFreeKuidToolStripMenuItem;
-        private ToolStripMenuItem findSmallestFreeBasemapNumberToolStripMenuItem;
-        private ToolStripMenuItem refreshFolderAndBasemapListToolStripMenuItem;
         private TextBox textBoxBasemapDate;
         private Label label14;
-        private ToolStripMenuItem preferencesToolStripMenuItem;
         private Label label15;
         private ComboBox comboBoxMapType;
         private System.Windows.Forms.ComboBox comboBoxResolution;
-        private ToolStripSeparator toolStripMenuItem1;
-        private ToolStripSeparator toolStripMenuItem2;
         private Button buttonMarkPointMap;
         private ComboBox comboBoxEpsg;
         private GroupBox groupBox2TargetCoords;

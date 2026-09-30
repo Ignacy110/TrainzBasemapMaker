@@ -1,7 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using TrainzBasemapMaker.Classes;
+
+
 
 namespace TrainzBasemapMaker
 {
@@ -23,31 +26,15 @@ namespace TrainzBasemapMaker
 
         private void LoadTools()
         {
-            // Load SingleBasemapForm (Pojedynczy podkład)
+            // Load SingleBasemapForm
             singleBasemapForm = new SingleBasemapForm();
             EmbedFormInTab(singleBasemapForm, tabPageSingle);
 
-            // Przenieś MenuStrip z SingleBasemapForm do MainForm, aby był na samej górze i zawsze widoczny
-            if (singleBasemapForm.MainMenuStrip != null)
-            {
-                var menu = singleBasemapForm.MainMenuStrip;
-                singleBasemapForm.Controls.Remove(menu);
-                this.Controls.Add(menu);
-                this.MainMenuStrip = menu;
-                
-                // Zapewnienie, że MenuStrip jest przypięty do góry
-                menu.Dock = DockStyle.Top;
-                
-                // TabControl ma Dock = Fill, więc musi "wypełnić resztę" 
-                // BringToFront daje mu niższy priorytet w kolejności dokowania (wypełnia to, co zostało po przypięciu MenuStrip)
-                tabControl.BringToFront();
-            }
-
-            // Load GridToolForm (Siatka podkładów)
+            // Load GridToolForm
             gridToolForm = new GridToolForm();
             EmbedFormInTab(gridToolForm, tabPageGrid);
 
-            // Load TerrainGridToolForm (Generator terenu)
+            // Load TerrainGridToolForm
             terrainToolForm = new TerrainGridToolForm();
             EmbedFormInTab(terrainToolForm, tabPageTerrain);
         }
@@ -79,6 +66,80 @@ namespace TrainzBasemapMaker
                 Properties.Settings.Default.MainFormSize = this.RestoreBounds.Size;
             }
             Properties.Settings.Default.Save();
+        }
+
+        private void findFreeKuidToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var activeTab = tabControl.SelectedTab;
+            if (activeTab != null && activeTab.Controls.Count > 0 && activeTab.Controls[0] is IMainMenuOperations op)
+            {
+                op.FindFreeKuid();
+            }
+        }
+
+        private void findSmallestFreeBasemapNumberToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var activeTab = tabControl.SelectedTab;
+            if (activeTab != null && activeTab.Controls.Count > 0 && activeTab.Controls[0] is IMainMenuOperations op)
+            {
+                op.FindSmallestFreeBasemapNumber();
+            }
+        }
+
+        private void refreshFolderAndBasemapListToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var activeTab = tabControl.SelectedTab;
+            if (activeTab != null && activeTab.Controls.Count > 0 && activeTab.Controls[0] is IMainMenuOperations op)
+            {
+                op.RefreshLists();
+            }
+        }
+
+        private void batchProcessingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (BatchToolForm info = new BatchToolForm())
+            {
+                info.ShowDialog();
+                // Refresh lists on all tabs if needed, or just the active one
+                var activeTab = tabControl.SelectedTab;
+                if (activeTab != null && activeTab.Controls.Count > 0 && activeTab.Controls[0] is IMainMenuOperations op)
+                {
+                    op.RefreshLists();
+                }
+            }
+        }
+
+        private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (PreferencesForm info = new PreferencesForm())
+            {
+                info.ShowDialog();
+                if (Properties.Settings.Default.AutoKuidNumber)
+                {
+                    var activeTab = tabControl.SelectedTab;
+                    if (activeTab != null && activeTab.Controls.Count > 0 && activeTab.Controls[0] is IMainMenuOperations op)
+                    {
+                        op.FindFreeKuid();
+                    }
+                }
+            }
+        }
+
+        private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://github.com/Ignacy110/TrainzBasemapMaker") { UseShellExecute = true });
+            }
+            catch { }
+        }
+
+        private void aboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (AboutProgramForm info = new AboutProgramForm())
+            {
+                info.ShowDialog();
+            }
         }
     }
 }

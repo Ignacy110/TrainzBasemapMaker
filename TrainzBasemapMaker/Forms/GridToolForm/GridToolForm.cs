@@ -25,7 +25,7 @@ using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
-    public partial class GridToolForm : Form
+    public partial class GridToolForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
     {
         private class SelectedTileModel
         {
@@ -623,9 +623,10 @@ namespace TrainzBasemapMaker
             _isDownloading = downloading;
             buttonStartDownload.Enabled = !downloading;
             buttonCancel.Enabled = downloading;
-            groupBox1Selection.Enabled = !downloading;
-            groupBox2CoordSystem.Enabled = !downloading;
-            groupBox3Config.Enabled = !downloading;
+            groupBox2Selection.Enabled = !downloading;
+            groupBox1CoordSystem.Enabled = !downloading;
+            groupBox4Configurator.Enabled = !downloading;
+            groupBox3BasemapParams.Enabled = !downloading;
             Cursor = downloading ? Cursors.WaitCursor : Cursors.Default;
         }
 
@@ -733,6 +734,24 @@ namespace TrainzBasemapMaker
                 Properties.Settings.Default.GridToolFormSize = this.RestoreBounds.Size;
             }
             Properties.Settings.Default.Save();
+        }
+            public void FindSmallestFreeBasemapNumber()
+        {
+            UpdateNextFreeCounter();
+            toolStripStatusLabel1.Text = "Automatycznie dobrano numer podkładu: " + textBoxCounter.Text;
+        }
+
+        public void FindFreeKuid()
+        {
+            UpdateNextFreeKuidPart2();
+            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
+        }
+
+        public void RefreshLists()
+        {
+            
+            BasemapFolderListBoxRefresh();
+            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
         }
     }
 }

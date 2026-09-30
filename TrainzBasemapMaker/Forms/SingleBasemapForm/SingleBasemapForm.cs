@@ -23,7 +23,7 @@ using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
-    public partial class SingleBasemapForm : Form
+    public partial class SingleBasemapForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
     {
         // --------------------------
         //  Declaration of variables
@@ -566,26 +566,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start(new ProcessStartInfo("https://github.com/Ignacy110/TrainzBasemapMaker") { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                toolStripStatusLabel1.Text = $"Błąd otwarcia strony internetowej";
-                MessageBox.Show("Błąd otwarcia strony:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-
-        private void aboutProgramToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (AboutProgramForm info = new AboutProgramForm())
-            {
-                info.ShowDialog();
-            }
-        }
+        
 
         private void checkBoxCreateFiles_CheckedChanged(object sender, EventArgs e)
         {
@@ -629,35 +610,23 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void findSmallestFreeBasemapNumberToolStripMenuItem_Click(object sender, EventArgs e)
+                public void FindSmallestFreeBasemapNumber()
         {
             UpdateNextFreeCounter();
-            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer podkładu: {textBoxCounter.Text}";
+            toolStripStatusLabel1.Text = "Automatycznie dobrano numer podkładu: " + textBoxCounter.Text;
         }
 
-        private void findFreeKuidToolStripMenuItem_Click(object sender, EventArgs e)
+        public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = $"Automatycznie dobrano numer kuidu (część 2): {textBoxKuidPart2.Text}";
+            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
         }
 
-        private void refreshFolderAndBasemapListToolStripMenuItem_Click(object sender, EventArgs e)
+        public void RefreshLists()
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
-            toolStripStatusLabel1.Text = $"Odświeżono listę folderów";
-        }
-
-        private void preferencesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (PreferencesForm info = new PreferencesForm())
-            {
-                info.ShowDialog();
-                if (Properties.Settings.Default.AutoKuidNumber)
-                {
-                    UpdateNextFreeKuidPart2();
-                }
-            }
+            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
         }
 
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
@@ -729,32 +698,7 @@ namespace TrainzBasemapMaker
             }
         }
 
-        private void areaDownloadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (GridToolForm gridTool = new GridToolForm())
-            {
-                gridTool.ShowDialog();
-                BasemapFolderListBoxRefresh();
-                KuidsInFolderListBoxRefresh();
-            }
-        }
-
-        private void terrainGeneratorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (TerrainGridToolForm terrainTool = new TerrainGridToolForm())
-            {
-                terrainTool.ShowDialog();
-            }
-        }
-
-        private void batchProcessingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (BatchToolForm info = new BatchToolForm())
-            {
-                info.ShowDialog();
-                BasemapFolderListBoxRefresh();
-            }
-        }
+        
 
         private void buttonMarkPointMap_Click(object sender, EventArgs e)
         {
