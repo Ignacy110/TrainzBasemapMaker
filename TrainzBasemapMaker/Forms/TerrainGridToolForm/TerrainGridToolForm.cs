@@ -60,12 +60,20 @@ namespace TrainzBasemapMaker
             {
                 Text = "Wygeneruj także podkłady 3D (Ortofotomapa WMTS)",
                 AutoSize = true,
-                Location = new Point(10, 290), // Position appropriately within groupBox3Config
+                Location = new Point(10, 380), // Position appropriately within groupBox4Configurator
                 Checked = false
             };
-            groupBox3Config.Controls.Add(_checkBoxGenerateBasemaps);
+            groupBox4Configurator.Controls.Add(_checkBoxGenerateBasemaps);
 
             // Set initial control states
+                        // Initialize map providers
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
+            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += FormHelpers.ComboBoxMapType_DrawItem;
+            
+            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
             textBoxKuidPart1.TextChanged += (s, e) =>
@@ -395,6 +403,14 @@ namespace TrainzBasemapMaker
             _currentAnchorX = null;
             _currentAnchorY = null;
             buttonStartDownload.Text = "Generuj teren (map.gnd)";
+                        // Initialize map providers
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
+            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += FormHelpers.ComboBoxMapType_DrawItem;
+            
+            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             UpdateNextFreeKuidPart2();
             labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
@@ -751,10 +767,11 @@ namespace TrainzBasemapMaker
             _isDownloading = downloading;
             buttonStartDownload.Enabled = !downloading;
             buttonCancel.Enabled = downloading;
-            groupBox1Selection.Enabled = !downloading;
-            groupBox2CoordSystem.Enabled = !downloading;
-            groupBox3Config.Enabled = !downloading;
-            groupBox4Download.Enabled = true;
+            groupBox2Selection.Enabled = !downloading;
+            groupBox1CoordSystem.Enabled = !downloading;
+            groupBox4Configurator.Enabled = !downloading;
+            groupBox3BasemapParams.Enabled = !downloading;
+            groupBox5Download.Enabled = true;
             Cursor = downloading ? Cursors.WaitCursor : Cursors.Default;
         }
 
@@ -812,6 +829,26 @@ namespace TrainzBasemapMaker
         {
             RoutesListBoxRefresh();
             toolStripStatusLabel1.Text = "Odświeżono listę folderów";
+        }
+            private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Event handler required for designer
+        }
+
+        private int GetSelectedResolution()
+        {
+            return (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
+        }
+
+        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxMapType.SelectedItem is IMapSource selected)
+            {
+                textBoxBasemapDate.Enabled = selected.SupportsTime;
+                label14.Enabled = selected.SupportsTime;
+
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
+            }
         }
     }
 }

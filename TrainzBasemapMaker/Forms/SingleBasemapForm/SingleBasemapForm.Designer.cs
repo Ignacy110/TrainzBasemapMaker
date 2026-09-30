@@ -447,7 +447,7 @@ namespace TrainzBasemapMaker
             pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBox1.Location = new Point(6, 28);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(568, 535);
+            pictureBox1.Size = new Size(568, 546);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 13;
             pictureBox1.TabStop = false;

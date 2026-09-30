@@ -200,7 +200,7 @@ namespace TrainzBasemapMaker
             webView21.DefaultBackgroundColor = Color.White;
             webView21.Location = new Point(6, 28);
             webView21.Name = "webView21";
-            webView21.Size = new Size(568, 535);
+            webView21.Size = new Size(568, 546);
             webView21.TabIndex = 0;
             webView21.ZoomFactor = 1D;
             // 
