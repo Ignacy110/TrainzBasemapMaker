@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -62,7 +62,10 @@ namespace TrainzBasemapMaker
             groupBox3BasemapParams = new GroupBox();
             comboBoxResolution = new ComboBox();
             label2 = new Label();
-            comboBoxMapType = new ComboBox();
+            checkedListBoxMapType = new CheckedListBox();
+            buttonSelectAllMaps = new Button();
+            buttonDeselectAllMaps = new Button();
+            labelMapSelectionCount = new Label();
             label15 = new Label();
             textBoxBasemapDate = new TextBox();
             label14 = new Label();
@@ -210,9 +213,9 @@ namespace TrainzBasemapMaker
             groupBoxMap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxMap.Controls.Add(webView21);
             groupBoxMap.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            groupBoxMap.Location = new Point(232, 103);
+            groupBoxMap.Location = new Point(232, 163);
             groupBoxMap.Name = "groupBoxMap";
-            groupBoxMap.Size = new Size(580, 580);
+            groupBoxMap.Size = new Size(580, 520);
             groupBoxMap.TabIndex = 2;
             groupBoxMap.TabStop = false;
             groupBoxMap.Text = "Wybór kafli na mapie (siatka lokalna):";
@@ -225,22 +228,25 @@ namespace TrainzBasemapMaker
             webView21.DefaultBackgroundColor = Color.White;
             webView21.Location = new Point(6, 28);
             webView21.Name = "webView21";
-            webView21.Size = new Size(568, 546);
+            webView21.Size = new Size(568, 486);
             webView21.TabIndex = 0;
             webView21.ZoomFactor = 1D;
             // 
             // groupBox3BasemapParams
             // 
             groupBox3BasemapParams.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox3BasemapParams.Controls.Add(buttonDeselectAllMaps);
+            groupBox3BasemapParams.Controls.Add(buttonSelectAllMaps);
+            groupBox3BasemapParams.Controls.Add(labelMapSelectionCount);
+            groupBox3BasemapParams.Controls.Add(checkedListBoxMapType);
             groupBox3BasemapParams.Controls.Add(comboBoxResolution);
             groupBox3BasemapParams.Controls.Add(label2);
-            groupBox3BasemapParams.Controls.Add(comboBoxMapType);
             groupBox3BasemapParams.Controls.Add(label15);
             groupBox3BasemapParams.Controls.Add(textBoxBasemapDate);
             groupBox3BasemapParams.Controls.Add(label14);
             groupBox3BasemapParams.Location = new Point(232, 12);
             groupBox3BasemapParams.Name = "groupBox3BasemapParams";
-            groupBox3BasemapParams.Size = new Size(580, 85);
+            groupBox3BasemapParams.Size = new Size(580, 145);
             groupBox3BasemapParams.TabIndex = 6;
             groupBox3BasemapParams.TabStop = false;
             groupBox3BasemapParams.Text = "3. Parametry podkładów";
@@ -249,61 +255,88 @@ namespace TrainzBasemapMaker
             // 
             comboBoxResolution.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxResolution.FormattingEnabled = true;
-            comboBoxResolution.Location = new Point(6, 50);
+            comboBoxResolution.Location = new Point(6, 42);
             comboBoxResolution.Name = "comboBoxResolution";
-            comboBoxResolution.Size = new Size(103, 23);
+            comboBoxResolution.Size = new Size(125, 23);
             comboBoxResolution.TabIndex = 34;
             comboBoxResolution.SelectedIndexChanged += comboBoxResolution_SelectedIndexChanged;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(3, 25);
+            label2.Location = new Point(6, 22);
             label2.Name = "label2";
-            label2.Size = new Size(106, 15);
+            label2.Size = new Size(116, 15);
             label2.TabIndex = 33;
-            label2.Text = "Rozdzielczość [px]:";
+            label2.Text = "Maks. rozdzielczość:";
             // 
-            // comboBoxMapType
+            // label14
             // 
-            comboBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            comboBoxMapType.DropDownWidth = 310;
-            comboBoxMapType.FormattingEnabled = true;
-            comboBoxMapType.Location = new Point(125, 50);
-            comboBoxMapType.Name = "comboBoxMapType";
-            comboBoxMapType.Size = new Size(307, 23);
-            comboBoxMapType.TabIndex = 38;
-            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
-            // 
-            // label15
-            // 
-            label15.AutoSize = true;
-            label15.Location = new Point(125, 25);
-            label15.Name = "label15";
-            label15.Size = new Size(107, 15);
-            label15.TabIndex = 37;
-            label15.Text = "Rodzaj podkładów:";
+            label14.AutoSize = true;
+            label14.Location = new Point(6, 75);
+            label14.Name = "label14";
+            label14.Size = new Size(117, 15);
+            label14.TabIndex = 35;
+            label14.Text = "Rok (jeśli dostępny):";
             // 
             // textBoxBasemapDate
             // 
-            textBoxBasemapDate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBoxBasemapDate.Location = new Point(448, 50);
+            textBoxBasemapDate.Location = new Point(6, 95);
             textBoxBasemapDate.MaxLength = 4;
             textBoxBasemapDate.Name = "textBoxBasemapDate";
-            textBoxBasemapDate.Size = new Size(67, 23);
+            textBoxBasemapDate.Size = new Size(125, 23);
             textBoxBasemapDate.TabIndex = 36;
             textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
             textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
             // 
-            // label14
+            // label15
             // 
-            label14.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label14.AutoSize = true;
-            label14.Location = new Point(448, 25);
-            label14.Name = "label14";
-            label14.Size = new Size(92, 15);
-            label14.TabIndex = 35;
-            label14.Text = "Rok podkładów:";
+            label15.AutoSize = true;
+            label15.Location = new Point(142, 22);
+            label15.Name = "label15";
+            label15.Size = new Size(335, 15);
+            label15.TabIndex = 37;
+            label15.Text = "Rodzaje podkładów (każdy utworzy osobną warstwę w Trainz):";
+            // 
+            // checkedListBoxMapType
+            // 
+            checkedListBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            checkedListBoxMapType.CheckOnClick = true;
+            checkedListBoxMapType.FormattingEnabled = true;
+            checkedListBoxMapType.Location = new Point(142, 42);
+            checkedListBoxMapType.Name = "checkedListBoxMapType";
+            checkedListBoxMapType.Size = new Size(428, 70);
+            checkedListBoxMapType.TabIndex = 38;
+            checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
+            // 
+            // buttonSelectAllMaps
+            // 
+            buttonSelectAllMaps.Location = new Point(142, 116);
+            buttonSelectAllMaps.Name = "buttonSelectAllMaps";
+            buttonSelectAllMaps.Size = new Size(110, 23);
+            buttonSelectAllMaps.TabIndex = 39;
+            buttonSelectAllMaps.Text = "Zaznacz wszystkie";
+            buttonSelectAllMaps.UseVisualStyleBackColor = true;
+            buttonSelectAllMaps.Click += buttonSelectAllMaps_Click;
+            // 
+            // buttonDeselectAllMaps
+            // 
+            buttonDeselectAllMaps.Location = new Point(258, 116);
+            buttonDeselectAllMaps.Name = "buttonDeselectAllMaps";
+            buttonDeselectAllMaps.Size = new Size(110, 23);
+            buttonDeselectAllMaps.TabIndex = 40;
+            buttonDeselectAllMaps.Text = "Odznacz wszystkie";
+            buttonDeselectAllMaps.UseVisualStyleBackColor = true;
+            buttonDeselectAllMaps.Click += buttonDeselectAllMaps_Click;
+            // 
+            // labelMapSelectionCount
+            // 
+            labelMapSelectionCount.AutoSize = true;
+            labelMapSelectionCount.Location = new Point(378, 120);
+            labelMapSelectionCount.Name = "labelMapSelectionCount";
+            labelMapSelectionCount.Size = new Size(67, 15);
+            labelMapSelectionCount.TabIndex = 41;
+            labelMapSelectionCount.Text = "Wybrano: 1";
             // 
             // groupBox4Configurator
             // 
@@ -665,7 +698,10 @@ namespace TrainzBasemapMaker
         private Label label2;
         private ComboBox comboBoxResolution;
         private Label label15;
-        private ComboBox comboBoxMapType;
+        private CheckedListBox checkedListBoxMapType;
+        private Button buttonSelectAllMaps;
+        private Button buttonDeselectAllMaps;
+        private Label labelMapSelectionCount;
         private Label label14;
         private TextBox textBoxBasemapDate;
         // Right configurator

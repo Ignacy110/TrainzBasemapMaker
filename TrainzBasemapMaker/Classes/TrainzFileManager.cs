@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker.Classes
             return false;
         }
 
-        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null, List<TrainzTerrain.ObsObject>? obsObjects = null)
+        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null, List<TrainzTerrain.ObsObject>? obsObjects = null, List<TrainzTerrain.TrainzLayer>? layers = null)
         {
             string groupPath = Path.Combine(RootFolder, basemapGroup);
             if (!Directory.Exists(groupPath))
@@ -106,7 +106,8 @@ namespace TrainzBasemapMaker.Classes
             byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
 
-            byte[] lyrData = new byte[] { 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x72, 0x6F, 0x75, 0x74, 0x65, 0x2D, 0x6C, 0x61, 0x79, 0x65, 0x72, 0x00, 0x01 };
+            var lyrWriter = new TrainzTerrain.LyrWriter();
+            byte[] lyrData = lyrWriter.CreateLyrFile(layers);
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.lyr"), lyrData);
 
             string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            3.3\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";

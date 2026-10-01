@@ -1,4 +1,4 @@
-// Trainz Basemap Maker
+﻿// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -66,10 +66,18 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             // Bind map providers
-            comboBoxMapType.DataSource = MapSources.AvailableMaps;
-            comboBoxMapType.DisplayMember = "Name";
-            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
-            comboBoxMapType.DrawItem += FormHelpers.ComboBoxMapType_DrawItem;
+            checkedListBoxMapType.ItemCheck -= checkedListBoxMapType_ItemCheck;
+            checkedListBoxMapType.DisplayMember = "Name";
+            checkedListBoxMapType.Items.Clear();
+            foreach (var map in MapSources.AvailableMaps)
+            {
+                bool isDefault = map.Name == "Ortofotomapa WMTS";
+                checkedListBoxMapType.Items.Add(map, isDefault);
+            }
+            checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
+
+            FormHelpers.PopulateAllResolutions(comboBoxResolution, 2048);
+            UpdateBasemapParamsState();
 
             // Initial states
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
@@ -88,9 +96,6 @@ namespace TrainzBasemapMaker
 
             buttonLoadRoute.Enabled = false;
             buttonDeleteRoute.Enabled = false;
-
-            // Fire map-type selected to populate resolution combobox
-            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
 
             RoutesListBoxRefresh();
             UpdateNextFreeCounter();
@@ -431,20 +436,46 @@ namespace TrainzBasemapMaker
             groupBoxElevation.Enabled = checkBoxGenerate3DTerrain.Checked;
         }
 
-        // ── ComboBox handlers ─────────────────────────────────────────────────────
-        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        // ── Map sources & resolution handlers ────────────────────────────────────
+        private void checkedListBoxMapType_ItemCheck(object? sender, ItemCheckEventArgs e)
         {
-            if (comboBoxMapType.SelectedItem is IMapSource selected)
+            if (IsHandleCreated)
             {
-                textBoxBasemapDate.Enabled = selected.SupportsTime;
-                label14.Enabled = selected.SupportsTime;
-                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
+                BeginInvoke(new Action(UpdateBasemapParamsState));
+            }
+        }
 
-                // Auto-suggest native EPSG for the selected provider
-                if (selected is XyzTileMapSource)
+        private void buttonSelectAllMaps_Click(object? sender, EventArgs e)
+        {
+            for (int i = 0; i < checkedListBoxMapType.Items.Count; i++)
+            {
+                checkedListBoxMapType.SetItemChecked(i, true);
+            }
+            UpdateBasemapParamsState();
+        }
+
+        private void buttonDeselectAllMaps_Click(object? sender, EventArgs e)
+        {
+            for (int i = 0; i < checkedListBoxMapType.Items.Count; i++)
+            {
+                checkedListBoxMapType.SetItemChecked(i, false);
+            }
+            UpdateBasemapParamsState();
+        }
+
+        private void UpdateBasemapParamsState()
+        {
+            var checkedSources = checkedListBoxMapType.CheckedItems.Cast<IMapSource>().ToList();
+            bool anySupportsTime = checkedSources.Any(s => s.SupportsTime);
+            textBoxBasemapDate.Enabled = anySupportsTime;
+            label14.Enabled = anySupportsTime;
+            labelMapSelectionCount.Text = $"Wybrano: {checkedSources.Count}";
+
+            // Suggest coordinate system if only XYZ sources are checked
+            if (checkedSources.Count > 0 && checkedSources.All(s => s is XyzTileMapSource))
+            {
+                if (comboBoxEpsg.SelectedIndex != 1)
                     comboBoxEpsg.SelectedIndex = 1;
-                else
-                    comboBoxEpsg.SelectedIndex = 0;
             }
         }
 
@@ -545,9 +576,11 @@ namespace TrainzBasemapMaker
                 return;
             }
 
-            if ((gen2D || gen3D) && comboBoxMapType.SelectedItem is not IMapSource)
+            var selectedMaps = checkedListBoxMapType.CheckedItems.Cast<IMapSource>().ToList();
+            if ((gen2D || gen3D) && selectedMaps.Count == 0)
             {
-                MessageBox.Show("Wybierz źródło mapy!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Zaznacz co najmniej jeden rodzaj podkładu na liście!", "Brak wyboru podkładu",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -583,8 +616,7 @@ namespace TrainzBasemapMaker
             string kuidPart1 = textBoxKuidPart1.Text.Trim();
             string kuidPart2 = textBoxKuidPart2.Text.Trim();
             bool isRelative = radioButtonElevationRelative.Checked;
-            IMapSource? selectedMap = comboBoxMapType.SelectedItem as IMapSource;
-            string year = (selectedMap?.SupportsTime == true) ? textBoxBasemapDate.Text.Trim() : "";
+            string year = textBoxBasemapDate.Text.Trim();
             int maxResolution = GetSelectedResolution();
             var tilesToProcess = _selectedTiles.ToList();
             int total = tilesToProcess.Count;
@@ -678,121 +710,139 @@ namespace TrainzBasemapMaker
                 // ──────────────────────────────────────────────────────────────────
                 // PHASE 2: Generate 2D basemaps
                 // ──────────────────────────────────────────────────────────────────
-                // basemap2DKuids[tileOrder] = (kuid1, kuid2, tile)  — for obs placement later
-                var basemap2DInfo = new List<(SelectedTileModel Tile, string Kuid1, string Kuid2)>();
+                var basemap2DInfo = new List<(IMapSource Source, SelectedTileModel Tile, string Kuid1, string Kuid2)>();
 
-                if (gen2D && selectedMap != null)
+                if (gen2D && selectedMaps.Count > 0)
                 {
-                    StatusUpdate?.Invoke("Pobieranie podkładów 2D...");
-                    progressBar1.Maximum = total;
+                    int total2DTasks = selectedMaps.Count * total;
+                    int current2DTask = 0;
+                    progressBar1.Maximum = Math.Max(1, total2DTasks);
                     progressBar1.Value = 0;
 
-                    string groupName2D = $"Podklady_2D_{routeName}";
-                    int successCount = 0;
-                    int failCount = 0;
-
-                    for (int i = 0; i < tilesToProcess.Count; i++)
+                    foreach (var source in selectedMaps)
                     {
                         token.ThrowIfCancellationRequested();
-                        var tile = tilesToProcess[i];
-                        int counter = startCounter + i;
-                        string kuid2ForTile = (startKuid2 + i).ToString();
+                        string safeSourceName = string.Join("_", source.Name.Split(Path.GetInvalidFileNameChars()))
+                            .Replace(" ", "_").Replace(",", "");
+                        string groupName2D = selectedMaps.Count > 1
+                            ? $"Podklady_2D_{routeName}_{safeSourceName}"
+                            : $"Podklady_2D_{routeName}";
 
-                        labelProgress.Text = $"Podkład 2D: {i + 1}/{total}";
-                        StatusUpdate?.Invoke($"Pobieranie podkładu 2D {i + 1}/{total}...");
+                        string mapYear = source.SupportsTime ? year : "";
+                        int successCount = 0;
+                        int failCount = 0;
 
-                        try
+                        for (int i = 0; i < tilesToProcess.Count; i++)
                         {
-                            byte[] imageBytes = await DownloadWithResolutionFallback(selectedMap, year, tile.X, tile.Y, maxResolution, token);
+                            token.ThrowIfCancellationRequested();
+                            var tile = tilesToProcess[i];
+                            int counter = startCounter++;
+                            string kuid2ForTile = (startKuid2++).ToString();
 
-                            bool created = _fileManager.CreateTrainzFiles(
-                                imageBytes, groupName2D,
-                                tile.X, tile.Y,
-                                designation, counter,
-                                kuidPart1, kuid2ForTile);
+                            current2DTask++;
+                            labelProgress.Text = $"2D [{source.Name}]: {i + 1}/{total}";
+                            StatusUpdate?.Invoke($"Pobieranie 2D ({source.Name}) {i + 1}/{total}...");
 
-                            if (created)
+                            try
                             {
-                                successCount++;
-                                basemap2DInfo.Add((tile, kuidPart1, kuid2ForTile));
+                                byte[] imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token);
+
+                                bool created = _fileManager.CreateTrainzFiles(
+                                    imageBytes, groupName2D,
+                                    tile.X, tile.Y,
+                                    designation, counter,
+                                    kuidPart1, kuid2ForTile);
+
+                                if (created)
+                                {
+                                    successCount++;
+                                    basemap2DInfo.Add((source, tile, kuidPart1, kuid2ForTile));
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            failCount++;
-                            Debug.WriteLine($"Błąd podkładu 2D tile ({tile.I},{tile.J}): {ex.Message}");
+                            catch (Exception ex)
+                            {
+                                failCount++;
+                                Debug.WriteLine($"Błąd podkładu 2D {source.Name} tile ({tile.I},{tile.J}): {ex.Message}");
+                            }
+
+                            progressBar1.Value = Math.Min(current2DTask, progressBar1.Maximum);
                         }
 
-                        progressBar1.Value = i + 1;
+                        StatusUpdate?.Invoke($"Podkłady 2D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
                     }
-
-                    StatusUpdate?.Invoke($"Podkłady 2D: utworzono {successCount}, błędów {failCount}.");
-                    // Advance KUID range so phase 3 doesn't collide
-                    startKuid2 += total;
-                    startCounter += total;
                 }
 
                 // ──────────────────────────────────────────────────────────────────
                 // PHASE 3: Generate 3D basemaps
                 // ──────────────────────────────────────────────────────────────────
-                var basemap3DInfo = new List<(SelectedTileModel Tile, string Kuid1, string Kuid2, float BaseHeight)>();
+                var basemap3DInfo = new List<(IMapSource Source, SelectedTileModel Tile, string Kuid1, string Kuid2, float BaseHeight)>();
 
-                if (gen3D && selectedMap != null)
+                if (gen3D && selectedMaps.Count > 0)
                 {
-                    StatusUpdate?.Invoke("Pobieranie podkładów 3D...");
-                    progressBar1.Maximum = total;
+                    int total3DTasks = selectedMaps.Count * total;
+                    int current3DTask = 0;
+                    progressBar1.Maximum = Math.Max(1, total3DTasks);
                     progressBar1.Value = 0;
 
-                    string groupName3D = $"Podklady_3D_{routeName}";
-                    int successCount = 0;
-                    int failCount = 0;
-
-                    for (int i = 0; i < tilesToProcess.Count; i++)
+                    foreach (var source in selectedMaps)
                     {
                         token.ThrowIfCancellationRequested();
-                        var tile = tilesToProcess[i];
-                        int counter = startCounter + i;
-                        string kuid2ForTile = (startKuid2 + i).ToString();
+                        string safeSourceName = string.Join("_", source.Name.Split(Path.GetInvalidFileNameChars()))
+                            .Replace(" ", "_").Replace(",", "");
+                        string groupName3D = selectedMaps.Count > 1
+                            ? $"Podklady_3D_{routeName}_{safeSourceName}"
+                            : $"Podklady_3D_{routeName}";
 
-                        labelProgress.Text = $"Podkład 3D: {i + 1}/{total}";
-                        StatusUpdate?.Invoke($"Pobieranie podkładu 3D {i + 1}/{total}...");
+                        string mapYear = source.SupportsTime ? year : "";
+                        int successCount = 0;
+                        int failCount = 0;
 
-                        try
+                        for (int i = 0; i < tilesToProcess.Count; i++)
                         {
-                            byte[] imageBytes = await DownloadWithResolutionFallback(selectedMap, year, tile.X, tile.Y, maxResolution, token);
+                            token.ThrowIfCancellationRequested();
+                            var tile = tilesToProcess[i];
+                            int counter = startCounter++;
+                            string kuid2ForTile = (startKuid2++).ToString();
 
-                            float baseHeight = 0f;
-                            float[,]? grid = null;
-                            if (downloadedGrids != null && downloadedGrids.TryGetValue((tile.I, tile.J), out grid))
-                                baseHeight = grid[38, 38];
+                            current3DTask++;
+                            labelProgress.Text = $"3D [{source.Name}]: {i + 1}/{total}";
+                            StatusUpdate?.Invoke($"Pobieranie 3D ({source.Name}) {i + 1}/{total}...");
 
-                            bool created = _fileManager.CreateTrainzFiles(
-                                imageBytes, groupName3D,
-                                tile.X, tile.Y,
-                                designation, counter,
-                                kuidPart1, kuid2ForTile,
-                                grid,
-                                0.2f,  // zOffset to prevent Z-fighting
-                                baseHeight);
-
-                            if (created)
+                            try
                             {
-                                successCount++;
-                                basemap3DInfo.Add((tile, kuidPart1, kuid2ForTile, baseHeight));
+                                byte[] imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token);
+
+                                float baseHeight = 0f;
+                                float[,]? grid = null;
+                                if (downloadedGrids != null && downloadedGrids.TryGetValue((tile.I, tile.J), out grid))
+                                    baseHeight = grid[38, 38];
+
+                                bool created = _fileManager.CreateTrainzFiles(
+                                    imageBytes, groupName3D,
+                                    tile.X, tile.Y,
+                                    designation, counter,
+                                    kuidPart1, kuid2ForTile,
+                                    grid,
+                                    0.2f,  // zOffset to prevent Z-fighting
+                                    baseHeight);
+
+                                if (created)
+                                {
+                                    successCount++;
+                                    basemap3DInfo.Add((source, tile, kuidPart1, kuid2ForTile, baseHeight));
+                                }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            failCount++;
-                            Debug.WriteLine($"Błąd podkładu 3D tile ({tile.I},{tile.J}): {ex.Message}");
+                            catch (Exception ex)
+                            {
+                                failCount++;
+                                Debug.WriteLine($"Błąd podkładu 3D {source.Name} tile ({tile.I},{tile.J}): {ex.Message}");
+                            }
+
+                            progressBar1.Value = Math.Min(current3DTask, progressBar1.Maximum);
                         }
 
-                        progressBar1.Value = i + 1;
+                        StatusUpdate?.Invoke($"Podkłady 3D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
                     }
-
-                    StatusUpdate?.Invoke($"Podkłady 3D: utworzono {successCount}, błędów {failCount}.");
-                    startKuid2 += total;
-                    startCounter += total;
                 }
 
                 // ──────────────────────────────────────────────────────────────────
@@ -881,40 +931,64 @@ namespace TrainzBasemapMaker
                 }
 
                 // ──────────────────────────────────────────────────────────────────
-                // PHASE 5: Build obs objects for placement on route
+                // PHASE 5: Build obs objects and Trainz layers
                 // ──────────────────────────────────────────────────────────────────
                 var obsObjects = new List<ObsObject>();
+                var layers = new List<TrainzLayer>();
+                layers.Add(new TrainzLayer(1, "route-layer", 0x01));
+                short nextLayerId = 2;
 
-                if (place2D)
+                if (place2D && basemap2DInfo.Count > 0)
                 {
-                    foreach (var (tile, k1, k2) in basemap2DInfo)
+                    var groupedBySource = basemap2DInfo.GroupBy(b => b.Source);
+                    foreach (var group in groupedBySource)
                     {
-                        obsObjects.Add(new ObsObject
+                        short layerId = nextLayerId++;
+                        string layerName = selectedMaps.Count > 1
+                            ? $"Podkłady 2D - {group.Key.Name}"
+                            : "Podkłady 2D";
+                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
+
+                        foreach (var (_, tile, k1, k2) in group)
                         {
-                            KuidPart1 = int.Parse(k1),
-                            KuidPart2 = int.Parse(k2),
-                            // Flat height (0 + small offset against z-fighting with terrain)
-                            X = (-tile.J) * 720f + 360f,
-                            Y = tile.I * 720f + 360f,
-                            Z = 0.1f,
-                            RotZ = (float)(Math.PI / 2.0)
-                        });
+                            obsObjects.Add(new ObsObject
+                            {
+                                KuidPart1 = int.Parse(k1),
+                                KuidPart2 = int.Parse(k2),
+                                LayerId = layerId,
+                                X = (-tile.J) * 720f + 360f,
+                                Y = tile.I * 720f + 360f,
+                                Z = 0.1f,
+                                RotZ = (float)(Math.PI / 2.0)
+                            });
+                        }
                     }
                 }
 
-                if (place3D)
+                if (place3D && basemap3DInfo.Count > 0)
                 {
-                    foreach (var (tile, k1, k2, baseHeight) in basemap3DInfo)
+                    var groupedBySource = basemap3DInfo.GroupBy(b => b.Source);
+                    foreach (var group in groupedBySource)
                     {
-                        obsObjects.Add(new ObsObject
+                        short layerId = nextLayerId++;
+                        string layerName = selectedMaps.Count > 1
+                            ? $"Podkłady 3D - {group.Key.Name}"
+                            : "Podkłady 3D";
+                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
+
+                        foreach (var (_, tile, k1, k2, baseHeight) in group)
                         {
-                            KuidPart1 = int.Parse(k1),
-                            KuidPart2 = int.Parse(k2),
-                            X = (-tile.J) * 720f + 360f,
-                            Y = tile.I * 720f + 360f,
-                            Z = baseHeight,
-                            RotZ = (float)(Math.PI / 2.0)
-                        });
+                            obsObjects.Add(new ObsObject
+                            {
+                                KuidPart1 = int.Parse(k1),
+                                KuidPart2 = int.Parse(k2),
+                                LayerId = layerId,
+                                X = (-tile.J) * 720f + 360f,
+                                Y = tile.I * 720f + 360f,
+                                Z = baseHeight,
+                                RotZ = (float)(Math.PI / 2.0)
+                            });
+                        }
                     }
                 }
 
@@ -925,7 +999,8 @@ namespace TrainzBasemapMaker
                 {
                     string targetFolder = _fileManager.CreateRouteFiles(
                         routeName, "Trasy", kuidPart1, kuidPart2, gndData, routeInfo,
-                        obsObjects.Count > 0 ? obsObjects : null);
+                        obsObjects.Count > 0 ? obsObjects : null,
+                        layers.Count > 1 ? layers : null);
                     routeInfo.FolderPath = targetFolder;
                     _loadedRoute = routeInfo;
 
@@ -966,6 +1041,7 @@ namespace TrainzBasemapMaker
                 if (genTerrain) summaryParts.Add("teren 3D (map.gnd)");
                 if (place2D) summaryParts.Add("ułożono 2D na mapie");
                 if (place3D) summaryParts.Add("ułożono 3D na mapie");
+                if (layers.Count > 1) summaryParts.Add($"warstwy Trainz ({layers.Count})");
 
                 string summary = string.Join(", ", summaryParts);
                 StatusUpdate?.Invoke($"Zakończono: {summary}.");
@@ -996,15 +1072,18 @@ namespace TrainzBasemapMaker
 
         /// <summary>
         /// Downloads a map image at the requested resolution; if unavailable, falls back to lower
-        /// resolutions (never exceeds the requested max).
+        /// resolutions (never exceeds the requested max nor provider's capabilities).
         /// </summary>
         private static async Task<byte[]> DownloadWithResolutionFallback(
             IMapSource source, string year, long x, long y, int maxResolution,
             CancellationToken token)
         {
-            // Build the resolution ladder: start at maxResolution, step down to 512
+            int sourceMax = FormHelpers.GetMaxSupportedResolution(source);
+            int startResolution = Math.Min(maxResolution, sourceMax);
+
+            // Build the resolution ladder: start at startResolution, step down to 512
             int[] resolutions = { 8192, 4096, 2048, 1024, 512 };
-            var ladder = resolutions.Where(r => r <= maxResolution).ToArray();
+            var ladder = resolutions.Where(r => r <= startResolution).ToArray();
             if (ladder.Length == 0) ladder = new[] { 512 };
 
             Exception? lastEx = null;

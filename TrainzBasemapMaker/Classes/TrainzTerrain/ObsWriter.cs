@@ -9,6 +9,7 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
         public int KuidPart1 { get; set; }
         public int KuidPart2 { get; set; }
         public int KuidVersion { get; set; } = 0;
+        public int LayerId { get; set; } = 1;
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -46,7 +47,7 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
                         bw.Write(43);            // Magic type ID
                         bw.Write(3);             // Magic version ID
                         bw.Write((uint)0xFF000000);
-                        bw.Write(1); // Layer ID
+                        bw.Write(obj.LayerId); // Layer ID
                         bw.Write((byte)0);
                         bw.Write(obj.X);
                         bw.Write(obj.Y);

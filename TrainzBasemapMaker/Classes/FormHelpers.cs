@@ -12,6 +12,34 @@ namespace TrainzBasemapMaker.Classes
 
     internal static class FormHelpers
     {
+        public static int GetMaxSupportedResolution(IMapSource source)
+        {
+            if (source is WmtsMapSource wmts)
+            {
+                return wmts.AllowsHighResolution ? 8192 : 4096;
+            }
+            if (source is WmsMapSource wms)
+            {
+                return wms.AllowsHighResolution ? 4096 : 2048;
+            }
+            return 2048;
+        }
+
+        public static void PopulateAllResolutions(ComboBox comboBoxResolution, int defaultResolution = 2048)
+        {
+            var currentSelection = (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? defaultResolution;
+            comboBoxResolution.Items.Clear();
+
+            comboBoxResolution.Items.Add(new ResolutionOption { Value = 8192 });
+            comboBoxResolution.Items.Add(new ResolutionOption { Value = 4096 });
+            comboBoxResolution.Items.Add(new ResolutionOption { Value = 2048 });
+            comboBoxResolution.Items.Add(new ResolutionOption { Value = 1024 });
+            comboBoxResolution.Items.Add(new ResolutionOption { Value = 512 });
+
+            var match = System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.Cast<ResolutionOption>(comboBoxResolution.Items), r => r.Value == currentSelection);
+            comboBoxResolution.SelectedItem = match ?? System.Linq.Enumerable.FirstOrDefault(System.Linq.Enumerable.Cast<ResolutionOption>(comboBoxResolution.Items), r => r.Value == 2048);
+        }
+
         public static void UpdateResolutionComboBox(ComboBox comboBoxResolution, IMapSource selected)
         {
             var currentSelection = (comboBoxResolution.SelectedItem as ResolutionOption)?.Value;
