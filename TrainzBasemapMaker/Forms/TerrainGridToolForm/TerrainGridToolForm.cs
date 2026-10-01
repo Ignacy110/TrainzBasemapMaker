@@ -52,6 +52,8 @@ namespace TrainzBasemapMaker
 
         private CheckBox _checkBoxGenerateBasemaps;
 
+        public event Action<string>? StatusUpdate;
+
         public TerrainGridToolForm()
         {
             InitializeComponent();
@@ -92,7 +94,7 @@ namespace TrainzBasemapMaker
             buttonDeleteRoute.Enabled = false;
 
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciagnij pedzlem, aby zaznaczyc | PPM: Przesuwanie mapy";
+            StatusUpdate?.Invoke("LPM: Kliknij lub przeciagnij pedzlem, aby zaznaczyc | PPM: Przesuwanie mapy");
         }
 
         private async void TerrainGridToolForm_Load(object? sender, EventArgs e)
@@ -135,7 +137,7 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
-                toolStripStatusLabel1.Text = "Blad inicjalizacji mapy!";
+                StatusUpdate?.Invoke("Blad inicjalizacji mapy!");
                 MessageBox.Show("Wystapil blad podczas inicjalizacji mapy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -243,11 +245,11 @@ namespace TrainzBasemapMaker
 
                     string json = JsonSerializer.Serialize(payload);
                     await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
-                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.";
+                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.");
                 }
                 else
                 {
-                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.";
+                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.");
                     MessageBox.Show($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów).\n\nTrasa ta nie zawierała danych geolokalizacji punktu bazowego (została wygenerowana we wcześniejszej wersji). Nie można jej wyświetlić na mapie.", "Wczytano trasę", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -279,7 +281,7 @@ namespace TrainzBasemapMaker
                     buttonResetAnchor_Click(sender, e);
                 }
                 RoutesListBoxRefresh();
-                toolStripStatusLabel1.Text = $"Usunięto trasę \"{route.RouteName}\".";
+                StatusUpdate?.Invoke($"Usunięto trasę \"{route.RouteName}\".");
             }
             catch (Exception ex)
             {
@@ -361,14 +363,14 @@ namespace TrainzBasemapMaker
                             : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów. Kliknij na mapie, aby dodać nowe." : "Zaznacz obszar trasy na mapie.");
 
                         labelProgress.Text = count > 0 ? $"Zaznaczono {count} baseboardów." : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów." : "Gotowy do zaznaczania.");
-                        toolStripStatusLabel1.Text = statusMsg;
+                        StatusUpdate?.Invoke(statusMsg);
                     }
                 }
             }
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
-                toolStripStatusLabel1.Text = "Blad!";
+                StatusUpdate?.Invoke("Blad!");
                 MessageBox.Show("Wystapil blad w komunikacji z mapa (szczegoly w error.log):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -416,7 +418,7 @@ namespace TrainzBasemapMaker
             labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
             labelArea.Text = "Powierzchnia: 0.00 km²";
             labelProgress.Text = "Zresetowano trasę. Gotowy do zaznaczania.";
-            toolStripStatusLabel1.Text = "Wybierz punkt początkowy na mapie.";
+            StatusUpdate?.Invoke("Wybierz punkt początkowy na mapie.");
 
             if (webView21.CoreWebView2 != null)
             {
@@ -497,7 +499,7 @@ namespace TrainzBasemapMaker
             progressBar1.Maximum = total;
             progressBar1.Value = 0;
             labelProgress.Text = $"Pobieranie: 0/{total}";
-            toolStripStatusLabel1.Text = "Pobieranie danych wysokosciowych...";
+            StatusUpdate?.Invoke("Pobieranie danych wysokosciowych...");
 
             try
             {
@@ -523,7 +525,7 @@ namespace TrainzBasemapMaker
                                 {
                                     labelProgress.Text = $"Pobieranie: {c}/{total}";
                                     progressBar1.Value = Math.Min(c, progressBar1.Maximum);
-                                    toolStripStatusLabel1.Text = $"Pobrano baseboard ({tile.I}, {tile.J}) [{c}/{total}]";
+                                    StatusUpdate?.Invoke($"Pobrano baseboard ({tile.I}, {tile.J}) [{c}/{total}]");
                                 });
                             }
                         }
@@ -578,7 +580,7 @@ namespace TrainzBasemapMaker
                 }
 
                 labelProgress.Text = "Generowanie mapfile.gnd...";
-                toolStripStatusLabel1.Text = "Tworzenie struktury mapy Trainz...";
+                StatusUpdate?.Invoke("Tworzenie struktury mapy Trainz...");
 
                 foreach (var tile in _selectedTiles.OrderBy(t => t.Order))
                 {
@@ -646,7 +648,7 @@ namespace TrainzBasemapMaker
                 if (_checkBoxGenerateBasemaps.Checked)
                 {
                     labelProgress.Text = "Pobieranie tekstur satelitarnych...";
-                    toolStripStatusLabel1.Text = "Tworzenie podkładów 3D...";
+                    StatusUpdate?.Invoke("Tworzenie podkładów 3D...");
 
                     IMapSource ortoSource = MapSources.AvailableMaps.FirstOrDefault(m => m.Name.Contains("Ortofotomapa WMTS") || m.Name.Contains("WMTS")) ?? MapSources.AvailableMaps.First();
                     int res = 2048; // Standard resolution for basemaps
@@ -732,20 +734,20 @@ namespace TrainzBasemapMaker
                 _selectedTiles.Clear();
 
                 labelProgress.Text = "Gotowe!";
-                toolStripStatusLabel1.Text = $"Zapisano trasę ({blocks.Count} baseboardów)!";
+                StatusUpdate?.Invoke($"Zapisano trasę ({blocks.Count} baseboardów)!");
                 MessageBox.Show($"Pomyślnie zapisano mapę terenu ({blocks.Count} baseboardów) w folderze:\n{targetFolder}", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (OperationCanceledException)
             {
                 labelProgress.Text = "Anulowano.";
-                toolStripStatusLabel1.Text = "Pobieranie zostalo anulowane przez uzytkownika.";
+                StatusUpdate?.Invoke("Pobieranie zostalo anulowane przez uzytkownika.");
                 MessageBox.Show("Pobieranie zostalo przerwane.", "Anulowano", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
                 labelProgress.Text = "Blad generowania!";
-                toolStripStatusLabel1.Text = "Wystapil blad podczas generowania mapy!";
+                StatusUpdate?.Invoke("Wystapil blad podczas generowania mapy!");
                 MessageBox.Show("Wystapil blad podczas generowania mapy (szczegoly w error.log):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -759,7 +761,7 @@ namespace TrainzBasemapMaker
             _cancellationTokenSource?.Cancel();
             buttonCancel.Enabled = false;
             labelProgress.Text = "Anulowanie...";
-            toolStripStatusLabel1.Text = "Anulowanie pobierania...";
+            StatusUpdate?.Invoke("Anulowanie pobierania...");
         }
 
         private void SetUiDownloadingState(bool downloading)
@@ -822,13 +824,13 @@ namespace TrainzBasemapMaker
         public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
+            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
         }
 
         public void RefreshLists()
         {
             RoutesListBoxRefresh();
-            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
+            StatusUpdate?.Invoke("Odświeżono listę folderów");
         }
             private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
         {

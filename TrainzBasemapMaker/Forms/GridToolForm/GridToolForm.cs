@@ -44,6 +44,8 @@ namespace TrainzBasemapMaker
         private long? _currentAnchorX;
         private long? _currentAnchorY;
 
+        public event Action<string>? StatusUpdate;
+
         public GridToolForm()
         {
             InitializeComponent();
@@ -74,7 +76,7 @@ namespace TrainzBasemapMaker
             BasemapFolderListBoxRefresh();
             UpdateNextFreeKuidPart2();
             UpdateNextFreeCounter();
-            toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciągnij pędzlem, aby zaznaczyć | PPM: Przesuwanie mapy";
+            StatusUpdate?.Invoke("LPM: Kliknij lub przeciągnij pędzlem, aby zaznaczyć | PPM: Przesuwanie mapy");
         }
 
         private async void GridToolForm_Load(object? sender, EventArgs e)
@@ -254,7 +256,7 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
 
             string anchorSourceText = groupInfo != null ? " (zapisany punkt bazowy)" : "";
-            toolStripStatusLabel1.Text = $"Wczytano {parsedTiles.Count} podkładów z folderu \"{selectedGroup}\"{anchorSourceText} i ustawiono siatkę lokalną.";
+            StatusUpdate?.Invoke($"Wczytano {parsedTiles.Count} podkładów z folderu \"{selectedGroup}\"{anchorSourceText} i ustawiono siatkę lokalną.");
         }
 
         private void WebView21_WebMessageReceived(object? sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -323,7 +325,7 @@ namespace TrainzBasemapMaker
                             : (existingCount > 0 ? $"Wczytano {existingCount} istniejących kafli. Kliknij na siatce, aby dodać nowe." : "Zaznacz kafle na mapie.");
 
                         labelProgress.Text = count > 0 ? $"Zaznaczono {count} nowych kafli." : "Gotowy do zaznaczania.";
-                        toolStripStatusLabel1.Text = statusMsg;
+                        StatusUpdate?.Invoke(statusMsg);
                     }
                 }
             }
@@ -518,7 +520,7 @@ namespace TrainzBasemapMaker
                     string currentKuid2 = (startKuid2 + (current - 1)).ToString();
 
                     labelProgress.Text = $"Pobieranie: {current} z {total}";
-                    toolStripStatusLabel1.Text = $"Pobieranie podkładu {current} z {total} (Kafel {tile.Order} / {tile.X}, {tile.Y})...";
+                    StatusUpdate?.Invoke($"Pobieranie podkładu {current} z {total} (Kafel {tile.Order} / {tile.X}, {tile.Y})...");
 
                     if (webView21.CoreWebView2 != null)
                     {
@@ -571,19 +573,19 @@ namespace TrainzBasemapMaker
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     labelProgress.Text = $"Pobieranie anulowane.";
-                    toolStripStatusLabel1.Text = $"Pobieranie anulowane przez użytkownika. Utworzono {successCount} z {total} podkładów.";
+                    StatusUpdate?.Invoke($"Pobieranie anulowane przez użytkownika. Utworzono {successCount} z {total} podkładów.");
                     MessageBox.Show($"Pobieranie zostało przerwane przez użytkownika.\n\nPomyślnie utworzono {successCount} z {total} podkładów.", "Pobieranie anulowane", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (failureDetails.Count == 0)
                 {
                     labelProgress.Text = $"Zakończono sukcesem!";
-                    toolStripStatusLabel1.Text = $"Pomyślnie utworzono wszystkie podkłady ({successCount} z {total}).";
+                    StatusUpdate?.Invoke($"Pomyślnie utworzono wszystkie podkłady ({successCount} z {total}).");
                     MessageBox.Show($"Pobieranie obszarowe zakończone sukcesem!\n\nPomyślnie utworzono wszystkie zaznaczone podkłady ({successCount} z {total}).", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (successCount > 0)
                 {
                     labelProgress.Text = $"Zakończono z ostrzeżeniami.";
-                    toolStripStatusLabel1.Text = $"Utworzono podkładów: {successCount} z {total}. Niepowodzenia: {failureDetails.Count}.";
+                    StatusUpdate?.Invoke($"Utworzono podkładów: {successCount} z {total}. Niepowodzenia: {failureDetails.Count}.");
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
                     if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
                     MessageBox.Show($"Pobieranie obszarowe zakończone z ostrzeżeniami.\n\nUtworzono podkładów: {successCount} z {total}.\nNiepowodzenia ({failureDetails.Count}):\n{errorsPreview}", "Ostrzeżenie", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -591,14 +593,14 @@ namespace TrainzBasemapMaker
                 else
                 {
                     labelProgress.Text = $"Pobieranie nie powiodło się.";
-                    toolStripStatusLabel1.Text = "Pobieranie nie powiodło się dla żadnego podkładu.";
+                    StatusUpdate?.Invoke("Pobieranie nie powiodło się dla żadnego podkładu.");
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
                     MessageBox.Show($"Pobieranie nie powiodło się dla żadnego podkładu.\n\nSzczegóły błędów:\n{errorsPreview}", "Błąd pobierania", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = "Błąd krytyczny podczas pobierania!";
+                StatusUpdate?.Invoke("Błąd krytyczny podczas pobierania!");
                 MessageBox.Show("Błąd krytyczny podczas pobierania:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -615,7 +617,7 @@ namespace TrainzBasemapMaker
             _cancellationTokenSource?.Cancel();
             buttonCancel.Enabled = false;
             labelProgress.Text = "Anulowanie...";
-            toolStripStatusLabel1.Text = "Anulowanie pobierania...";
+            StatusUpdate?.Invoke("Anulowanie pobierania...");
         }
 
         private void SetUiDownloadingState(bool downloading)
@@ -738,20 +740,20 @@ namespace TrainzBasemapMaker
             public void FindSmallestFreeBasemapNumber()
         {
             UpdateNextFreeCounter();
-            toolStripStatusLabel1.Text = "Automatycznie dobrano numer podkładu: " + textBoxCounter.Text;
+            StatusUpdate?.Invoke("Automatycznie dobrano numer podkładu: " + textBoxCounter.Text);
         }
 
         public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
+            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
         }
 
         public void RefreshLists()
         {
             
             BasemapFolderListBoxRefresh();
-            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
+            StatusUpdate?.Invoke("Odświeżono listę folderów");
         }
     }
 }

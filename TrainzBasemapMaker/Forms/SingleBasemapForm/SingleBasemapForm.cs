@@ -56,6 +56,8 @@ namespace TrainzBasemapMaker
         //  Form initialization
         // --------------------------
 
+        public event Action<string>? StatusUpdate;
+
         public SingleBasemapForm()
         {
             InitializeComponent();
@@ -178,7 +180,7 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
-                toolStripStatusLabel1.Text = "Błąd automatycznego wyznaczania oznaczenia kuidu (część 2)";
+                StatusUpdate?.Invoke("Błąd automatycznego wyznaczania oznaczenia kuidu (część 2)");
                 MessageBox.Show("Błąd automatycznego wyznaczania oznaczenia kuidu (część 2):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -195,7 +197,7 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxCounter.Text = "1";
-                toolStripStatusLabel1.Text = "Błąd automatycznego wyznaczania numeru podkładu";
+                StatusUpdate?.Invoke("Błąd automatycznego wyznaczania numeru podkładu");
                 MessageBox.Show("Błąd automatycznego wyznaczania numeru podkładu:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -207,7 +209,7 @@ namespace TrainzBasemapMaker
 
             try
             {
-                toolStripStatusLabel1.Text = $"Pobieranie podkładu...";
+                StatusUpdate?.Invoke($"Pobieranie podkładu...");
 
                 if (comboBoxMapType.SelectedItem is not IMapSource selectedMap) return;
                 string year = selectedMap.SupportsTime ? textBoxBasemapDate.Text : "";
@@ -223,7 +225,7 @@ namespace TrainzBasemapMaker
                     oldImage?.Dispose();
                 }
 
-                toolStripStatusLabel1.Text = $"Pobrano podkład do pamięci: {currentX}_{currentY}";
+                StatusUpdate?.Invoke($"Pobrano podkład do pamięci: {currentX}_{currentY}");
 
                 // Proceed with file creation if the user enabled this option
                 if (checkBoxCreateFiles.Checked)
@@ -292,16 +294,16 @@ namespace TrainzBasemapMaker
                                 UpdateNextFreeKuidPart2();
                             }
                             DataRefresh();
-                            toolStripStatusLabel1.Text = $"Pobrano podkład i utworzono pliki dla Trainz: {currentX}, {currentY}";
+                            StatusUpdate?.Invoke($"Pobrano podkład i utworzono pliki dla Trainz: {currentX}, {currentY}");
                         }
                         else
                         {
-                            toolStripStatusLabel1.Text = "Podkład już istnieje – pominięto.";
+                            StatusUpdate?.Invoke("Podkład już istnieje – pominięto.");
                         }
                     }
                     catch (Exception ex)
                     {
-                        toolStripStatusLabel1.Text = "Błąd zapisu plików!";
+                        StatusUpdate?.Invoke("Błąd zapisu plików!");
                         MessageBox.Show("Błąd zapisu plików:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
@@ -311,7 +313,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = $"Błąd pobierania mapy: {currentX}_{currentY}";
+                StatusUpdate?.Invoke($"Błąd pobierania mapy: {currentX}_{currentY}");
                 MessageBox.Show("Błąd pobierania mapy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
@@ -399,7 +401,7 @@ namespace TrainzBasemapMaker
                     _anchorCosLat = null;
 
                     DataRefresh();
-                    toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}";
+                    StatusUpdate?.Invoke($"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}");
                 }
                 else
                 {
@@ -410,12 +412,12 @@ namespace TrainzBasemapMaker
 
                     DataRefresh();
                     string suffix = inPoland ? " (Polska)" : " (Global)";
-                    toolStripStatusLabel1.Text = $"Przekonwertowano: {latText}, {lonText} na EPSG:3857{suffix}: {currentX}, {currentY}";
+                    StatusUpdate?.Invoke($"Przekonwertowano: {latText}, {lonText} na EPSG:3857{suffix}: {currentX}, {currentY}");
                 }
             }
             else
             {
-                toolStripStatusLabel1.Text = $"Błąd konwersji: {latText}, {lonText}";
+                StatusUpdate?.Invoke($"Błąd konwersji: {latText}, {lonText}");
             }
         }
 
@@ -444,7 +446,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                toolStripStatusLabel1.Text = $"Błąd danych startowych (błąd konfiguracji)";
+                StatusUpdate?.Invoke($"Błąd danych startowych (błąd konfiguracji)");
                 MessageBox.Show("Błąd danych startowych (błąd konfiguracji). Upewnij się, że używasz tylko cyfr i ewentualnie kropki.\n\n" + ex.Message, "Błąd formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -547,7 +549,7 @@ namespace TrainzBasemapMaker
                     }
                     else
                     {
-                        toolStripStatusLabel1.Text = $"Błąd nazwy podkładu";
+                        StatusUpdate?.Invoke($"Błąd nazwy podkładu");
                         MessageBox.Show("Błąd nazwy podkładu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
@@ -613,20 +615,20 @@ namespace TrainzBasemapMaker
                 public void FindSmallestFreeBasemapNumber()
         {
             UpdateNextFreeCounter();
-            toolStripStatusLabel1.Text = "Automatycznie dobrano numer podkładu: " + textBoxCounter.Text;
+            StatusUpdate?.Invoke("Automatycznie dobrano numer podkładu: " + textBoxCounter.Text);
         }
 
         public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = "Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text;
+            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
         }
 
         public void RefreshLists()
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
-            toolStripStatusLabel1.Text = "Odświeżono listę folderów";
+            StatusUpdate?.Invoke("Odświeżono listę folderów");
         }
 
         private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)

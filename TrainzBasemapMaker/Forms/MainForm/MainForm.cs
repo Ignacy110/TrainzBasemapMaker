@@ -41,6 +41,16 @@ namespace TrainzBasemapMaker
 
         private void EmbedFormInTab(Form form, TabPage tabPage)
         {
+            if (form is IMainMenuOperations op)
+            {
+                op.StatusUpdate += (msg) => 
+                {
+                    if (this.InvokeRequired)
+                        this.Invoke(new Action(() => toolStripStatusLabel1.Text = msg));
+                    else
+                        toolStripStatusLabel1.Text = msg;
+                };
+            }
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;

@@ -79,8 +79,6 @@ namespace TrainzBasemapMaker
             buttonStartDownload = new Button();
             labelProgress = new Label();
             progressBar1 = new ProgressBar();
-            statusStrip1 = new StatusStrip();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
             groupBox3BasemapParams = new GroupBox();
             comboBoxMapType = new ComboBox();
             label2 = new Label();
@@ -96,7 +94,6 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.SuspendLayout();
             groupBoxElevation.SuspendLayout();
             groupBox5Download.SuspendLayout();
-            statusStrip1.SuspendLayout();
             groupBox3BasemapParams.SuspendLayout();
             SuspendLayout();
             // 
@@ -427,22 +424,6 @@ namespace TrainzBasemapMaker
             progressBar1.Size = new Size(205, 23);
             progressBar1.TabIndex = 0;
             // 
-            // statusStrip1
-            // 
-            statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
-            statusStrip1.Location = new Point(0, 708);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1047, 22);
-            statusStrip1.TabIndex = 5;
-            statusStrip1.Text = "statusStrip1";
-            // 
-            // toolStripStatusLabel1
-            // 
-            toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(0, 17);
-            // 
             // groupBox3BasemapParams
             // 
             groupBox3BasemapParams.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -523,16 +504,15 @@ namespace TrainzBasemapMaker
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1047, 730);
+            ClientSize = new Size(1047, 688);
             Controls.Add(groupBox3BasemapParams);
-            Controls.Add(statusStrip1);
             Controls.Add(groupBox5Download);
             Controls.Add(groupBox4Configurator);
             Controls.Add(groupBoxMap);
             Controls.Add(groupBox1CoordSystem);
             Controls.Add(groupBox2Selection);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimumSize = new Size(1063, 769);
+            MinimumSize = new Size(1063, 727);
             Name = "TerrainGridToolForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
@@ -552,12 +532,9 @@ namespace TrainzBasemapMaker
             groupBoxElevation.PerformLayout();
             groupBox5Download.ResumeLayout(false);
             groupBox5Download.PerformLayout();
-            statusStrip1.ResumeLayout(false);
-            statusStrip1.PerformLayout();
             groupBox3BasemapParams.ResumeLayout(false);
             groupBox3BasemapParams.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -593,8 +570,8 @@ namespace TrainzBasemapMaker
         private Label labelProgress;
         private Button buttonStartDownload;
         private Button buttonCancel;
-        private StatusStrip statusStrip1;
-        private ToolStripStatusLabel toolStripStatusLabel1;
+        
+        
         private GroupBox groupBox3BasemapParams;
         private ComboBox comboBoxMapType;
         private Label label2;

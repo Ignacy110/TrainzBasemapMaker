@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class MainForm
     {
@@ -15,169 +15,182 @@
 
         private void InitializeComponent()
         {
-            this.tabControl = new System.Windows.Forms.TabControl();
-            this.tabPageSingle = new System.Windows.Forms.TabPage();
-            this.tabPageGrid = new System.Windows.Forms.TabPage();
-            this.tabPageTerrain = new System.Windows.Forms.TabPage();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.findFreeKuidToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.findSmallestFreeBasemapNumberToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.refreshFolderAndBasemapListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.batchProcessingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.websiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutProgramToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabControl.SuspendLayout();
-            this.menuStrip1.SuspendLayout();
-            this.SuspendLayout();
+            tabControl = new TabControl();
+            tabPageSingle = new TabPage();
+            tabPageGrid = new TabPage();
+            tabPageTerrain = new TabPage();
+            menuStrip1 = new MenuStrip();
+            toolsToolStripMenuItem = new ToolStripMenuItem();
+            findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
+            findSmallestFreeBasemapNumberToolStripMenuItem = new ToolStripMenuItem();
+            refreshFolderAndBasemapListToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripSeparator();
+            batchProcessingToolStripMenuItem = new ToolStripMenuItem();
+            preferencesToolStripMenuItem = new ToolStripMenuItem();
+            helpToolStripMenuItem = new ToolStripMenuItem();
+            websiteToolStripMenuItem = new ToolStripMenuItem();
+            aboutProgramToolStripMenuItem = new ToolStripMenuItem();
+            statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            tabControl.SuspendLayout();
+            menuStrip1.SuspendLayout();
+            statusStrip1.SuspendLayout();
+            SuspendLayout();
             // 
             // tabControl
             // 
-            this.tabControl.Controls.Add(this.tabPageSingle);
-            this.tabControl.Controls.Add(this.tabPageGrid);
-            this.tabControl.Controls.Add(this.tabPageTerrain);
-            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(0, 24);
-            this.tabControl.Name = "tabControl";
-            this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1210, 826);
-            this.tabControl.TabIndex = 0;
+            tabControl.Controls.Add(tabPageSingle);
+            tabControl.Controls.Add(tabPageGrid);
+            tabControl.Controls.Add(tabPageTerrain);
+            tabControl.Dock = DockStyle.Fill;
+            tabControl.Location = new Point(0, 24);
+            tabControl.Name = "tabControl";
+            tabControl.SelectedIndex = 0;
+            tabControl.Size = new Size(1084, 765);
+            tabControl.TabIndex = 0;
             // 
             // tabPageSingle
             // 
-            this.tabPageSingle.Location = new System.Drawing.Point(4, 24);
-            this.tabPageSingle.Name = "tabPageSingle";
-            this.tabPageSingle.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageSingle.Size = new System.Drawing.Size(1202, 798);
-            this.tabPageSingle.TabIndex = 0;
-            this.tabPageSingle.Text = "Pojedynczy podkład (2D)";
-            this.tabPageSingle.UseVisualStyleBackColor = true;
+            tabPageSingle.Location = new Point(4, 24);
+            tabPageSingle.Name = "tabPageSingle";
+            tabPageSingle.Padding = new Padding(3);
+            tabPageSingle.Size = new Size(1076, 737);
+            tabPageSingle.TabIndex = 0;
+            tabPageSingle.Text = "Pojedynczy podkład (2D)";
+            tabPageSingle.UseVisualStyleBackColor = true;
             // 
             // tabPageGrid
             // 
-            this.tabPageGrid.Location = new System.Drawing.Point(4, 24);
-            this.tabPageGrid.Name = "tabPageGrid";
-            this.tabPageGrid.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageGrid.Size = new System.Drawing.Size(1202, 798);
-            this.tabPageGrid.TabIndex = 1;
-            this.tabPageGrid.Text = "Siatka podkładów (2D)";
-            this.tabPageGrid.UseVisualStyleBackColor = true;
+            tabPageGrid.Location = new Point(4, 24);
+            tabPageGrid.Name = "tabPageGrid";
+            tabPageGrid.Padding = new Padding(3);
+            tabPageGrid.Size = new Size(1176, 737);
+            tabPageGrid.TabIndex = 1;
+            tabPageGrid.Text = "Siatka podkładów (2D)";
+            tabPageGrid.UseVisualStyleBackColor = true;
             // 
             // tabPageTerrain
             // 
-            this.tabPageTerrain.Location = new System.Drawing.Point(4, 24);
-            this.tabPageTerrain.Name = "tabPageTerrain";
-            this.tabPageTerrain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageTerrain.Size = new System.Drawing.Size(1202, 798);
-            this.tabPageTerrain.TabIndex = 2;
-            this.tabPageTerrain.Text = "Generator terenu (3D)";
-            this.tabPageTerrain.UseVisualStyleBackColor = true;
+            tabPageTerrain.Location = new Point(4, 24);
+            tabPageTerrain.Name = "tabPageTerrain";
+            tabPageTerrain.Padding = new Padding(3);
+            tabPageTerrain.Size = new Size(1176, 737);
+            tabPageTerrain.TabIndex = 2;
+            tabPageTerrain.Text = "Generator terenu (3D)";
+            tabPageTerrain.UseVisualStyleBackColor = true;
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolsToolStripMenuItem,
-            this.preferencesToolStripMenuItem,
-            this.helpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1210, 24);
-            this.menuStrip1.TabIndex = 1;
-            this.menuStrip1.Text = "menuStrip1";
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolsToolStripMenuItem, preferencesToolStripMenuItem, helpToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1084, 24);
+            menuStrip1.TabIndex = 1;
+            menuStrip1.Text = "menuStrip1";
             // 
             // toolsToolStripMenuItem
             // 
-            this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.findFreeKuidToolStripMenuItem,
-            this.findSmallestFreeBasemapNumberToolStripMenuItem,
-            this.refreshFolderAndBasemapListToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.batchProcessingToolStripMenuItem});
-            this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
-            this.toolsToolStripMenuItem.Text = "&Narzędzia";
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { findFreeKuidToolStripMenuItem, findSmallestFreeBasemapNumberToolStripMenuItem, refreshFolderAndBasemapListToolStripMenuItem, toolStripMenuItem1, batchProcessingToolStripMenuItem });
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            toolsToolStripMenuItem.Size = new Size(70, 20);
+            toolsToolStripMenuItem.Text = "&Narzędzia";
             // 
             // findFreeKuidToolStripMenuItem
             // 
-            this.findFreeKuidToolStripMenuItem.Name = "findFreeKuidToolStripMenuItem";
-            this.findFreeKuidToolStripMenuItem.Size = new System.Drawing.Size(273, 22);
-            this.findFreeKuidToolStripMenuItem.Text = "Znajdź wolny numer &KUID";
-            this.findFreeKuidToolStripMenuItem.Click += new System.EventHandler(this.findFreeKuidToolStripMenuItem_Click);
+            findFreeKuidToolStripMenuItem.Name = "findFreeKuidToolStripMenuItem";
+            findFreeKuidToolStripMenuItem.Size = new Size(300, 22);
+            findFreeKuidToolStripMenuItem.Text = "Znajdź wolny numer &KUID";
+            findFreeKuidToolStripMenuItem.Click += findFreeKuidToolStripMenuItem_Click;
             // 
             // findSmallestFreeBasemapNumberToolStripMenuItem
             // 
-            this.findSmallestFreeBasemapNumberToolStripMenuItem.Name = "findSmallestFreeBasemapNumberToolStripMenuItem";
-            this.findSmallestFreeBasemapNumberToolStripMenuItem.Size = new System.Drawing.Size(273, 22);
-            this.findSmallestFreeBasemapNumberToolStripMenuItem.Text = "Znajdź najmniejszy wolny numer &podkładu";
-            this.findSmallestFreeBasemapNumberToolStripMenuItem.Click += new System.EventHandler(this.findSmallestFreeBasemapNumberToolStripMenuItem_Click);
+            findSmallestFreeBasemapNumberToolStripMenuItem.Name = "findSmallestFreeBasemapNumberToolStripMenuItem";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Size = new Size(300, 22);
+            findSmallestFreeBasemapNumberToolStripMenuItem.Text = "Znajdź najmniejszy wolny numer &podkładu";
+            findSmallestFreeBasemapNumberToolStripMenuItem.Click += findSmallestFreeBasemapNumberToolStripMenuItem_Click;
             // 
             // refreshFolderAndBasemapListToolStripMenuItem
             // 
-            this.refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
-            this.refreshFolderAndBasemapListToolStripMenuItem.Size = new System.Drawing.Size(273, 22);
-            this.refreshFolderAndBasemapListToolStripMenuItem.Text = "&Odśwież listę folderów";
-            this.refreshFolderAndBasemapListToolStripMenuItem.Click += new System.EventHandler(this.refreshFolderAndBasemapListToolStripMenuItem_Click);
+            refreshFolderAndBasemapListToolStripMenuItem.Name = "refreshFolderAndBasemapListToolStripMenuItem";
+            refreshFolderAndBasemapListToolStripMenuItem.Size = new Size(300, 22);
+            refreshFolderAndBasemapListToolStripMenuItem.Text = "&Odśwież listę folderów";
+            refreshFolderAndBasemapListToolStripMenuItem.Click += refreshFolderAndBasemapListToolStripMenuItem_Click;
             // 
             // toolStripMenuItem1
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(270, 6);
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(297, 6);
             // 
             // batchProcessingToolStripMenuItem
             // 
-            this.batchProcessingToolStripMenuItem.Name = "batchProcessingToolStripMenuItem";
-            this.batchProcessingToolStripMenuItem.Size = new System.Drawing.Size(273, 22);
-            this.batchProcessingToolStripMenuItem.Text = "Przetwarzanie seryjne";
-            this.batchProcessingToolStripMenuItem.Click += new System.EventHandler(this.batchProcessingToolStripMenuItem_Click);
+            batchProcessingToolStripMenuItem.Name = "batchProcessingToolStripMenuItem";
+            batchProcessingToolStripMenuItem.Size = new Size(300, 22);
+            batchProcessingToolStripMenuItem.Text = "Przetwarzanie seryjne";
+            batchProcessingToolStripMenuItem.Click += batchProcessingToolStripMenuItem_Click;
             // 
             // preferencesToolStripMenuItem
             // 
-            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
-            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(80, 20);
-            this.preferencesToolStripMenuItem.Text = "P&referencje";
-            this.preferencesToolStripMenuItem.Click += new System.EventHandler(this.preferencesToolStripMenuItem_Click);
+            preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            preferencesToolStripMenuItem.Size = new Size(78, 20);
+            preferencesToolStripMenuItem.Text = "P&referencje";
+            preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
             // 
             // helpToolStripMenuItem
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.websiteToolStripMenuItem,
-            this.aboutProgramToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
-            this.helpToolStripMenuItem.Text = "&Pomoc";
+            helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { websiteToolStripMenuItem, aboutProgramToolStripMenuItem });
+            helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            helpToolStripMenuItem.Size = new Size(57, 20);
+            helpToolStripMenuItem.Text = "&Pomoc";
             // 
             // websiteToolStripMenuItem
             // 
-            this.websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
-            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.websiteToolStripMenuItem.Text = "&Strona programu - GitHub";
-            this.websiteToolStripMenuItem.Click += new System.EventHandler(this.websiteToolStripMenuItem_Click);
+            websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
+            websiteToolStripMenuItem.Size = new Size(213, 22);
+            websiteToolStripMenuItem.Text = "&Strona programu - GitHub";
+            websiteToolStripMenuItem.Click += websiteToolStripMenuItem_Click;
             // 
             // aboutProgramToolStripMenuItem
             // 
-            this.aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
-            this.aboutProgramToolStripMenuItem.Size = new System.Drawing.Size(213, 22);
-            this.aboutProgramToolStripMenuItem.Text = "&O programie";
-            this.aboutProgramToolStripMenuItem.Click += new System.EventHandler(this.aboutProgramToolStripMenuItem_Click);
+            aboutProgramToolStripMenuItem.Name = "aboutProgramToolStripMenuItem";
+            aboutProgramToolStripMenuItem.Size = new Size(213, 22);
+            aboutProgramToolStripMenuItem.Text = "&O programie";
+            aboutProgramToolStripMenuItem.Click += aboutProgramToolStripMenuItem_Click;
+            // 
+            // statusStrip1
+            // 
+            statusStrip1.ImageScalingSize = new Size(20, 20);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Location = new Point(0, 789);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(1084, 22);
+            statusStrip1.TabIndex = 2;
+            statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(51, 17);
+            toolStripStatusLabel1.Text = "Gotowy.";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1210, 850);
-            this.Controls.Add(this.tabControl);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
-            this.Name = "MainForm";
-            this.Text = "Trainz Basemap Maker";
-            this.tabControl.ResumeLayout(false);
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1084, 811);
+            Controls.Add(tabControl);
+            Controls.Add(statusStrip1);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
+            MinimumSize = new Size(1100, 850);
+            Name = "MainForm";
+            Text = "Trainz Basemap Maker";
+            tabControl.ResumeLayout(false);
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         private System.Windows.Forms.TabControl tabControl;
@@ -195,5 +208,7 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem websiteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutProgramToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }

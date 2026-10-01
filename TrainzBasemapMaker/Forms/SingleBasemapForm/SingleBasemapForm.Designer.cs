@@ -74,8 +74,6 @@ namespace TrainzBasemapMaker
             kuidsInFolderListBox = new ListBox();
             groupBox7BasemapViewer = new GroupBox();
             groupBox6KuidList = new GroupBox();
-            statusStrip1 = new StatusStrip();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
             groupBox2TargetCoords = new GroupBox();
             groupBox4BasemapParams = new GroupBox();
             groupBox3Configurator.SuspendLayout();
@@ -85,7 +83,6 @@ namespace TrainzBasemapMaker
             groupBox1GeoCoords.SuspendLayout();
             groupBox7BasemapViewer.SuspendLayout();
             groupBox6KuidList.SuspendLayout();
-            statusStrip1.SuspendLayout();
             groupBox2TargetCoords.SuspendLayout();
             groupBox4BasemapParams.SuspendLayout();
             SuspendLayout();
@@ -540,22 +537,6 @@ namespace TrainzBasemapMaker
             groupBox6KuidList.TabStop = false;
             groupBox6KuidList.Text = "Lista podkładów do Trainz:";
             // 
-            // statusStrip1
-            // 
-            statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
-            statusStrip1.Location = new Point(0, 708);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1047, 22);
-            statusStrip1.TabIndex = 20;
-            statusStrip1.Text = "statusStrip1";
-            // 
-            // toolStripStatusLabel1
-            // 
-            toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(0, 17);
-            // 
             // groupBox2TargetCoords
             // 
             groupBox2TargetCoords.Controls.Add(comboBoxEpsg);
@@ -587,17 +568,16 @@ namespace TrainzBasemapMaker
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1047, 730);
+            ClientSize = new Size(1047, 688);
             Controls.Add(groupBox4BasemapParams);
             Controls.Add(groupBox2TargetCoords);
-            Controls.Add(statusStrip1);
             Controls.Add(groupBox6KuidList);
             Controls.Add(groupBox7BasemapViewer);
             Controls.Add(groupBox1GeoCoords);
             Controls.Add(groupBox5Navigator);
             Controls.Add(groupBox3Configurator);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimumSize = new Size(1063, 769);
+            MinimumSize = new Size(1063, 727);
             Name = "SingleBasemapForm";
             Text = "Trainz Basemap Maker";
             groupBox3Configurator.ResumeLayout(false);
@@ -611,13 +591,10 @@ namespace TrainzBasemapMaker
             groupBox1GeoCoords.PerformLayout();
             groupBox7BasemapViewer.ResumeLayout(false);
             groupBox6KuidList.ResumeLayout(false);
-            statusStrip1.ResumeLayout(false);
-            statusStrip1.PerformLayout();
             groupBox2TargetCoords.ResumeLayout(false);
             groupBox4BasemapParams.ResumeLayout(false);
             groupBox4BasemapParams.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -653,8 +630,8 @@ namespace TrainzBasemapMaker
         private Panel panel1;
         private TextBox textBoxCounter;
         private Label label11;
-        private StatusStrip statusStrip1;
-        private ToolStripStatusLabel toolStripStatusLabel1;
+        
+        
         private TextBox textBoxKuidPart1;
         private Label label12;
         private Label labelKuidSeparator;
