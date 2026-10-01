@@ -95,5 +95,54 @@ namespace TrainzBasemapMaker.Classes
 
             e.DrawFocusRectangle();
         }
+
+        public static string RemoveDiacritics(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+
+            // Handle specific Polish characters that FormD may not decompose as expected (e.g. ł/Ł)
+            var sb = new System.Text.StringBuilder(text.Length);
+            foreach (char c in text)
+            {
+                switch (c)
+                {
+                    case 'ą': sb.Append('a'); break;
+                    case 'ć': sb.Append('c'); break;
+                    case 'ę': sb.Append('e'); break;
+                    case 'ł': sb.Append('l'); break;
+                    case 'ń': sb.Append('n'); break;
+                    case 'ó': sb.Append('o'); break;
+                    case 'ś': sb.Append('s'); break;
+                    case 'ź': sb.Append('z'); break;
+                    case 'ż': sb.Append('z'); break;
+                    case 'Ą': sb.Append('A'); break;
+                    case 'Ć': sb.Append('C'); break;
+                    case 'Ę': sb.Append('E'); break;
+                    case 'Ł': sb.Append('L'); break;
+                    case 'Ń': sb.Append('N'); break;
+                    case 'Ó': sb.Append('O'); break;
+                    case 'Ś': sb.Append('S'); break;
+                    case 'Ź': sb.Append('Z'); break;
+                    case 'Ż': sb.Append('Z'); break;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+
+            string normalizedString = sb.ToString().Normalize(System.Text.NormalizationForm.FormD);
+            var result = new System.Text.StringBuilder(normalizedString.Length);
+
+            foreach (char c in normalizedString)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    result.Append(c);
+                }
+            }
+
+            return result.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        }
     }
 }

@@ -28,13 +28,13 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
     /// </summary>
     public class TrainzLayer
     {
-        public short LayerId { get; set; }
+        public byte LayerId { get; set; }
         public string Name { get; set; } = string.Empty;
         public byte Flags { get; set; } = 0x01; // Default active/visible
 
         public TrainzLayer() { }
 
-        public TrainzLayer(short layerId, string name, byte flags = 0x01)
+        public TrainzLayer(byte layerId, string name, byte flags = 0x01)
         {
             LayerId = layerId;
             Name = name;
@@ -44,14 +44,15 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
 
     /// <summary>
     /// Binary writer for Trainz route layers definition file (mapfile.lyr).
-    /// Binary format:
-    /// - 4 bytes (int32): Number of layers N
+    /// Verified binary format:
+    /// - 4 bytes (int32): Format Version (always 1)
+    /// - 1 byte (uint8): Number of layers N
     /// - For each layer:
-    ///   - 2 bytes (int16): Layer ID
+    ///   - 1 byte (uint8): Layer ID (0 for route-layer, 1 for second layer, etc.)
     ///   - 4 bytes (int32): String length in bytes including trailing null terminator (name.Length + 1)
-    ///   - ASCII / UTF-8 string bytes
+    ///   - ASCII string bytes
     ///   - 1 byte (0x00): Null terminator
-    ///   - 1 byte: Layer flags / visibility (0x01)
+    ///   - 1 byte (uint8): Layer flags / visibility (0x01 = visible)
     /// </summary>
     public class LyrWriter
     {
@@ -60,22 +61,28 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
             var layerList = layers?.ToList() ?? new List<TrainzLayer>();
             if (layerList.Count == 0)
             {
-                layerList.Add(new TrainzLayer(1, "route-layer", 0x01));
+                layerList.Add(new TrainzLayer(0, "route-layer", 0x01));
             }
 
             using (var ms = new MemoryStream())
-            using (var bw = new BinaryWriter(ms, Encoding.UTF8))
+            using (var bw = new BinaryWriter(ms, Encoding.ASCII))
             {
-                bw.Write(layerList.Count);
+                bw.Write((int)1);                  // Format Version = 1 (int32)
+                bw.Write((byte)layerList.Count);   // Layer count (byte)
 
-                foreach (var layer in layerList)
+                for (int i = 0; i < layerList.Count; i++)
                 {
-                    bw.Write(layer.LayerId);
-                    byte[] nameBytes = Encoding.UTF8.GetBytes(layer.Name);
-                    bw.Write(nameBytes.Length + 1);
+                    var layer = layerList[i];
+                    bw.Write((byte)i);             // Layer ID (0-based byte)
+
+                    // Ensure clean ASCII name (strip Polish diacritics)
+                    string cleanName = FormHelpers.RemoveDiacritics(layer.Name);
+                    byte[] nameBytes = Encoding.ASCII.GetBytes(cleanName);
+
+                    bw.Write(nameBytes.Length + 1); // Length including trailing \0 (int32)
                     bw.Write(nameBytes);
-                    bw.Write((byte)0);
-                    bw.Write(layer.Flags);
+                    bw.Write((byte)0);              // Null terminator
+                    bw.Write(layer.Flags);          // Flags (byte, 0x01)
                 }
 
                 return ms.ToArray();

@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -621,6 +621,13 @@ namespace TrainzBasemapMaker
             var tilesToProcess = _selectedTiles.ToList();
             int total = tilesToProcess.Count;
 
+            // When a route is generated, the route itself occupies <kuid:kuidPart1:kuidPart2>.
+            // Offset basemaps startKuid2 by +1 so that basemap KUIDs do not collide with the route!
+            if (needsRoute)
+            {
+                startKuid2++;
+            }
+
             _cancellationTokenSource = new CancellationTokenSource();
             var token = _cancellationTokenSource.Token;
             SetUiDownloadingState(true);
@@ -935,19 +942,20 @@ namespace TrainzBasemapMaker
                 // ──────────────────────────────────────────────────────────────────
                 var obsObjects = new List<ObsObject>();
                 var layers = new List<TrainzLayer>();
-                layers.Add(new TrainzLayer(1, "route-layer", 0x01));
-                short nextLayerId = 2;
+                layers.Add(new TrainzLayer(0, "route-layer", 0x01));
+                byte nextObsLayerId = 2; // In mapfile.obs: 1 = route-layer, 2 = first custom layer...
 
                 if (place2D && basemap2DInfo.Count > 0)
                 {
                     var groupedBySource = basemap2DInfo.GroupBy(b => b.Source);
                     foreach (var group in groupedBySource)
                     {
-                        short layerId = nextLayerId++;
+                        byte layerIdInObs = nextObsLayerId++;
+                        byte layerIdInLyr = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
-                            ? $"Podkłady 2D - {group.Key.Name}"
-                            : "Podkłady 2D";
-                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
+                            ? $"Podklady 2D - {group.Key.Name}"
+                            : "Podklady 2D";
+                        layers.Add(new TrainzLayer(layerIdInLyr, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2) in group)
                         {
@@ -955,9 +963,11 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(k1),
                                 KuidPart2 = int.Parse(k2),
-                                LayerId = layerId,
-                                X = (-tile.J) * 720f + 360f,
-                                Y = tile.I * 720f + 360f,
+                                LayerId = layerIdInObs,
+                                SegX = (short)(-tile.J),
+                                SegY = (short)tile.I,
+                                X = 360f,
+                                Y = 360f,
                                 Z = 0.1f,
                                 RotZ = (float)(Math.PI / 2.0)
                             });
@@ -970,11 +980,12 @@ namespace TrainzBasemapMaker
                     var groupedBySource = basemap3DInfo.GroupBy(b => b.Source);
                     foreach (var group in groupedBySource)
                     {
-                        short layerId = nextLayerId++;
+                        byte layerIdInObs = nextObsLayerId++;
+                        byte layerIdInLyr = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
-                            ? $"Podkłady 3D - {group.Key.Name}"
-                            : "Podkłady 3D";
-                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
+                            ? $"Podklady 3D - {group.Key.Name}"
+                            : "Podklady 3D";
+                        layers.Add(new TrainzLayer(layerIdInLyr, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2, baseHeight) in group)
                         {
@@ -982,9 +993,11 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(k1),
                                 KuidPart2 = int.Parse(k2),
-                                LayerId = layerId,
-                                X = (-tile.J) * 720f + 360f,
-                                Y = tile.I * 720f + 360f,
+                                LayerId = layerIdInObs,
+                                SegX = (short)(-tile.J),
+                                SegY = (short)tile.I,
+                                X = 360f,
+                                Y = 360f,
                                 Z = baseHeight,
                                 RotZ = (float)(Math.PI / 2.0)
                             });

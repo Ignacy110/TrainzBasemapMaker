@@ -685,8 +685,11 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(kuidPart1),
                                 KuidPart2 = int.Parse(currentKuid2),
-                                X = (-tile.J) * 720f + 360f,
-                                Y = tile.I * 720f + 360f,
+                                LayerId = 1,
+                                SegX = (short)(-tile.J),
+                                SegY = (short)tile.I,
+                                X = 360f,
+                                Y = 360f,
                                 Z = baseHeight,
                                 RotZ = (float)(Math.PI / 2.0)
                             });

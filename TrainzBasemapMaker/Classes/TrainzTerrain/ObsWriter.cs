@@ -9,9 +9,11 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
         public int KuidPart1 { get; set; }
         public int KuidPart2 { get; set; }
         public int KuidVersion { get; set; } = 0;
-        public int LayerId { get; set; } = 1;
-        public float X { get; set; }
-        public float Y { get; set; }
+        public byte LayerId { get; set; } = 1; // 1-based in mapfile.obs (1 = route-layer, 2 = custom layer 1...)
+        public short SegX { get; set; } = 0;
+        public short SegY { get; set; } = 0;
+        public float X { get; set; } = 360f;
+        public float Y { get; set; } = 360f;
         public float Z { get; set; }
         public float RotX { get; set; } = 0f;
         public float RotY { get; set; } = 0f;
@@ -41,23 +43,24 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
                     for (int i = 0; i < objects.Count; i++)
                     {
                         var obj = objects[i];
-                        bw.Write(new byte[] { 0x4A, 0x42, 0x4F, 0x6D }); // Signature "mOBJ" in expected byte order
-                        bw.Write(obj.KuidPart2); // Actually KuidPart2
+                        bw.Write(new byte[] { 0x4A, 0x42, 0x4F, 0x6D }); // Signature "mOBJ"
+                        bw.Write(obj.KuidPart2); // KuidPart2
                         bw.Write(obj.KuidPart1); // KuidPart1
                         bw.Write(43);            // Magic type ID
                         bw.Write(3);             // Magic version ID
-                        bw.Write((uint)0xFF000000);
-                        bw.Write(obj.LayerId); // Layer ID
-                        bw.Write((byte)0);
-                        bw.Write(obj.X);
-                        bw.Write(obj.Y);
-                        bw.Write(obj.Z);
-                        bw.Write(obj.RotZ);
-                        bw.Write(obj.RotY);
-                        bw.Write(obj.RotX);
-                        bw.Write((byte)0);
-                        bw.Write(1); // Unknown or Scale
-                        bw.Write((byte)0);
+                        bw.Write((uint)0xFF000000); // Color / Flags
+                        bw.Write(obj.LayerId);   // 1 byte: Layer ID (1 = route-layer, 2 = layer 1...)
+                        bw.Write(obj.SegX);      // 2 bytes: Baseboard Segment X (short)
+                        bw.Write(obj.SegY);      // 2 bytes: Baseboard Segment Y (short)
+                        bw.Write(obj.X);         // 4 bytes: float X (local to baseboard)
+                        bw.Write(obj.Y);         // 4 bytes: float Y (local to baseboard)
+                        bw.Write(obj.Z);         // 4 bytes: float Z
+                        bw.Write(obj.RotZ);      // 4 bytes: float RotZ
+                        bw.Write(obj.RotY);      // 4 bytes: float RotY
+                        bw.Write(obj.RotX);      // 4 bytes: float RotX
+                        bw.Write((byte)0);       // 1 byte
+                        bw.Write(1);             // 4 bytes: Scale
+                        bw.Write((byte)0);       // 1 byte
 
                         if (i == objects.Count - 1)
                             bw.Write(-1); // End of list
