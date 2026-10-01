@@ -11,8 +11,7 @@ namespace TrainzBasemapMaker
     public partial class MainForm : Form
     {
         private SingleBasemapForm singleBasemapForm;
-        private GridToolForm gridToolForm;
-        private TerrainGridToolForm terrainToolForm;
+        private UnifiedGridToolForm unifiedGridToolForm;
 
         public MainForm()
         {
@@ -30,13 +29,9 @@ namespace TrainzBasemapMaker
             singleBasemapForm = new SingleBasemapForm();
             EmbedFormInTab(singleBasemapForm, tabPageSingle);
 
-            // Load GridToolForm
-            gridToolForm = new GridToolForm();
-            EmbedFormInTab(gridToolForm, tabPageGrid);
-
-            // Load TerrainGridToolForm
-            terrainToolForm = new TerrainGridToolForm();
-            EmbedFormInTab(terrainToolForm, tabPageTerrain);
+            // Load UnifiedGridToolForm (replaces GridToolForm + TerrainGridToolForm)
+            unifiedGridToolForm = new UnifiedGridToolForm();
+            EmbedFormInTab(unifiedGridToolForm, tabPageUnified);
         }
 
         private void EmbedFormInTab(Form form, TabPage tabPage)

@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TrainzBasemapMaker.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
@@ -27,6 +27,12 @@
       <Value Profile="(Default)">1209, 848</Value>
     </Setting>
     <Setting Name="TerrainGridToolFormState" Type="System.Windows.Forms.FormWindowState" Scope="User">
+      <Value Profile="(Default)">Normal</Value>
+    </Setting>
+    <Setting Name="UnifiedGridToolFormSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">1209, 848</Value>
+    </Setting>
+    <Setting Name="UnifiedGridToolFormState" Type="System.Windows.Forms.FormWindowState" Scope="User">
       <Value Profile="(Default)">Normal</Value>
     </Setting>
     <Setting Name="BasemapSize" Type="System.Int32" Scope="User">

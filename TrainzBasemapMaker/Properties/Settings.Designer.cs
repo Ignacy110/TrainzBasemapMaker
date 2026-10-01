@@ -133,6 +133,30 @@ namespace TrainzBasemapMaker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1209, 848")]
+        public global::System.Drawing.Size UnifiedGridToolFormSize {
+            get {
+                return ((global::System.Drawing.Size)(this["UnifiedGridToolFormSize"]));
+            }
+            set {
+                this["UnifiedGridToolFormSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        public global::System.Windows.Forms.FormWindowState UnifiedGridToolFormState {
+            get {
+                return ((global::System.Windows.Forms.FormWindowState)(this["UnifiedGridToolFormState"]));
+            }
+            set {
+                this["UnifiedGridToolFormState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("500")]
         public int BasemapSize {
             get {

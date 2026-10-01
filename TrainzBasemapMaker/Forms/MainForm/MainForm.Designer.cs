@@ -17,8 +17,7 @@ namespace TrainzBasemapMaker
         {
             tabControl = new TabControl();
             tabPageSingle = new TabPage();
-            tabPageGrid = new TabPage();
-            tabPageTerrain = new TabPage();
+            tabPageUnified = new TabPage();
             menuStrip1 = new MenuStrip();
             toolsToolStripMenuItem = new ToolStripMenuItem();
             findFreeKuidToolStripMenuItem = new ToolStripMenuItem();
@@ -40,8 +39,7 @@ namespace TrainzBasemapMaker
             // tabControl
             // 
             tabControl.Controls.Add(tabPageSingle);
-            tabControl.Controls.Add(tabPageGrid);
-            tabControl.Controls.Add(tabPageTerrain);
+            tabControl.Controls.Add(tabPageUnified);
             tabControl.Dock = DockStyle.Fill;
             tabControl.Location = new Point(0, 24);
             tabControl.Name = "tabControl";
@@ -59,25 +57,15 @@ namespace TrainzBasemapMaker
             tabPageSingle.Text = "Pojedynczy podkład (2D)";
             tabPageSingle.UseVisualStyleBackColor = true;
             // 
-            // tabPageGrid
+            // tabPageUnified
             // 
-            tabPageGrid.Location = new Point(4, 24);
-            tabPageGrid.Name = "tabPageGrid";
-            tabPageGrid.Padding = new Padding(3);
-            tabPageGrid.Size = new Size(1176, 737);
-            tabPageGrid.TabIndex = 1;
-            tabPageGrid.Text = "Siatka podkładów (2D)";
-            tabPageGrid.UseVisualStyleBackColor = true;
-            // 
-            // tabPageTerrain
-            // 
-            tabPageTerrain.Location = new Point(4, 24);
-            tabPageTerrain.Name = "tabPageTerrain";
-            tabPageTerrain.Padding = new Padding(3);
-            tabPageTerrain.Size = new Size(1176, 737);
-            tabPageTerrain.TabIndex = 2;
-            tabPageTerrain.Text = "Generator terenu (3D)";
-            tabPageTerrain.UseVisualStyleBackColor = true;
+            tabPageUnified.Location = new Point(4, 24);
+            tabPageUnified.Name = "tabPageUnified";
+            tabPageUnified.Padding = new Padding(3);
+            tabPageUnified.Size = new Size(1176, 737);
+            tabPageUnified.TabIndex = 1;
+            tabPageUnified.Text = "Pobieranie obszarowe i teren (3D)";
+            tabPageUnified.UseVisualStyleBackColor = true;
             // 
             // menuStrip1
             // 
@@ -195,8 +183,7 @@ namespace TrainzBasemapMaker
 
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPageSingle;
-        private System.Windows.Forms.TabPage tabPageGrid;
-        private System.Windows.Forms.TabPage tabPageTerrain;
+        private System.Windows.Forms.TabPage tabPageUnified;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findFreeKuidToolStripMenuItem;
