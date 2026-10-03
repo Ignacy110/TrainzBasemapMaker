@@ -717,6 +717,8 @@ namespace TrainzBasemapMaker
                 // ──────────────────────────────────────────────────────────────────
                 // PHASE 2: Generate 2D basemaps
                 // ──────────────────────────────────────────────────────────────────
+                var workingResolutions = new ConcurrentDictionary<IMapSource, int>();
+                var downloadedMapImages = new Dictionary<(IMapSource Source, long X, long Y), byte[]>();
                 var basemap2DInfo = new List<(IMapSource Source, SelectedTileModel Tile, string Kuid1, string Kuid2)>();
 
                 if (gen2D && selectedMaps.Count > 0)
@@ -752,7 +754,11 @@ namespace TrainzBasemapMaker
 
                             try
                             {
-                                byte[] imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token);
+                                if (!downloadedMapImages.TryGetValue((source, tile.X, tile.Y), out byte[]? imageBytes))
+                                {
+                                    imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token, workingResolutions);
+                                    downloadedMapImages[(source, tile.X, tile.Y)] = imageBytes;
+                                }
 
                                 bool created = _fileManager.CreateTrainzFiles(
                                     imageBytes, groupName2D,
@@ -817,7 +823,11 @@ namespace TrainzBasemapMaker
 
                             try
                             {
-                                byte[] imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token);
+                                if (!downloadedMapImages.TryGetValue((source, tile.X, tile.Y), out byte[]? imageBytes))
+                                {
+                                    imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token, workingResolutions);
+                                    downloadedMapImages[(source, tile.X, tile.Y)] = imageBytes;
+                                }
 
                                 float baseHeight = 0f;
                                 float[,]? grid = null;
@@ -1086,13 +1096,20 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Downloads a map image at the requested resolution; if unavailable, falls back to lower
         /// resolutions (never exceeds the requested max nor provider's capabilities).
+        /// Remembers the highest working resolution per source to avoid retrying failed higher resolutions.
         /// </summary>
         private static async Task<byte[]> DownloadWithResolutionFallback(
             IMapSource source, string year, long x, long y, int maxResolution,
-            CancellationToken token)
+            CancellationToken token,
+            ConcurrentDictionary<IMapSource, int>? workingResolutions = null)
         {
             int sourceMax = FormHelpers.GetMaxSupportedResolution(source);
             int startResolution = Math.Min(maxResolution, sourceMax);
+
+            if (workingResolutions != null && workingResolutions.TryGetValue(source, out int knownWorking))
+            {
+                startResolution = Math.Min(startResolution, knownWorking);
+            }
 
             // Build the resolution ladder: start at startResolution, step down to 512
             int[] resolutions = { 8192, 4096, 2048, 1024, 512 };
@@ -1104,13 +1121,21 @@ namespace TrainzBasemapMaker
             {
                 try
                 {
-                    return await source.GetMapImageAsync(year, x, y, res, cancellationToken: token);
+                    // For speculative higher resolutions in the ladder, don't stall on 3 retries with pauses
+                    int retries = (res == ladder.Last()) ? 3 : 1;
+                    int delay = (res == ladder.Last()) ? 3 : 1;
+                    byte[] bytes = await source.GetMapImageAsync(year, x, y, res, retries, delay, cancellationToken: token);
+                    if (workingResolutions != null)
+                    {
+                        workingResolutions[source] = res;
+                    }
+                    return bytes;
                 }
                 catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
                 {
                     lastEx = ex;
-                    Debug.WriteLine($"Resolution {res} failed for ({x},{y}): {ex.Message}. Trying lower...");
+                    Debug.WriteLine($"Resolution {res} failed for {source.Name} ({x},{y}): {ex.Message}. Trying lower...");
                 }
             }
             throw new Exception($"Nie udało się pobrać podkładu dla ({x},{y}) w żadnej dostępnej rozdzielczości.", lastEx);
@@ -1161,7 +1186,7 @@ namespace TrainzBasemapMaker
                 }
             }
         }
-
+        
         // ── Form close ────────────────────────────────────────────────────────────
         private void UnifiedGridToolForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
