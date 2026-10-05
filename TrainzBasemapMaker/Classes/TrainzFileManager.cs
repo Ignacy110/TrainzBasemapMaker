@@ -269,7 +269,7 @@ namespace TrainzBasemapMaker.Classes
                 return null;
             }
         }
-        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,] providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f)
+        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,]? providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f, bool force2D = false)
         {
             // 1. building paths with Path.Combine
             string groupPath = Path.Combine(RootFolder, basemapGroup);
@@ -306,7 +306,7 @@ namespace TrainzBasemapMaker.Classes
             string imPath = Path.Combine(targetFolder, "basemap.im");
             string logPath = Path.Combine(targetFolder, "3d_generation_log.txt");
             
-            if (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null)
+            if (!force2D && (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null))
             {
                 if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath))
                 {

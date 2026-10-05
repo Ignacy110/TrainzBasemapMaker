@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -30,19 +30,25 @@ namespace TrainzBasemapMaker.Classes
         {
             new WmtsMapSource("Ortofotomapa WMTS",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/StandardResolution",
-                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg"),
+                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg",
+                fallbackWmsUrl: "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
+                fallbackWmsLayer: "Raster"),
             new WmsMapSource("Ortofotomapa WMS, wybór roku",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolutionTime?",
                 "Raster", true, "image/jpeg", allowsHighResolution: true),
             new WmtsMapSource("Ortofotomapa wysoka rozdzielczość WMTS",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMTS/HighResolution",
-                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg"),
+                "ORTOFOTOMAPA", WmtsMapSource.StandardOrtoLevels, supportsTime: false, format: "image/jpeg",
+                fallbackWmsUrl: "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
+                fallbackWmsLayer: "Image"),
             new WmsMapSource("Ortofotomapa wysoka rozdzielczość WMS, wybór roku",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/HighResolutionTime?",
                 "Image", true, "image/jpeg", allowsHighResolution: true),
             new WmtsMapSource("Cieniowanie WMTS",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMTS/ShadedRelief",
-                "ISOK_Cien", WmtsMapSource.TopoAndShadedLevels, supportsTime: false, format: "image/jpeg"),
+                "ISOK_Cien", WmtsMapSource.TopoAndShadedLevels, supportsTime: false, format: "image/jpeg",
+                fallbackWmsUrl: "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMS/ShadedRelief?",
+                fallbackWmsLayer: "Raster"),
             new WmsMapSource("Cieniowanie WMS",
                 "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WMS/ShadedRelief?",
                 "Raster", false, "image/jpeg", allowsHighResolution: false),

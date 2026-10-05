@@ -135,6 +135,10 @@ namespace TrainzBasemapMaker
 
                 webView21.CoreWebView2.Navigate("file:///" + indexPath);
                 webView21.CoreWebView2.WebMessageReceived += WebView21_WebMessageReceived;
+                webView21.CoreWebView2.ProcessFailed += (s, args) =>
+                {
+                    Debug.WriteLine($"[WebView2 ProcessFailed] Reason: {args.ProcessFailedKind}, Reason: {args.Reason}");
+                };
             }
             catch (Exception ex)
             {
@@ -764,7 +768,8 @@ namespace TrainzBasemapMaker
                                     imageBytes, groupName2D,
                                     tile.X, tile.Y,
                                     designation, counter,
-                                    kuidPart1, kuid2ForTile);
+                                    kuidPart1, kuid2ForTile,
+                                    force2D: true);
 
                                 if (created)
                                 {
@@ -967,6 +972,16 @@ namespace TrainzBasemapMaker
 
                         foreach (var (_, tile, k1, k2) in group)
                         {
+                            float zPos = 0.1f;
+                            if (downloadedGrids != null && downloadedGrids.TryGetValue((tile.I, tile.J), out var grid))
+                            {
+                                zPos = grid[38, 38] + 0.1f;
+                            }
+                            else if (_loadedGndBlocks.TryGetValue((-tile.J, tile.I), out var block))
+                            {
+                                zPos = block.Heights[38, 38] + 0.1f;
+                            }
+
                             obsObjects.Add(new ObsObject
                             {
                                 KuidPart1 = int.Parse(k1),
@@ -976,7 +991,7 @@ namespace TrainzBasemapMaker
                                 SegY = (short)tile.I,
                                 X = 360f,
                                 Y = 360f,
-                                Z = 0.1f,
+                                Z = zPos,
                                 RotZ = (float)(Math.PI / 2.0)
                             });
                         }
@@ -1040,14 +1055,21 @@ namespace TrainzBasemapMaker
                     // Refresh map to show all blocks as green
                     if (routeInfo.AnchorX.HasValue && routeInfo.AnchorY.HasValue && webView21.CoreWebView2 != null)
                     {
-                        var payload = new
+                        try
                         {
-                            epsg = routeInfo.Epsg,
-                            anchor = new { x = routeInfo.AnchorX.Value, y = routeInfo.AnchorY.Value },
-                            tiles = routeInfo.Tiles.Select(t => new { i = t.I, j = t.J, x = t.X, y = t.Y, counter = t.Order })
-                        };
-                        string jsonPayload = JsonSerializer.Serialize(payload);
-                        await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({jsonPayload})");
+                            var payload = new
+                            {
+                                epsg = routeInfo.Epsg,
+                                anchor = new { x = routeInfo.AnchorX.Value, y = routeInfo.AnchorY.Value },
+                                tiles = routeInfo.Tiles.Select(t => new { i = t.I, j = t.J, x = t.X, y = t.Y, counter = t.Order })
+                            };
+                            string jsonPayload = JsonSerializer.Serialize(payload);
+                            await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({jsonPayload})");
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Błąd odświeżania mapy po zapisie: {ex.Message}");
+                        }
                     }
                 }
 
@@ -1065,21 +1087,30 @@ namespace TrainzBasemapMaker
 
                 string summary = string.Join(", ", summaryParts);
                 StatusUpdate?.Invoke($"Zakończono: {summary}.");
-                MessageBox.Show($"Pomyślnie zakończono operację!\n\nWygenerowano: {summary}.",
-                    "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show($"Pomyślnie zakończono operację!\n\nWygenerowano: {summary}.",
+                        "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }));
             }
             catch (OperationCanceledException)
             {
                 labelProgress.Text = "Anulowano.";
                 StatusUpdate?.Invoke("Operacja anulowana przez użytkownika.");
-                MessageBox.Show("Operacja została przerwana.", "Anulowano", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show("Operacja została przerwana.", "Anulowano", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }));
             }
             catch (Exception ex)
             {
                 labelProgress.Text = "Błąd!";
                 StatusUpdate?.Invoke("Wystąpił błąd!");
-                MessageBox.Show("Błąd podczas generowania:\n\n" + ex.Message,
-                    "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show("Błąd podczas generowania:\n\n" + ex.Message,
+                        "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }));
             }
             finally
             {

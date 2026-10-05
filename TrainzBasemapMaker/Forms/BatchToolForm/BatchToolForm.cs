@@ -264,7 +264,8 @@ namespace TrainzBasemapMaker
                                 targetDesignation,
                                 tileInfo.Counter,
                                 tileInfo.KuidPart1,
-                                tileInfo.KuidPart2
+                                tileInfo.KuidPart2,
+                                force2D: true
                             );
 
                             if (created)

@@ -30,6 +30,22 @@ namespace TrainzBasemapMaker
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                if (e.ExceptionObject is Exception ex)
+                {
+                    MessageBox.Show($"Wystąpił nieoczekiwany błąd aplikacji:\n\n{ex.Message}\n\n{ex.StackTrace}",
+                        "Błąd krytyczny", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+            Application.ThreadException += (s, e) =>
+            {
+                MessageBox.Show($"Błąd interfejsu użytkownika:\n\n{e.Exception.Message}\n\n{e.Exception.StackTrace}",
+                    "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+
             Application.Run(new MainForm());
         }
     }

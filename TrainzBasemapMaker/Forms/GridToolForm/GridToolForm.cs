@@ -538,7 +538,8 @@ namespace TrainzBasemapMaker
                             targetDesignation,
                             currentCounter,
                             kuidPart1,
-                            currentKuid2
+                            currentKuid2,
+                            force2D: true
                         );
 
                         if (created)

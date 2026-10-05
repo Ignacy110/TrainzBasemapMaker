@@ -56,7 +56,10 @@ namespace TrainzBasemapMaker.Classes
             new WmtsMatrixLevel("EPSG:2180:9",  9449.423660714287)    // ~2.646 m/px
         };
 
-        public WmtsMapSource(string name, string baseUrl, string layer, IEnumerable<WmtsMatrixLevel> levels, bool supportsTime = false, string format = "image/jpeg", bool allowsHighResolution = false)
+        public string? FallbackWmsUrl { get; }
+        public string? FallbackWmsLayer { get; }
+
+        public WmtsMapSource(string name, string baseUrl, string layer, IEnumerable<WmtsMatrixLevel> levels, bool supportsTime = false, string format = "image/jpeg", bool allowsHighResolution = false, string? fallbackWmsUrl = null, string? fallbackWmsLayer = null)
             : base(name, supportsTime)
         {
             BaseUrl = baseUrl;
@@ -64,6 +67,8 @@ namespace TrainzBasemapMaker.Classes
             Format = format;
             MatrixLevels = levels.OrderBy(l => l.PixelSize).ToList();
             AllowsHighResolution = allowsHighResolution || MatrixLevels.Any(l => l.PixelSize <= 0.15);
+            FallbackWmsUrl = fallbackWmsUrl;
+            FallbackWmsLayer = fallbackWmsLayer;
         }
 
         public override async Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default)
@@ -110,17 +115,10 @@ namespace TrainzBasemapMaker.Classes
                 {
                     int currentC = c;
                     int currentR = r;
-                    string tileUrl = $"{BaseUrl}?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
-                                     $"&LAYER={Uri.EscapeDataString(Layer)}" +
-                                     "&STYLE=default" +
-                                     $"&FORMAT={Format}" +
-                                     "&TILEMATRIXSET=EPSG:2180" +
-                                     $"&TILEMATRIX={selectedLevel.Identifier}" +
-                                     $"&TILEROW={currentR}&TILECOL={currentC}";
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[]? tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds, cancellationToken);
+                        byte[]? tileBytes = await FetchTileWithFallbackAsync(currentC, currentR, selectedLevel, tileSpan, maxRetries, delaySeconds, cancellationToken);
                         return (currentC, currentR, tileBytes);
                     }, cancellationToken));
                 }
@@ -139,7 +137,7 @@ namespace TrainzBasemapMaker.Classes
             using Bitmap stitchedBitmap = new Bitmap(stitchedWidth, stitchedHeight);
             using (Graphics gStitch = Graphics.FromImage(stitchedBitmap))
             {
-                gStitch.Clear(Color.White);
+                gStitch.Clear(Color.FromArgb(92, 108, 68)); // Muted natural terrain green instead of white
                 foreach (var result in results)
                 {
                     if (result.bytes != null && result.bytes.Length > 0)
@@ -188,6 +186,106 @@ namespace TrainzBasemapMaker.Classes
                 .OrderByDescending(l => l.PixelSize)
                 .FirstOrDefault()
                 ?? MatrixLevels.OrderBy(l => l.PixelSize).First();
+        }
+
+        private async Task<byte[]?> FetchTileWithFallbackAsync(
+            int col, int row, WmtsMatrixLevel selectedLevel, double tileSpan, int maxRetries, int delaySeconds, CancellationToken cancellationToken)
+        {
+            string tileUrl = $"{BaseUrl}?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
+                             $"&LAYER={Uri.EscapeDataString(Layer)}" +
+                             "&STYLE=default" +
+                             $"&FORMAT={Format}" +
+                             "&TILEMATRIXSET=EPSG:2180" +
+                             $"&TILEMATRIX={selectedLevel.Identifier}" +
+                             $"&TILEROW={row}&TILECOL={col}";
+
+            byte[]? tileBytes = await FetchTileBytesWithRetryAsync(tileUrl, maxRetries, delaySeconds, cancellationToken);
+            if (tileBytes != null && tileBytes.Length > 0)
+            {
+                return tileBytes;
+            }
+
+            double tileMinX = OriginX + col * tileSpan;
+            double tileMaxX = tileMinX + tileSpan;
+            double tileMaxY = OriginY - row * tileSpan;
+            double tileMinY = tileMaxY - tileSpan;
+
+            // Fallback 1: WMS dynamic rendering (if fallback URL is configured)
+            if (!string.IsNullOrEmpty(FallbackWmsUrl) && !string.IsNullOrEmpty(FallbackWmsLayer))
+            {
+                string sep = FallbackWmsUrl.Contains("?") ? (FallbackWmsUrl.EndsWith("?") || FallbackWmsUrl.EndsWith("&") ? "" : "&") : "?";
+                string wmsUrl = $"{FallbackWmsUrl}{sep}SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0" +
+                                $"&LAYERS={Uri.EscapeDataString(FallbackWmsLayer)}&STYLES=" +
+                                $"&CRS=EPSG:2180&BBOX={tileMinY.ToString(System.Globalization.CultureInfo.InvariantCulture)},{tileMinX.ToString(System.Globalization.CultureInfo.InvariantCulture)},{tileMaxY.ToString(System.Globalization.CultureInfo.InvariantCulture)},{tileMaxX.ToString(System.Globalization.CultureInfo.InvariantCulture)}" +
+                                $"&WIDTH={WmtsTileSize}&HEIGHT={WmtsTileSize}&FORMAT={Format}";
+
+                byte[]? wmsBytes = await FetchTileBytesWithRetryAsync(wmsUrl, 2, 1, cancellationToken);
+                if (wmsBytes != null && wmsBytes.Length > 0)
+                {
+                    return wmsBytes;
+                }
+            }
+
+            // Fallback 2: Coarser WMTS levels in MatrixLevels
+            int levelIdx = MatrixLevels.ToList().FindIndex(l => l.Identifier == selectedLevel.Identifier);
+            if (levelIdx >= 0)
+            {
+                double tileCenterX = (tileMinX + tileMaxX) / 2.0;
+                double tileCenterY = (tileMinY + tileMaxY) / 2.0;
+
+                for (int nextIdx = levelIdx + 1; nextIdx < MatrixLevels.Count; nextIdx++)
+                {
+                    var fbLevel = MatrixLevels[nextIdx];
+                    double fbTileSpan = WmtsTileSize * fbLevel.PixelSize;
+                    int fbCol = (int)Math.Floor((tileCenterX - OriginX) / fbTileSpan);
+                    int fbRow = (int)Math.Floor((OriginY - tileCenterY) / fbTileSpan);
+
+                    string fbUrl = $"{BaseUrl}?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
+                                   $"&LAYER={Uri.EscapeDataString(Layer)}" +
+                                   "&STYLE=default" +
+                                   $"&FORMAT={Format}" +
+                                   "&TILEMATRIXSET=EPSG:2180" +
+                                   $"&TILEMATRIX={fbLevel.Identifier}" +
+                                   $"&TILEROW={fbRow}&TILECOL={fbCol}";
+
+                    byte[]? fbBytes = await FetchTileBytesWithRetryAsync(fbUrl, 2, 1, cancellationToken);
+                    if (fbBytes != null && fbBytes.Length > 0)
+                    {
+                        try
+                        {
+                            using MemoryStream fbMs = new MemoryStream(fbBytes);
+                            using Image fbImg = Image.FromStream(fbMs);
+
+                            double fbMinX = OriginX + fbCol * fbTileSpan;
+                            double fbMaxY = OriginY - fbRow * fbTileSpan;
+
+                            float cropX = (float)((tileMinX - fbMinX) / fbLevel.PixelSize);
+                            float cropY = (float)((fbMaxY - tileMaxY) / fbLevel.PixelSize);
+                            float cropW = (float)(tileSpan / fbLevel.PixelSize);
+                            float cropH = (float)(tileSpan / fbLevel.PixelSize);
+
+                            using Bitmap subTileBmp = new Bitmap(WmtsTileSize, WmtsTileSize);
+                            using (Graphics gSub = Graphics.FromImage(subTileBmp))
+                            {
+                                gSub.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                gSub.SmoothingMode = SmoothingMode.HighQuality;
+                                gSub.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                gSub.DrawImage(fbImg, new RectangleF(0, 0, WmtsTileSize, WmtsTileSize), new RectangleF(cropX, cropY, cropW, cropH), GraphicsUnit.Pixel);
+                            }
+
+                            using MemoryStream outMs = new MemoryStream();
+                            subTileBmp.Save(outMs, ImageFormat.Jpeg);
+                            return outMs.ToArray();
+                        }
+                        catch
+                        {
+                            // Try next coarser level
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }
