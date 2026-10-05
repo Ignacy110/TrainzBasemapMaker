@@ -953,19 +953,17 @@ namespace TrainzBasemapMaker
                 var obsObjects = new List<ObsObject>();
                 var layers = new List<TrainzLayer>();
                 layers.Add(new TrainzLayer(0, "route-layer", 0x01));
-                byte nextObsLayerId = 2; // In mapfile.obs: 1 = route-layer, 2 = first custom layer...
 
                 if (place2D && basemap2DInfo.Count > 0)
                 {
                     var groupedBySource = basemap2DInfo.GroupBy(b => b.Source);
                     foreach (var group in groupedBySource)
                     {
-                        byte layerIdInObs = nextObsLayerId++;
-                        byte layerIdInLyr = (byte)layers.Count;
+                        byte layerId = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
                             ? $"Podklady 2D - {group.Key.Name}"
                             : "Podklady 2D";
-                        layers.Add(new TrainzLayer(layerIdInLyr, layerName, 0x01));
+                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2) in group)
                         {
@@ -973,7 +971,7 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(k1),
                                 KuidPart2 = int.Parse(k2),
-                                LayerId = layerIdInObs,
+                                LayerId = layerId,
                                 SegX = (short)(-tile.J),
                                 SegY = (short)tile.I,
                                 X = 360f,
@@ -990,12 +988,11 @@ namespace TrainzBasemapMaker
                     var groupedBySource = basemap3DInfo.GroupBy(b => b.Source);
                     foreach (var group in groupedBySource)
                     {
-                        byte layerIdInObs = nextObsLayerId++;
-                        byte layerIdInLyr = (byte)layers.Count;
+                        byte layerId = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
                             ? $"Podklady 3D - {group.Key.Name}"
                             : "Podklady 3D";
-                        layers.Add(new TrainzLayer(layerIdInLyr, layerName, 0x01));
+                        layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2, baseHeight) in group)
                         {
@@ -1003,7 +1000,7 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(k1),
                                 KuidPart2 = int.Parse(k2),
-                                LayerId = layerIdInObs,
+                                LayerId = layerId,
                                 SegX = (short)(-tile.J),
                                 SegY = (short)tile.I,
                                 X = 360f,

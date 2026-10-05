@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
                 for (int i = 0; i < layerList.Count; i++)
                 {
                     var layer = layerList[i];
-                    bw.Write((byte)i);             // Layer ID (0-based byte)
+                    bw.Write(layer.LayerId);       // Layer ID (0-based byte)
 
                     // Ensure clean ASCII name (strip Polish diacritics)
                     string cleanName = FormHelpers.RemoveDiacritics(layer.Name);
