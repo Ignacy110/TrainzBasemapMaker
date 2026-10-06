@@ -118,13 +118,14 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[]? tileBytes = await FetchTileWithFallbackAsync(currentC, currentR, selectedLevel, tileSpan, maxRetries, delaySeconds, cancellationToken);
+                        byte[]? tileBytes = await FetchTileWithFallbackAsync(currentC, currentR, selectedLevel, tileSpan, maxRetries, delaySeconds, cancellationToken).ConfigureAwait(false);
                         return (currentC, currentR, tileBytes);
                     }, cancellationToken));
                 }
             }
 
-            var results = await Task.WhenAll(downloadTasks);
+            // ConfigureAwait(false): the CPU-heavy stitching/scaling below must not run on the UI thread.
+            var results = await Task.WhenAll(downloadTasks).ConfigureAwait(false);
 
             if (results.All(r => r.bytes == null || r.bytes.Length == 0))
             {
@@ -134,7 +135,7 @@ namespace TrainzBasemapMaker.Classes
             int stitchedWidth = tilesNumX * WmtsTileSize;
             int stitchedHeight = tilesNumY * WmtsTileSize;
 
-            using Bitmap stitchedBitmap = new Bitmap(stitchedWidth, stitchedHeight);
+            using Bitmap stitchedBitmap = ImageHelpers.CreateRgbBitmap(stitchedWidth, stitchedHeight);
             using (Graphics gStitch = Graphics.FromImage(stitchedBitmap))
             {
                 gStitch.Clear(Color.FromArgb(92, 108, 68)); // Muted natural terrain green instead of white
@@ -157,7 +158,7 @@ namespace TrainzBasemapMaker.Classes
             float cropWidth = (float)((maxX - minX) / pixelSize);
             float cropHeight = (float)((maxY - minY) / pixelSize);
 
-            using Bitmap outputBitmap = new Bitmap(resolution, resolution);
+            using Bitmap outputBitmap = ImageHelpers.CreateRgbBitmap(resolution, resolution);
             using (Graphics gOut = Graphics.FromImage(outputBitmap))
             {
                 gOut.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -170,9 +171,7 @@ namespace TrainzBasemapMaker.Classes
                 gOut.DrawImage(stitchedBitmap, destRect, srcRect, GraphicsUnit.Pixel);
             }
 
-            using MemoryStream outMs = new MemoryStream();
-            outputBitmap.Save(outMs, ImageFormat.Jpeg);
-            return outMs.ToArray();
+            return ImageHelpers.EncodeJpeg(outputBitmap);
         }
 
         private WmtsMatrixLevel GetOptimalLevel(int resolution)
@@ -227,7 +226,11 @@ namespace TrainzBasemapMaker.Classes
             }
 
             // Fallback 2: Coarser WMTS levels in MatrixLevels
-            int levelIdx = MatrixLevels.ToList().FindIndex(l => l.Identifier == selectedLevel.Identifier);
+            int levelIdx = -1;
+            for (int li = 0; li < MatrixLevels.Count; li++)
+            {
+                if (MatrixLevels[li].Identifier == selectedLevel.Identifier) { levelIdx = li; break; }
+            }
             if (levelIdx >= 0)
             {
                 double tileCenterX = (tileMinX + tileMaxX) / 2.0;
@@ -264,7 +267,7 @@ namespace TrainzBasemapMaker.Classes
                             float cropW = (float)(tileSpan / fbLevel.PixelSize);
                             float cropH = (float)(tileSpan / fbLevel.PixelSize);
 
-                            using Bitmap subTileBmp = new Bitmap(WmtsTileSize, WmtsTileSize);
+                            using Bitmap subTileBmp = ImageHelpers.CreateRgbBitmap(WmtsTileSize, WmtsTileSize);
                             using (Graphics gSub = Graphics.FromImage(subTileBmp))
                             {
                                 gSub.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -273,9 +276,7 @@ namespace TrainzBasemapMaker.Classes
                                 gSub.DrawImage(fbImg, new RectangleF(0, 0, WmtsTileSize, WmtsTileSize), new RectangleF(cropX, cropY, cropW, cropH), GraphicsUnit.Pixel);
                             }
 
-                            using MemoryStream outMs = new MemoryStream();
-                            subTileBmp.Save(outMs, ImageFormat.Jpeg);
-                            return outMs.ToArray();
+                            return ImageHelpers.EncodeJpeg(subTileBmp);
                         }
                         catch
                         {

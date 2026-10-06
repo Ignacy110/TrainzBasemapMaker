@@ -257,7 +257,7 @@ namespace TrainzBasemapMaker
                             byte[] imageBytes = await selectedMap.GetMapImageAsync(year, targetX, targetY, res);
 
                             // Generate new Trainz files in the target group folder
-                            bool created = _fileManager.CreateTrainzFiles(
+                            bool created = await Task.Run(() => _fileManager.CreateTrainzFiles(
                                 imageBytes,
                                 targetGroup,
                                 targetX, targetY,
@@ -266,7 +266,7 @@ namespace TrainzBasemapMaker
                                 tileInfo.KuidPart1,
                                 tileInfo.KuidPart2,
                                 force2D: true
-                            );
+                            ));
 
                             if (created)
                             {

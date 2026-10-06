@@ -232,16 +232,18 @@ namespace TrainzBasemapMaker
                 {
                     try
                     {
-                        bool success = _fileManager.CreateTrainzFiles(
+                        string kuidPart1 = textBoxKuidPart1.Text;
+                        string kuidPart2 = textBoxKuidPart2.Text;
+                        bool success = await Task.Run(() => _fileManager.CreateTrainzFiles(
                             imageBytes,
                             basemapGroup,
                             currentX,
                             currentY,
                             basemapGroupDesignation,
                             counter,
-                            textBoxKuidPart1.Text,
-                            textBoxKuidPart2.Text
-                        );
+                            kuidPart1,
+                            kuidPart2
+                        ));
 
                         if (success)
                         {

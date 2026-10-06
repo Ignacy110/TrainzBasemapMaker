@@ -13,8 +13,6 @@ namespace TrainzBasemapMaker.Classes
             if (elevationGrid.GetLength(0) != 76 || elevationGrid.GetLength(1) != 76)
                 return false;
 
-            string tempXmlPath = Path.ChangeExtension(outputImPath, ".xml");
-
             // We need a mesh of size x size. 
             // The grid is 76x76 covering 750x750m (-20m to +730m).
             // We want 720m x 720m (or whatever size is, usually 720 or 1000).
@@ -26,7 +24,8 @@ namespace TrainzBasemapMaker.Classes
             if (steps > 73) steps = 73; // cap at 730m
             int vertCount = steps + 1; // max 74
 
-            StringBuilder xml = new StringBuilder();
+            // ~2 triangles per quad, ~450 chars of XML per triangle - pre-size to avoid repeated reallocations.
+            StringBuilder xml = new StringBuilder(steps * steps * 2 * 450 + 1024);
             xml.AppendLine("<trainzImport>");
             xml.AppendLine("  <version>1</version>");
             xml.AppendLine("  <mesh>");
@@ -103,14 +102,12 @@ namespace TrainzBasemapMaker.Classes
             xml.AppendLine("</trainzImport>");
 
             string tempDir = Path.Combine(Path.GetTempPath(), "TrainzBasemapMaker_TMI");
-            if (!Directory.Exists(tempDir)) Directory.CreateDirectory(tempDir);
-            
-            string safeXmlPath = Path.Combine(tempDir, "basemap.xml");
-            string safeImPath = Path.Combine(tempDir, "basemap.im");
-            
-            // Clean up previous runs if any
-            if (File.Exists(safeXmlPath)) File.Delete(safeXmlPath);
-            if (File.Exists(safeImPath)) File.Delete(safeImPath);
+            Directory.CreateDirectory(tempDir);
+
+            // Unique file names per call so several basemaps can be generated in parallel.
+            string uniqueId = Guid.NewGuid().ToString("N");
+            string safeXmlPath = Path.Combine(tempDir, $"basemap_{uniqueId}.xml");
+            string safeImPath = Path.Combine(tempDir, $"basemap_{uniqueId}.im");
 
             File.WriteAllText(safeXmlPath, xml.ToString());
 
@@ -129,23 +126,27 @@ namespace TrainzBasemapMaker.Classes
                 {
                     if (p != null)
                     {
-                        string stdout = p.StandardOutput.ReadToEnd();
-                        string stderr = p.StandardError.ReadToEnd();
-                        p.WaitForExit(10000); // 10s timeout
-                        
+                        // Read both streams concurrently - reading them one after another can deadlock
+                        // when the child process fills the other pipe's buffer.
+                        Task<string> stdoutTask = p.StandardOutput.ReadToEndAsync();
+                        Task<string> stderrTask = p.StandardError.ReadToEndAsync();
+
+                        bool exited = p.WaitForExit(TmiTimeoutMs);
+                        if (!exited)
+                        {
+                            try { p.Kill(entireProcessTree: true); } catch { /* already exited */ }
+                        }
+
+                        string stdout = stdoutTask.Wait(2000) ? stdoutTask.Result : string.Empty;
+                        string stderr = stderrTask.Wait(2000) ? stderrTask.Result : string.Empty;
+                        if (!exited)
+                        {
+                            stderr += $"\n[TrainzBasemapMaker] TMI przekroczył limit czasu ({TmiTimeoutMs / 1000} s) i został zatrzymany.";
+                        }
+
                         // Copy log to the final destination for debugging
                         string logFile = Path.Combine(Path.GetDirectoryName(outputImPath)!, "tmi_log.txt");
                         File.WriteAllText(logFile, $"TMI Output:\n{stdout}\n\nError:\n{stderr}");
-                    }
-                }
-                
-                // If it fails to create outFile, it might create it without the -outFile argument effect
-                if (!File.Exists(safeImPath))
-                {
-                    string fallbackIm = Path.Combine(tempDir, "basemap.im");
-                    if (File.Exists(fallbackIm))
-                    {
-                        safeImPath = fallbackIm;
                     }
                 }
 
@@ -162,20 +163,24 @@ namespace TrainzBasemapMaker.Classes
             finally
             {
                 // Cleanup temp files
-                if (File.Exists(safeXmlPath)) File.Delete(safeXmlPath);
-                if (File.Exists(safeImPath)) File.Delete(safeImPath);
+                try { if (File.Exists(safeXmlPath)) File.Delete(safeXmlPath); } catch { }
+                try { if (File.Exists(safeImPath)) File.Delete(safeImPath); } catch { }
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Maximum time TrainzMeshImporter may run for a single basemap before it is killed.
+        /// </summary>
+        private const int TmiTimeoutMs = 60_000;
+
         private static void AddVertex(StringBuilder xml, float x, float y, float z, float u, float v)
         {
+            // The interpolated Append(IFormatProvider, ...) overload formats numbers directly into the
+            // builder without allocating intermediate strings (~31k vertices per basemap).
             var culture = CultureInfo.InvariantCulture;
-            xml.AppendLine("        <vertex>");
-            xml.AppendLine($"          <position>{x.ToString(culture)},{y.ToString(culture)},{z.ToString(culture)}</position>");
-            xml.AppendLine($"          <texcoord>{u.ToString(culture)},{v.ToString(culture)}</texcoord>");
-            xml.AppendLine("        </vertex>");
+            xml.Append(culture, $"        <vertex>\r\n          <position>{x},{y},{z}</position>\r\n          <texcoord>{u},{v}</texcoord>\r\n        </vertex>\r\n");
         }
     }
 }

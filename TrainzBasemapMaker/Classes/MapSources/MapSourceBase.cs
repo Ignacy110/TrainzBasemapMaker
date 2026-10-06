@@ -75,10 +75,10 @@ namespace TrainzBasemapMaker.Classes
 
                 try
                 {
-                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken);
+                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
                     if (response.IsSuccessStatusCode)
                     {
-                        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                        return await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
@@ -92,7 +92,7 @@ namespace TrainzBasemapMaker.Classes
 
                 if (attempt < maxAttempts)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken).ConfigureAwait(false);
                 }
             }
 

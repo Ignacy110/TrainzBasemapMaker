@@ -44,10 +44,20 @@ namespace TrainzBasemapMaker
             public long Y { get; set; }
         }
 
+        private class BasemapJob
+        {
+            public int Index { get; set; }
+            public SelectedTileModel Tile { get; set; } = null!;
+            public int Counter { get; set; }
+            public string Kuid2 { get; set; } = string.Empty;
+        }
+
         // ── Fields ────────────────────────────────────────────────────────────────
+        private const int MaxParallelBasemaps = 4;
         private readonly TrainzFileManager _fileManager = new TrainzFileManager();
         private readonly ToolTip _warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
         private readonly List<SelectedTileModel> _selectedTiles = new List<SelectedTileModel>();
+        private readonly System.Windows.Forms.Timer _kuidCounterDebounceTimer;
         private CancellationTokenSource? _cancellationTokenSource;
         private bool _isDownloading = false;
         private long? _currentAnchorX;
@@ -84,10 +94,27 @@ namespace TrainzBasemapMaker
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             textBoxDesignation.Text = "P";
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
+            _kuidCounterDebounceTimer = new System.Windows.Forms.Timer { Interval = 300 };
+            _kuidCounterDebounceTimer.Tick += (s, e) =>
+            {
+                _kuidCounterDebounceTimer.Stop();
+                if (_loadedRoute == null)
+                {
+                    UpdateNextFreeCounter();
+                    if (Properties.Settings.Default.AutoKuidNumber)
+                    {
+                        UpdateNextFreeKuidPart2();
+                    }
+                }
+            };
+
             textBoxKuidPart1.TextChanged += (s, e) =>
             {
                 if (_loadedRoute == null && Properties.Settings.Default.AutoKuidNumber)
-                    UpdateNextFreeKuidPart2();
+                {
+                    _kuidCounterDebounceTimer.Stop();
+                    _kuidCounterDebounceTimer.Start();
+                }
             };
 
             comboBoxEpsg.SelectedIndex = 0;
@@ -498,8 +525,8 @@ namespace TrainzBasemapMaker
         {
             if (_loadedRoute == null)
             {
-                UpdateNextFreeCounter();
-                UpdateNextFreeKuidPart2();
+                _kuidCounterDebounceTimer.Stop();
+                _kuidCounterDebounceTimer.Start();
             }
         }
 
@@ -722,7 +749,7 @@ namespace TrainzBasemapMaker
                 // PHASE 2: Generate 2D basemaps
                 // ──────────────────────────────────────────────────────────────────
                 var workingResolutions = new ConcurrentDictionary<IMapSource, int>();
-                var downloadedMapImages = new Dictionary<(IMapSource Source, long X, long Y), byte[]>();
+                var downloadedMapImages = new ConcurrentDictionary<(IMapSource Source, long X, long Y), byte[]>();
                 var basemap2DInfo = new List<(IMapSource Source, SelectedTileModel Tile, string Kuid1, string Kuid2)>();
 
                 if (gen2D && selectedMaps.Count > 0)
@@ -742,48 +769,63 @@ namespace TrainzBasemapMaker
                             : $"Podklady_2D_{routeName}";
 
                         string mapYear = source.SupportsTime ? year : "";
-                        int successCount = 0;
-                        int failCount = 0;
+                        int doneForSource = 0;
 
-                        for (int i = 0; i < tilesToProcess.Count; i++)
+                        // Pre-assign counters/KUIDs so numbering is deterministic regardless of completion order.
+                        var jobs = AssignBasemapNumbers(tilesToProcess, ref startCounter, ref startKuid2);
+                        StatusUpdate?.Invoke($"Pobieranie 2D ({source.Name})...");
+
+                        var results = await RunThrottledAsync(jobs, MaxParallelBasemaps, async job =>
                         {
-                            token.ThrowIfCancellationRequested();
-                            var tile = tilesToProcess[i];
-                            int counter = startCounter++;
-                            string kuid2ForTile = (startKuid2++).ToString();
-
-                            current2DTask++;
-                            labelProgress.Text = $"2D [{source.Name}]: {i + 1}/{total}";
-                            StatusUpdate?.Invoke($"Pobieranie 2D ({source.Name}) {i + 1}/{total}...");
-
                             try
                             {
-                                if (!downloadedMapImages.TryGetValue((source, tile.X, tile.Y), out byte[]? imageBytes))
-                                {
-                                    imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token, workingResolutions);
-                                    downloadedMapImages[(source, tile.X, tile.Y)] = imageBytes;
-                                }
+                                byte[] imageBytes = await GetOrDownloadMapImageAsync(
+                                    downloadedMapImages, source, mapYear, job.Tile, maxResolution, token, workingResolutions);
 
-                                bool created = _fileManager.CreateTrainzFiles(
+                                // File I/O off the UI thread.
+                                bool created = await Task.Run(() => _fileManager.CreateTrainzFiles(
                                     imageBytes, groupName2D,
-                                    tile.X, tile.Y,
-                                    designation, counter,
-                                    kuidPart1, kuid2ForTile,
-                                    force2D: true);
+                                    job.Tile.X, job.Tile.Y,
+                                    designation, job.Counter,
+                                    kuidPart1, job.Kuid2,
+                                    force2D: true), token);
 
-                                if (created)
-                                {
-                                    successCount++;
-                                    basemap2DInfo.Add((source, tile, kuidPart1, kuid2ForTile));
-                                }
+                                return (job, created, error: (Exception?)null);
                             }
+                            catch (OperationCanceledException) { throw; }
                             catch (Exception ex)
                             {
-                                failCount++;
-                                Debug.WriteLine($"Błąd podkładu 2D {source.Name} tile ({tile.I},{tile.J}): {ex.Message}");
+                                Debug.WriteLine($"Błąd podkładu 2D {source.Name} tile ({job.Tile.I},{job.Tile.J}): {ex.Message}");
+                                return (job, created: false, error: ex);
                             }
+                            finally
+                            {
+                                int c = Interlocked.Increment(ref current2DTask);
+                                int d = Interlocked.Increment(ref doneForSource);
+                                if (!IsDisposed && IsHandleCreated)
+                                {
+                                    BeginInvoke(() =>
+                                    {
+                                        labelProgress.Text = $"2D [{source.Name}]: {d}/{total}";
+                                        progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                    });
+                                }
+                            }
+                        }, token);
 
-                            progressBar1.Value = Math.Min(current2DTask, progressBar1.Maximum);
+                        int successCount = 0;
+                        int failCount = 0;
+                        foreach (var r in results.OrderBy(r => r.job.Index))
+                        {
+                            if (r.created)
+                            {
+                                successCount++;
+                                basemap2DInfo.Add((source, r.job.Tile, kuidPart1, r.job.Kuid2));
+                            }
+                            else if (r.error != null)
+                            {
+                                failCount++;
+                            }
                         }
 
                         StatusUpdate?.Invoke($"Podkłady 2D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
@@ -812,55 +854,72 @@ namespace TrainzBasemapMaker
                             : $"Podklady_3D_{routeName}";
 
                         string mapYear = source.SupportsTime ? year : "";
-                        int successCount = 0;
-                        int failCount = 0;
+                        int doneForSource = 0;
 
-                        for (int i = 0; i < tilesToProcess.Count; i++)
+                        var jobs = AssignBasemapNumbers(tilesToProcess, ref startCounter, ref startKuid2);
+                        StatusUpdate?.Invoke($"Pobieranie 3D ({source.Name})...");
+
+                        var results = await RunThrottledAsync(jobs, MaxParallelBasemaps, async job =>
                         {
-                            token.ThrowIfCancellationRequested();
-                            var tile = tilesToProcess[i];
-                            int counter = startCounter++;
-                            string kuid2ForTile = (startKuid2++).ToString();
-
-                            current3DTask++;
-                            labelProgress.Text = $"3D [{source.Name}]: {i + 1}/{total}";
-                            StatusUpdate?.Invoke($"Pobieranie 3D ({source.Name}) {i + 1}/{total}...");
-
+                            float baseHeight = 0f;
                             try
                             {
-                                if (!downloadedMapImages.TryGetValue((source, tile.X, tile.Y), out byte[]? imageBytes))
+                                byte[] imageBytes = await GetOrDownloadMapImageAsync(
+                                    downloadedMapImages, source, mapYear, job.Tile, maxResolution, token, workingResolutions);
+
+                                float[,]? grid = null;
+                                if (downloadedGrids != null && downloadedGrids.TryGetValue((job.Tile.I, job.Tile.J), out var foundGrid))
                                 {
-                                    imageBytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token, workingResolutions);
-                                    downloadedMapImages[(source, tile.X, tile.Y)] = imageBytes;
+                                    grid = foundGrid;
+                                    baseHeight = foundGrid[38, 38];
                                 }
 
-                                float baseHeight = 0f;
-                                float[,]? grid = null;
-                                if (downloadedGrids != null && downloadedGrids.TryGetValue((tile.I, tile.J), out grid))
-                                    baseHeight = grid[38, 38];
-
-                                bool created = _fileManager.CreateTrainzFiles(
+                                // Mesh generation (TrainzMeshImporter process) and file I/O off the UI thread.
+                                bool created = await Task.Run(() => _fileManager.CreateTrainzFiles(
                                     imageBytes, groupName3D,
-                                    tile.X, tile.Y,
-                                    designation, counter,
-                                    kuidPart1, kuid2ForTile,
+                                    job.Tile.X, job.Tile.Y,
+                                    designation, job.Counter,
+                                    kuidPart1, job.Kuid2,
                                     grid,
                                     0.2f,  // zOffset to prevent Z-fighting
-                                    baseHeight);
+                                    baseHeight), token);
 
-                                if (created)
-                                {
-                                    successCount++;
-                                    basemap3DInfo.Add((source, tile, kuidPart1, kuid2ForTile, baseHeight));
-                                }
+                                return (job, created, baseHeight, error: (Exception?)null);
                             }
+                            catch (OperationCanceledException) { throw; }
                             catch (Exception ex)
                             {
-                                failCount++;
-                                Debug.WriteLine($"Błąd podkładu 3D {source.Name} tile ({tile.I},{tile.J}): {ex.Message}");
+                                Debug.WriteLine($"Błąd podkładu 3D {source.Name} tile ({job.Tile.I},{job.Tile.J}): {ex.Message}");
+                                return (job, created: false, baseHeight, error: ex);
                             }
+                            finally
+                            {
+                                int c = Interlocked.Increment(ref current3DTask);
+                                int d = Interlocked.Increment(ref doneForSource);
+                                if (!IsDisposed && IsHandleCreated)
+                                {
+                                    BeginInvoke(() =>
+                                    {
+                                        labelProgress.Text = $"3D [{source.Name}]: {d}/{total}";
+                                        progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                    });
+                                }
+                            }
+                        }, token);
 
-                            progressBar1.Value = Math.Min(current3DTask, progressBar1.Maximum);
+                        int successCount = 0;
+                        int failCount = 0;
+                        foreach (var r in results.OrderBy(r => r.job.Index))
+                        {
+                            if (r.created)
+                            {
+                                successCount++;
+                                basemap3DInfo.Add((source, r.job.Tile, kuidPart1, r.job.Kuid2, r.baseHeight));
+                            }
+                            else if (r.error != null)
+                            {
+                                failCount++;
+                            }
                         }
 
                         StatusUpdate?.Invoke($"Podkłady 3D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
@@ -1169,6 +1228,66 @@ namespace TrainzBasemapMaker
             throw new Exception($"Nie udało się pobrać podkładu dla ({x},{y}) w żadnej dostępnej rozdzielczości.", lastEx);
         }
 
+        private static List<BasemapJob> AssignBasemapNumbers(
+            List<SelectedTileModel> tiles, ref int startCounter, ref int startKuid2)
+        {
+            var list = new List<BasemapJob>(tiles.Count);
+            for (int i = 0; i < tiles.Count; i++)
+            {
+                list.Add(new BasemapJob
+                {
+                    Index = i,
+                    Tile = tiles[i],
+                    Counter = startCounter++,
+                    Kuid2 = (startKuid2++).ToString()
+                });
+            }
+            return list;
+        }
+
+        private static async Task<byte[]> GetOrDownloadMapImageAsync(
+            ConcurrentDictionary<(IMapSource Source, long X, long Y), byte[]> cache,
+            IMapSource source,
+            string mapYear,
+            SelectedTileModel tile,
+            int maxResolution,
+            CancellationToken token,
+            ConcurrentDictionary<IMapSource, int> workingResolutions)
+        {
+            if (cache.TryGetValue((source, tile.X, tile.Y), out var cached))
+            {
+                return cached;
+            }
+
+            byte[] bytes = await DownloadWithResolutionFallback(source, mapYear, tile.X, tile.Y, maxResolution, token, workingResolutions).ConfigureAwait(false);
+            cache[(source, tile.X, tile.Y)] = bytes;
+            return bytes;
+        }
+
+        private static async Task<List<TResult>> RunThrottledAsync<TItem, TResult>(
+            IEnumerable<TItem> items,
+            int maxDegreeOfParallelism,
+            Func<TItem, Task<TResult>> processor,
+            CancellationToken token)
+        {
+            using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism, maxDegreeOfParallelism);
+            var tasks = items.Select(async item =>
+            {
+                await semaphore.WaitAsync(token).ConfigureAwait(false);
+                try
+                {
+                    token.ThrowIfCancellationRequested();
+                    return await processor(item).ConfigureAwait(false);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            return (await Task.WhenAll(tasks).ConfigureAwait(false)).ToList();
+        }
+
         // ── Cancel ────────────────────────────────────────────────────────────────
         private void buttonCancel_Click(object sender, EventArgs e)
         {
@@ -1230,6 +1349,8 @@ namespace TrainzBasemapMaker
                 }
                 _cancellationTokenSource?.Cancel();
             }
+
+            _kuidCounterDebounceTimer.Dispose();
         }
 
         // ── IMainMenuOperations ───────────────────────────────────────────────────

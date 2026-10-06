@@ -78,19 +78,18 @@ namespace TrainzBasemapMaker.Classes
             }
         }
 
-        public static void ComboBoxMapType_DrawItem(object sender, DrawItemEventArgs e)
+        public static void ComboBoxMapType_DrawItem(object? sender, DrawItemEventArgs e)
         {
-            if (e.Index < 0) return;
+            if (e.Index < 0 || sender is not ComboBox combo) return;
 
-            ComboBox combo = (ComboBox)sender;
-            IMapSource mapSource = (IMapSource)combo.Items[e.Index];
-            string text = mapSource.Name;
+            string text = combo.Items[e.Index] is IMapSource mapSource ? mapSource.Name : combo.Items[e.Index]?.ToString() ?? string.Empty;
 
             e.DrawBackground();
 
+            Font font = e.Font ?? combo.Font;
             using (Brush textBrush = new SolidBrush(e.ForeColor))
             {
-                e.Graphics.DrawString(text, e.Font, textBrush, e.Bounds);
+                e.Graphics.DrawString(text, font, textBrush, e.Bounds);
             }
 
             e.DrawFocusRectangle();

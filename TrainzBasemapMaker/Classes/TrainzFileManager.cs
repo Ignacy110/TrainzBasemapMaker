@@ -27,6 +27,9 @@ namespace TrainzBasemapMaker.Classes
         public const string GroupInfoFileName = "group_info.json";
         public const string TerrainInfoFileName = "terrain_info.json";
 
+        // Reused instance - System.Text.Json caches serialization metadata per options object.
+        private static readonly JsonSerializerOptions IndentedJsonOptions = new JsonSerializerOptions { WriteIndented = true };
+
         /// <summary>
         /// Attempts to parse tile metadata from a basemap folder name.
         /// </summary>
@@ -143,8 +146,7 @@ namespace TrainzBasemapMaker.Classes
             }
 
             string jsonPath = Path.Combine(targetFolder, TerrainInfoFileName);
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(info, options);
+            string json = JsonSerializer.Serialize(info, IndentedJsonOptions);
             File.WriteAllText(jsonPath, json);
         }
 
@@ -161,7 +163,7 @@ namespace TrainzBasemapMaker.Classes
             var result = new List<TerrainRouteInfo>();
             if (!Directory.Exists(RootFolder)) return result;
 
-            var gndFiles = Directory.GetFiles(RootFolder, "mapfile.gnd", SearchOption.AllDirectories);
+            var gndFiles = Directory.EnumerateFiles(RootFolder, "mapfile.gnd", SearchOption.AllDirectories);
             foreach (var gndFile in gndFiles)
             {
                 string folder = Path.GetDirectoryName(gndFile)!;
@@ -279,16 +281,16 @@ namespace TrainzBasemapMaker.Classes
                 Directory.CreateDirectory(groupPath);
             }
 
-            var existingTiles = Directory.GetDirectories(groupPath, "basemap_*")
+            // Let the file system pre-filter by coordinates (folder pattern: basemap_{designation}_{counter}_{x}_{y}[_{kuid1}_{kuid2}])
+            // instead of listing and parsing every tile folder in the group. Matches are still verified by the parser.
+            bool duplicateExists = Directory.EnumerateDirectories(groupPath, $"basemap_*_{x}_{y}*")
                 .Select(Path.GetFileName)
-                .Where(name =>
-                {
-                    if (string.IsNullOrEmpty(name)) return false;
-                    return TryParseTileFolderName(name, out var tileInfo) &&
-                           tileInfo.X == x && tileInfo.Y == y;
-                });
+                .Any(name =>
+                    !string.IsNullOrEmpty(name) &&
+                    TryParseTileFolderName(name, out var tileInfo) &&
+                    tileInfo.X == x && tileInfo.Y == y);
 
-            if (existingTiles.Any())
+            if (duplicateExists)
             {
                 return false; // informing Form that we have done nothing (duplicate)
             }
@@ -424,11 +426,9 @@ namespace TrainzBasemapMaker.Classes
             HashSet<int> usedKuidsPart2 = new HashSet<int>();
 
             // Find all folders in all subdirectories whose name starts with "basemap_"
-            var allFolders = Directory.GetDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories);
-
-            foreach (var folder in allFolders)
+            foreach (var folder in Directory.EnumerateDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 if (TryParseTileFolderName(folderName, out var tileInfo) &&
                     int.TryParse(tileInfo.KuidPart2, out int parsedKuidPart2))
                 {
@@ -440,11 +440,9 @@ namespace TrainzBasemapMaker.Classes
             }
 
             // Find all folders in all subdirectories whose name starts with "route_"
-            var routeFolders = Directory.GetDirectories(RootFolder, "route_*", SearchOption.AllDirectories);
-
-            foreach (var folder in routeFolders)
+            foreach (var folder in Directory.EnumerateDirectories(RootFolder, "route_*", SearchOption.AllDirectories))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 string[] parts = folderName.Split('_');
                 if (parts.Length >= 4 &&
                     int.TryParse(parts[parts.Length - 1], out int parsedKuidPart2))
@@ -481,13 +479,11 @@ namespace TrainzBasemapMaker.Classes
                 return 1;
             }
 
-            var allFolders = Directory.GetDirectories(groupPath, "basemap_*", SearchOption.AllDirectories);
-
             HashSet<int> usedCounter = new HashSet<int>();
 
-            foreach (var folder in allFolders)
+            foreach (var folder in Directory.EnumerateDirectories(groupPath, "basemap_*", SearchOption.TopDirectoryOnly))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 if (TryParseTileFolderName(folderName, out var tileInfo))
                 {
                     usedCounter.Add(tileInfo.Counter);
@@ -538,8 +534,7 @@ namespace TrainzBasemapMaker.Classes
             }
 
             string jsonPath = Path.Combine(groupPath, GroupInfoFileName);
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(info, options);
+            string json = JsonSerializer.Serialize(info, IndentedJsonOptions);
             File.WriteAllText(jsonPath, json);
         }
     }

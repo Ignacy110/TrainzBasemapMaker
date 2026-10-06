@@ -10,8 +10,8 @@ namespace TrainzBasemapMaker
 {
     public partial class MainForm : Form
     {
-        private SingleBasemapForm singleBasemapForm;
-        private UnifiedGridToolForm unifiedGridToolForm;
+        private SingleBasemapForm singleBasemapForm = null!;
+        private UnifiedGridToolForm unifiedGridToolForm = null!;
 
         public MainForm()
         {

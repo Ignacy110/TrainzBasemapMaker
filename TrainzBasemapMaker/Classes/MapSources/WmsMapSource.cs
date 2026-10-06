@@ -71,10 +71,10 @@ namespace TrainzBasemapMaker.Classes
 
                 try
                 {
-                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken);
+                    using HttpResponseMessage response = await HttpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
                     response.EnsureSuccessStatusCode();
 
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
 
                     // WMS servers sometimes return HTTP 200 OK with an XML error message instead of an image
                     if (IsWmsXmlException(bytes))
@@ -96,7 +96,7 @@ namespace TrainzBasemapMaker.Classes
                     }
 
                     // Delay for specified time before next attempt
-                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken).ConfigureAwait(false);
                 }
             }
 
