@@ -3,6 +3,7 @@ kuid <kuid:{{value1}}:{{value2}}>
 kind							"scenery"
 trainz-build						3.3
 light							1
+height-range						"-500,2000"
 rotstep							90
 snapgrid						1
 
