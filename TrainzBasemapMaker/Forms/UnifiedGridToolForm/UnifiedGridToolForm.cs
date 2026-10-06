@@ -57,7 +57,7 @@ namespace TrainzBasemapMaker
         private readonly TrainzFileManager _fileManager = new TrainzFileManager();
         private readonly ToolTip _warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
         private readonly List<SelectedTileModel> _selectedTiles = new List<SelectedTileModel>();
-        private readonly System.Windows.Forms.Timer _kuidCounterDebounceTimer;
+        private readonly System.Windows.Forms.Timer _kuidCounterDebounceTimer = new System.Windows.Forms.Timer { Interval = 300 };
         private CancellationTokenSource? _cancellationTokenSource;
         private bool _isDownloading = false;
         private long? _currentAnchorX;
@@ -73,6 +73,19 @@ namespace TrainzBasemapMaker
         // ── Constructor ───────────────────────────────────────────────────────────
         public UnifiedGridToolForm()
         {
+            _kuidCounterDebounceTimer.Tick += (s, e) =>
+            {
+                _kuidCounterDebounceTimer.Stop();
+                if (_loadedRoute == null)
+                {
+                    UpdateNextFreeCounter();
+                    if (Properties.Settings.Default.AutoKuidNumber)
+                    {
+                        UpdateNextFreeKuidPart2();
+                    }
+                }
+            };
+
             InitializeComponent();
 
             // Bind map providers
@@ -94,19 +107,6 @@ namespace TrainzBasemapMaker
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             textBoxDesignation.Text = "P";
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
-            _kuidCounterDebounceTimer = new System.Windows.Forms.Timer { Interval = 300 };
-            _kuidCounterDebounceTimer.Tick += (s, e) =>
-            {
-                _kuidCounterDebounceTimer.Stop();
-                if (_loadedRoute == null)
-                {
-                    UpdateNextFreeCounter();
-                    if (Properties.Settings.Default.AutoKuidNumber)
-                    {
-                        UpdateNextFreeKuidPart2();
-                    }
-                }
-            };
 
             textBoxKuidPart1.TextChanged += (s, e) =>
             {
@@ -525,8 +525,8 @@ namespace TrainzBasemapMaker
         {
             if (_loadedRoute == null)
             {
-                _kuidCounterDebounceTimer.Stop();
-                _kuidCounterDebounceTimer.Start();
+                _kuidCounterDebounceTimer?.Stop();
+                _kuidCounterDebounceTimer?.Start();
             }
         }
 
@@ -649,7 +649,7 @@ namespace TrainzBasemapMaker
             bool isRelative = radioButtonElevationRelative.Checked;
             string year = textBoxBasemapDate.Text.Trim();
             int maxResolution = GetSelectedResolution();
-            var tilesToProcess = _selectedTiles.ToList();
+            var tilesToProcess = _selectedTiles.OrderBy(t => t.Order).ToList();
             int total = tilesToProcess.Count;
 
             // When a route is generated, the route itself occupies <kuid:kuidPart1:kuidPart2>.
@@ -788,7 +788,8 @@ namespace TrainzBasemapMaker
                                     job.Tile.X, job.Tile.Y,
                                     designation, job.Counter,
                                     kuidPart1, job.Kuid2,
-                                    force2D: true), token);
+                                    force2D: true,
+                                    overwrite: true), token);
 
                                 return (job, created, error: (Exception?)null);
                             }
@@ -882,7 +883,8 @@ namespace TrainzBasemapMaker
                                     kuidPart1, job.Kuid2,
                                     grid,
                                     0.2f,  // zOffset to prevent Z-fighting
-                                    baseHeight), token);
+                                    baseHeight,
+                                    overwrite: true), token);
 
                                 return (job, created, baseHeight, error: (Exception?)null);
                             }
@@ -1029,7 +1031,7 @@ namespace TrainzBasemapMaker
                             : "Podklady 2D";
                         layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
-                        foreach (var (_, tile, k1, k2) in group)
+                        foreach (var (_, tile, k1, k2) in group.OrderBy(b => b.Tile.Order))
                         {
                             float zPos = 0.1f;
                             if (downloadedGrids != null && downloadedGrids.TryGetValue((tile.I, tile.J), out var grid))
@@ -1051,7 +1053,7 @@ namespace TrainzBasemapMaker
                                 X = 360f,
                                 Y = 360f,
                                 Z = zPos,
-                                RotZ = (float)(Math.PI / 2.0)
+                                RotZ = 0f
                             });
                         }
                     }
@@ -1068,7 +1070,7 @@ namespace TrainzBasemapMaker
                             : "Podklady 3D";
                         layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
-                        foreach (var (_, tile, k1, k2, baseHeight) in group)
+                        foreach (var (_, tile, k1, k2, baseHeight) in group.OrderBy(b => b.Tile.Order))
                         {
                             obsObjects.Add(new ObsObject
                             {

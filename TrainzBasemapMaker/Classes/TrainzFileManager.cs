@@ -271,7 +271,7 @@ namespace TrainzBasemapMaker.Classes
                 return null;
             }
         }
-        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,]? providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f, bool force2D = false)
+        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,]? providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f, bool force2D = false, bool overwrite = false)
         {
             // 1. building paths with Path.Combine
             string groupPath = Path.Combine(RootFolder, basemapGroup);
@@ -283,16 +283,28 @@ namespace TrainzBasemapMaker.Classes
 
             // Let the file system pre-filter by coordinates (folder pattern: basemap_{designation}_{counter}_{x}_{y}[_{kuid1}_{kuid2}])
             // instead of listing and parsing every tile folder in the group. Matches are still verified by the parser.
-            bool duplicateExists = Directory.EnumerateDirectories(groupPath, $"basemap_*_{x}_{y}*")
-                .Select(Path.GetFileName)
-                .Any(name =>
-                    !string.IsNullOrEmpty(name) &&
-                    TryParseTileFolderName(name, out var tileInfo) &&
-                    tileInfo.X == x && tileInfo.Y == y);
+            var matchingDirs = Directory.EnumerateDirectories(groupPath, $"basemap_*_{x}_{y}*")
+                .Where(dir =>
+                {
+                    string? name = Path.GetFileName(dir);
+                    return !string.IsNullOrEmpty(name) &&
+                           TryParseTileFolderName(name, out var tileInfo) &&
+                           tileInfo.X == x && tileInfo.Y == y;
+                }).ToList();
 
-            if (duplicateExists)
+            if (matchingDirs.Count > 0)
             {
-                return false; // informing Form that we have done nothing (duplicate)
+                if (overwrite)
+                {
+                    foreach (var dir in matchingDirs)
+                    {
+                        try { Directory.Delete(dir, true); } catch { }
+                    }
+                }
+                else
+                {
+                    return false; // informing Form that we have done nothing (duplicate)
+                }
             }
 
             // 3. creating a destination folder
