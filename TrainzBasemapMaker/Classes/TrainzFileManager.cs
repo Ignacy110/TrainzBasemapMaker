@@ -27,6 +27,9 @@ namespace TrainzBasemapMaker.Classes
         public const string GroupInfoFileName = "group_info.json";
         public const string TerrainInfoFileName = "terrain_info.json";
 
+        // Reused instance - System.Text.Json caches serialization metadata per options object.
+        private static readonly JsonSerializerOptions IndentedJsonOptions = new JsonSerializerOptions { WriteIndented = true };
+
         /// <summary>
         /// Attempts to parse tile metadata from a basemap folder name.
         /// </summary>
@@ -73,7 +76,7 @@ namespace TrainzBasemapMaker.Classes
             return false;
         }
 
-        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null, List<TrainzTerrain.ObsObject>? obsObjects = null)
+        public string CreateRouteFiles(string routeName, string basemapGroup, string kuidPart1, string kuidPart2, byte[] gndData, TerrainRouteInfo? routeInfo = null, List<TrainzTerrain.ObsObject>? obsObjects = null, List<TrainzTerrain.TrainzLayer>? layers = null)
         {
             string groupPath = Path.Combine(RootFolder, basemapGroup);
             if (!Directory.Exists(groupPath))
@@ -106,7 +109,8 @@ namespace TrainzBasemapMaker.Classes
             byte[] emptyTrk = { 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00 };
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.trk"), emptyTrk);
 
-            byte[] lyrData = new byte[] { 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x0C, 0x00, 0x00, 0x00, 0x72, 0x6F, 0x75, 0x74, 0x65, 0x2D, 0x6C, 0x61, 0x79, 0x65, 0x72, 0x00, 0x01 };
+            var lyrWriter = new TrainzTerrain.LyrWriter();
+            byte[] lyrData = lyrWriter.CreateLyrFile(layers);
             File.WriteAllBytes(Path.Combine(targetFolder, "mapfile.lyr"), lyrData);
 
             string configText = $"kuid                                    <kuid:{kuidPart1}:{kuidPart2}>\r\nkind                                    \"map\"\r\nusername                                \"{routeName}\"\r\ncategory-class                          \"YM\"\r\ncategory-region                         \"PL\"\r\ncategory-era                            \"2020s\"\r\ntrainz-build                            3.3\r\n\r\nthumbnails\r\n{{\r\n  0\r\n  {{\r\n    image                               \"thumbnail.jpg\"\r\n    width                               240\r\n    height                              180\r\n  }}\r\n}}\r\n";
@@ -142,8 +146,7 @@ namespace TrainzBasemapMaker.Classes
             }
 
             string jsonPath = Path.Combine(targetFolder, TerrainInfoFileName);
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(info, options);
+            string json = JsonSerializer.Serialize(info, IndentedJsonOptions);
             File.WriteAllText(jsonPath, json);
         }
 
@@ -160,7 +163,7 @@ namespace TrainzBasemapMaker.Classes
             var result = new List<TerrainRouteInfo>();
             if (!Directory.Exists(RootFolder)) return result;
 
-            var gndFiles = Directory.GetFiles(RootFolder, "mapfile.gnd", SearchOption.AllDirectories);
+            var gndFiles = Directory.EnumerateFiles(RootFolder, "mapfile.gnd", SearchOption.AllDirectories);
             foreach (var gndFile in gndFiles)
             {
                 string folder = Path.GetDirectoryName(gndFile)!;
@@ -268,7 +271,7 @@ namespace TrainzBasemapMaker.Classes
                 return null;
             }
         }
-        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,] providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f)
+        public bool CreateTrainzFiles(byte[] imageBytes, string basemapGroup, long x, long y, string basemapGroupDesignation, int counter, string kuidPart1, string kuidPart2, float[,]? providedElevationGrid = null, float zOffset = 0f, float baseHeight = 0f, bool force2D = false, bool overwrite = false)
         {
             // 1. building paths with Path.Combine
             string groupPath = Path.Combine(RootFolder, basemapGroup);
@@ -278,18 +281,30 @@ namespace TrainzBasemapMaker.Classes
                 Directory.CreateDirectory(groupPath);
             }
 
-            var existingTiles = Directory.GetDirectories(groupPath, "basemap_*")
-                .Select(Path.GetFileName)
-                .Where(name =>
+            // Let the file system pre-filter by coordinates (folder pattern: basemap_{designation}_{counter}_{x}_{y}[_{kuid1}_{kuid2}])
+            // instead of listing and parsing every tile folder in the group. Matches are still verified by the parser.
+            var matchingDirs = Directory.EnumerateDirectories(groupPath, $"basemap_*_{x}_{y}*")
+                .Where(dir =>
                 {
-                    if (string.IsNullOrEmpty(name)) return false;
-                    return TryParseTileFolderName(name, out var tileInfo) &&
+                    string? name = Path.GetFileName(dir);
+                    return !string.IsNullOrEmpty(name) &&
+                           TryParseTileFolderName(name, out var tileInfo) &&
                            tileInfo.X == x && tileInfo.Y == y;
-                });
+                }).ToList();
 
-            if (existingTiles.Any())
+            if (matchingDirs.Count > 0)
             {
-                return false; // informing Form that we have done nothing (duplicate)
+                if (overwrite)
+                {
+                    foreach (var dir in matchingDirs)
+                    {
+                        try { Directory.Delete(dir, true); } catch { }
+                    }
+                }
+                else
+                {
+                    return false; // informing Form that we have done nothing (duplicate)
+                }
             }
 
             // 3. creating a destination folder
@@ -305,7 +320,7 @@ namespace TrainzBasemapMaker.Classes
             string imPath = Path.Combine(targetFolder, "basemap.im");
             string logPath = Path.Combine(targetFolder, "3d_generation_log.txt");
             
-            if (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null)
+            if (!force2D && (Properties.Settings.Default.Generate3DBasemaps || providedElevationGrid != null))
             {
                 if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath))
                 {
@@ -423,11 +438,9 @@ namespace TrainzBasemapMaker.Classes
             HashSet<int> usedKuidsPart2 = new HashSet<int>();
 
             // Find all folders in all subdirectories whose name starts with "basemap_"
-            var allFolders = Directory.GetDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories);
-
-            foreach (var folder in allFolders)
+            foreach (var folder in Directory.EnumerateDirectories(RootFolder, "basemap_*", SearchOption.AllDirectories))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 if (TryParseTileFolderName(folderName, out var tileInfo) &&
                     int.TryParse(tileInfo.KuidPart2, out int parsedKuidPart2))
                 {
@@ -439,11 +452,9 @@ namespace TrainzBasemapMaker.Classes
             }
 
             // Find all folders in all subdirectories whose name starts with "route_"
-            var routeFolders = Directory.GetDirectories(RootFolder, "route_*", SearchOption.AllDirectories);
-
-            foreach (var folder in routeFolders)
+            foreach (var folder in Directory.EnumerateDirectories(RootFolder, "route_*", SearchOption.AllDirectories))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 string[] parts = folderName.Split('_');
                 if (parts.Length >= 4 &&
                     int.TryParse(parts[parts.Length - 1], out int parsedKuidPart2))
@@ -480,13 +491,11 @@ namespace TrainzBasemapMaker.Classes
                 return 1;
             }
 
-            var allFolders = Directory.GetDirectories(groupPath, "basemap_*", SearchOption.AllDirectories);
-
             HashSet<int> usedCounter = new HashSet<int>();
 
-            foreach (var folder in allFolders)
+            foreach (var folder in Directory.EnumerateDirectories(groupPath, "basemap_*", SearchOption.TopDirectoryOnly))
             {
-                string folderName = new DirectoryInfo(folder).Name;
+                string folderName = Path.GetFileName(folder);
                 if (TryParseTileFolderName(folderName, out var tileInfo))
                 {
                     usedCounter.Add(tileInfo.Counter);
@@ -537,8 +546,7 @@ namespace TrainzBasemapMaker.Classes
             }
 
             string jsonPath = Path.Combine(groupPath, GroupInfoFileName);
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(info, options);
+            string json = JsonSerializer.Serialize(info, IndentedJsonOptions);
             File.WriteAllText(jsonPath, json);
         }
     }

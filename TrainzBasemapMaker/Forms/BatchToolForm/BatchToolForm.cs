@@ -35,8 +35,7 @@ namespace TrainzBasemapMaker
             InitializeComponent();
 
             // Set default UI states
-            radioButton2048.Checked = true;
-            radioButtonEpsg2180.Checked = true;
+            comboBoxEpsg.SelectedIndex = 0;
             textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
 
             // Bind available map sources to the dropdown list
@@ -85,9 +84,9 @@ namespace TrainzBasemapMaker
 
                 if (groupInfo.Epsg == "EPSG:2180")
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg2180.Checked = true;
+                    // comboBoxEpsg.Enabled = true;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -95,9 +94,9 @@ namespace TrainzBasemapMaker
                     long ay = groupInfo.AnchorY ?? 0;
                     var (lat, lon) = GeoHelperEPSG3857.Meters3857ToLatLon(ax, ay);
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
-                    radioButtonEpsg2180.Enabled = inPoland;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg3857.Checked = true;
+                    // comboBoxEpsg.Enabled = inPoland;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 }
                 return;
             }
@@ -115,9 +114,9 @@ namespace TrainzBasemapMaker
 
                 if (GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y))
                 {
-                    radioButtonEpsg2180.Enabled = true;
-                    radioButtonEpsg3857.Enabled = true;
-                    radioButtonEpsg2180.Checked = true;
+                    // comboBoxEpsg.Enabled = true;
+                    // comboBoxEpsg.Enabled = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -125,14 +124,14 @@ namespace TrainzBasemapMaker
                     bool inPoland = GeoHelperEPSG2180.IsWithinPolandBounds(lat, lon);
                     if (inPoland)
                     {
-                        radioButtonEpsg2180.Enabled = true;
-                        radioButtonEpsg3857.Enabled = true;
+                        // comboBoxEpsg.Enabled = true;
+                        // comboBoxEpsg.Enabled = true;
                     }
                     else
                     {
-                        radioButtonEpsg2180.Enabled = false;
-                        radioButtonEpsg3857.Enabled = true;
-                        radioButtonEpsg3857.Checked = true;
+                        // comboBoxEpsg.Enabled = false;
+                        // comboBoxEpsg.Enabled = true;
+                        comboBoxEpsg.SelectedIndex = 1;
                     }
                 }
             }
@@ -230,7 +229,7 @@ namespace TrainzBasemapMaker
 
                             bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(tileInfo.X, tileInfo.Y);
 
-                            if (radioButtonEpsg2180.Checked)
+                            if ((comboBoxEpsg.SelectedIndex == 0))
                             {
                                 if (!srcIs2180)
                                 {
@@ -243,7 +242,7 @@ namespace TrainzBasemapMaker
                                     }
                                 }
                             }
-                            else if (radioButtonEpsg3857.Checked)
+                            else if ((comboBoxEpsg.SelectedIndex == 1))
                             {
                                 if (srcIs2180)
                                 {
@@ -258,15 +257,16 @@ namespace TrainzBasemapMaker
                             byte[] imageBytes = await selectedMap.GetMapImageAsync(year, targetX, targetY, res);
 
                             // Generate new Trainz files in the target group folder
-                            bool created = _fileManager.CreateTrainzFiles(
+                            bool created = await Task.Run(() => _fileManager.CreateTrainzFiles(
                                 imageBytes,
                                 targetGroup,
                                 targetX, targetY,
                                 targetDesignation,
                                 tileInfo.Counter,
                                 tileInfo.KuidPart1,
-                                tileInfo.KuidPart2
-                            );
+                                tileInfo.KuidPart2,
+                                force2D: true
+                            ));
 
                             if (created)
                             {
@@ -306,7 +306,7 @@ namespace TrainzBasemapMaker
                         if (anchorX == null && folders.Count > 0 && TrainzFileManager.TryParseTileFolderName(folders[0], out var firstTile))
                         {
                             bool srcIs2180 = GeoHelperEPSG2180.IsWithin2180Bounds(firstTile.X, firstTile.Y);
-                            if (radioButtonEpsg2180.Checked)
+                            if ((comboBoxEpsg.SelectedIndex == 0))
                             {
                                 if (srcIs2180)
                                 {
@@ -338,7 +338,7 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        if (radioButtonEpsg3857.Checked && anchorX.HasValue && anchorY.HasValue && anchorCosLat == null)
+                        if ((comboBoxEpsg.SelectedIndex == 1) && anchorX.HasValue && anchorY.HasValue && anchorCosLat == null)
                         {
                             var (lat, _) = GeoHelperEPSG3857.Meters3857ToLatLon(anchorX.Value, anchorY.Value);
                             anchorCosLat = Math.Cos(lat * Math.PI / 180.0);
@@ -348,7 +348,7 @@ namespace TrainzBasemapMaker
                         {
                             GroupName = targetGroup,
                             Designation = targetDesignation,
-                            Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857",
+                            Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857",
                             AnchorX = anchorX,
                             AnchorY = anchorY,
                             AnchorCosLat = anchorCosLat,
@@ -400,12 +400,14 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Helper method to determine the requested image resolution from the radio buttons.
         /// </summary>
+                private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Designer requirement
+        }
+
         private int GetSelectedResolution()
         {
-            if (radioButton4096.Checked) return 4096;
-            if (radioButton1024.Checked) return 1024;
-            if (radioButton512.Checked) return 512;
-            return 2048; // Default fallback resolution
+            return (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
         }
 
         /// <summary>
@@ -431,14 +433,7 @@ namespace TrainzBasemapMaker
                 // Enable or disable the year input based on whether the source supports historical data
                 textBoxBasemapDate.Enabled = selected.SupportsTime;
 
-                // 4096px resolution is enabled dynamically based on provider capabilities
-                radioButton4096.Enabled = selected.AllowsHighResolution;
-
-                // Fallback to 2048px if 4096px was selected but is no longer supported
-                if (!selected.AllowsHighResolution && radioButton4096.Checked)
-                {
-                    radioButton2048.Checked = true;
-                }
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
             }
         }
 

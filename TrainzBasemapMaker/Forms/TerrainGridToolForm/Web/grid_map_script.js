@@ -804,6 +804,6 @@ function loadExistingFolderTiles(data) {
         map.panTo([anchorLL.lat, anchorLL.lon]);
     }
 
-    renderSelectedTiles(true);
+    renderSelectedTiles(false);
     updateGridOverlay();
 }

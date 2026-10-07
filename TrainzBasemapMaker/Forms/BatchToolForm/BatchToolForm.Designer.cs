@@ -1,4 +1,4 @@
-﻿namespace TrainzBasemapMaker
+namespace TrainzBasemapMaker
 {
     partial class BatchToolForm
     {
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.comboBoxResolution = new System.Windows.Forms.ComboBox();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BatchToolForm));
             basemapFolderListBox = new ListBox();
             label10 = new Label();
@@ -36,10 +37,6 @@
             label15 = new Label();
             textBoxBasemapDate = new TextBox();
             label14 = new Label();
-            radioButton512 = new RadioButton();
-            radioButton1024 = new RadioButton();
-            radioButton2048 = new RadioButton();
-            radioButton4096 = new RadioButton();
             label2 = new Label();
             label13 = new Label();
             textBoxDesignation = new TextBox();
@@ -49,12 +46,12 @@
             label1 = new Label();
             groupBox1 = new GroupBox();
             groupBox2 = new GroupBox();
-            radioButtonEpsg3857 = new RadioButton();
-            radioButtonEpsg2180 = new RadioButton();
+            comboBoxEpsg = new ComboBox();
             labelProgress = new Label();
             groupBox3 = new GroupBox();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
+            groupBox2.Controls.Add(this.comboBoxResolution);
             groupBox3.SuspendLayout();
             SuspendLayout();
             // 
@@ -121,49 +118,13 @@
             label14.TabIndex = 38;
             label14.Text = "Rok\r\npodkładów:";
             // 
-            // radioButton512
             // 
-            radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(13, 131);
-            radioButton512.Name = "radioButton512";
-            radioButton512.Size = new Size(73, 19);
-            radioButton512.TabIndex = 37;
-            radioButton512.TabStop = true;
-            radioButton512.Text = "512 x 512";
-            radioButton512.UseVisualStyleBackColor = true;
             // 
-            // radioButton1024
             // 
-            radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(13, 106);
-            radioButton1024.Name = "radioButton1024";
-            radioButton1024.Size = new Size(85, 19);
-            radioButton1024.TabIndex = 36;
-            radioButton1024.TabStop = true;
-            radioButton1024.Text = "1024 x 1024";
-            radioButton1024.UseVisualStyleBackColor = true;
             // 
-            // radioButton2048
             // 
-            radioButton2048.AutoSize = true;
-            radioButton2048.Location = new Point(13, 81);
-            radioButton2048.Name = "radioButton2048";
-            radioButton2048.Size = new Size(85, 19);
-            radioButton2048.TabIndex = 35;
-            radioButton2048.TabStop = true;
-            radioButton2048.Text = "2048 x 2048";
-            radioButton2048.UseVisualStyleBackColor = true;
             // 
-            // radioButton4096
             // 
-            radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(13, 56);
-            radioButton4096.Name = "radioButton4096";
-            radioButton4096.Size = new Size(85, 19);
-            radioButton4096.TabIndex = 34;
-            radioButton4096.TabStop = true;
-            radioButton4096.Text = "4096 x 4096";
-            radioButton4096.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -240,11 +201,7 @@
             // groupBox2
             // 
             groupBox2.Controls.Add(label2);
-            groupBox2.Controls.Add(radioButton4096);
-            groupBox2.Controls.Add(radioButton2048);
-            groupBox2.Controls.Add(radioButton1024);
             groupBox2.Controls.Add(label13);
-            groupBox2.Controls.Add(radioButton512);
             groupBox2.Controls.Add(textBoxDesignation);
             groupBox2.Controls.Add(label14);
             groupBox2.Controls.Add(textBoxDestinationFolder);
@@ -259,27 +216,15 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "3. Ustaw parametry docelowe";
             // 
-            // radioButtonEpsg3857
+            // comboBoxEpsg
             // 
-            radioButtonEpsg3857.AutoSize = true;
-            radioButtonEpsg3857.Location = new Point(128, 21);
-            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
-            radioButtonEpsg3857.Size = new Size(79, 19);
-            radioButtonEpsg3857.TabIndex = 48;
-            radioButtonEpsg3857.TabStop = true;
-            radioButtonEpsg3857.Text = "EPSG:3857";
-            radioButtonEpsg3857.UseVisualStyleBackColor = true;
-            // 
-            // radioButtonEpsg2180
-            // 
-            radioButtonEpsg2180.AutoSize = true;
-            radioButtonEpsg2180.Location = new Point(13, 21);
-            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
-            radioButtonEpsg2180.Size = new Size(79, 19);
-            radioButtonEpsg2180.TabIndex = 47;
-            radioButtonEpsg2180.TabStop = true;
-            radioButtonEpsg2180.Text = "EPSG:2180";
-            radioButtonEpsg2180.UseVisualStyleBackColor = true;
+            comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxEpsg.FormattingEnabled = true;
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Location = new Point(13, 21);
+            comboBoxEpsg.Name = "comboBoxEpsg";
+            comboBoxEpsg.Size = new Size(188, 23);
+            comboBoxEpsg.TabIndex = 47;
             // 
             // labelProgress
             // 
@@ -293,8 +238,7 @@
             // 
             // groupBox3
             // 
-            groupBox3.Controls.Add(radioButtonEpsg2180);
-            groupBox3.Controls.Add(radioButtonEpsg3857);
+            groupBox3.Controls.Add(comboBoxEpsg);
             groupBox3.Location = new Point(225, 56);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(395, 49);
@@ -323,6 +267,16 @@
             Text = "Przetwarzanie seryjne";
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+                        // 
+            // comboBoxResolution
+            // 
+            this.comboBoxResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxResolution.FormattingEnabled = true;
+            this.comboBoxResolution.Location = new System.Drawing.Point(13, 56);
+            this.comboBoxResolution.Name = "comboBoxResolution";
+            this.comboBoxResolution.Size = new System.Drawing.Size(120, 23);
+            this.comboBoxResolution.TabIndex = 20;
+            this.comboBoxResolution.SelectedIndexChanged += new System.EventHandler(this.comboBoxResolution_SelectedIndexChanged);
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             groupBox3.ResumeLayout(false);
@@ -337,13 +291,10 @@
         private Label label10;
         private ProgressBar progressBar1;
         private ComboBox comboBoxMapType;
+        private System.Windows.Forms.ComboBox comboBoxResolution;
         private Label label15;
         private TextBox textBoxBasemapDate;
         private Label label14;
-        private RadioButton radioButton512;
-        private RadioButton radioButton1024;
-        private RadioButton radioButton2048;
-        private RadioButton radioButton4096;
         private Label label2;
         private Label label13;
         private TextBox textBoxDesignation;
@@ -354,8 +305,7 @@
         private GroupBox groupBox1;
         private GroupBox groupBox2;
         private Label labelProgress;
-        private RadioButton radioButtonEpsg2180;
-        private RadioButton radioButtonEpsg3857;
+        private ComboBox comboBoxEpsg;
         private GroupBox groupBox3;
     }
 }

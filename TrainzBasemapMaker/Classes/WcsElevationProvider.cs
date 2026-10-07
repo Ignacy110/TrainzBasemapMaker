@@ -41,7 +41,7 @@ namespace TrainzBasemapMaker.Classes
 
             _httpClient = new HttpClient(handler)
             {
-                Timeout = TimeSpan.FromSeconds(30),
+                Timeout = TimeSpan.FromSeconds(60),
                 DefaultRequestVersion = new Version(1, 1)
             };
 
@@ -83,7 +83,7 @@ namespace TrainzBasemapMaker.Classes
                         break;
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     throw;
                 }
@@ -111,11 +111,16 @@ namespace TrainzBasemapMaker.Classes
             return ParseAsciiGrid(asciiGrid);
         }
 
+        private static readonly char[] WhitespaceSeparators = { ' ', '\t' };
+        private static readonly Regex ServiceExceptionRegex = new Regex(
+            @"<ServiceException[^>]*>(.*?)</ServiceException>",
+            RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private static string ExtractServiceException(string xml)
         {
             try
             {
-                var match = Regex.Match(xml, @"<ServiceException[^>]*>(.*?)</ServiceException>", RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                var match = ServiceExceptionRegex.Match(xml);
                 if (match.Success)
                 {
                     return match.Groups[1].Value.Trim();
@@ -147,7 +152,7 @@ namespace TrainzBasemapMaker.Classes
                         continue;
                     }
 
-                    var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = line.Split(WhitespaceSeparators, StringSplitOptions.RemoveEmptyEntries);
 
                     // Jesli linia zawiera dane (liczby wiersza)
                     if (parts.Length > 2 || (parts.Length > 0 && float.TryParse(parts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out _)))
@@ -183,7 +188,7 @@ namespace TrainzBasemapMaker.Classes
                 {
                     if (line == null) throw new InvalidDataException("Niespodziewany koniec danych w pliku ASCII Grid.");
 
-                    var parts = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = line.Split(WhitespaceSeparators, StringSplitOptions.RemoveEmptyEntries);
 
                     if (parts.Length != ncols)
                     {

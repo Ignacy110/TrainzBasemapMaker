@@ -73,7 +73,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxLat
             // 
-            textBoxLat.Enabled = false;
+            textBoxLat.ReadOnly = true;
             textBoxLat.Location = new Point(45, 576);
             textBoxLat.Name = "textBoxLat";
             textBoxLat.Size = new Size(115, 23);
@@ -90,7 +90,7 @@ namespace TrainzBasemapMaker
             // 
             // textBoxLon
             // 
-            textBoxLon.Enabled = false;
+            textBoxLon.ReadOnly = true;
             textBoxLon.Location = new Point(272, 576);
             textBoxLon.Name = "textBoxLon";
             textBoxLon.Size = new Size(115, 23);

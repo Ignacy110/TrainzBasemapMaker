@@ -30,19 +30,18 @@ namespace TrainzBasemapMaker
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GridToolForm));
-            groupBox1Selection = new GroupBox();
+            groupBox2Selection = new GroupBox();
             labelArea = new Label();
             labelTileCount = new Label();
             buttonResetAnchor = new Button();
             buttonClearSelection = new Button();
             radioButtonModeBox = new RadioButton();
             radioButtonModeClick = new RadioButton();
-            groupBox2CoordSystem = new GroupBox();
-            radioButtonEpsg3857 = new RadioButton();
-            radioButtonEpsg2180 = new RadioButton();
+            groupBox1CoordSystem = new GroupBox();
+            comboBoxEpsg = new ComboBox();
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
-            groupBox3Config = new GroupBox();
+            groupBox4Configurator = new GroupBox();
             panelTrainzFiles = new Panel();
             buttonLoadFolder = new Button();
             labelKuidSeparator = new Label();
@@ -57,46 +56,42 @@ namespace TrainzBasemapMaker
             label4 = new Label();
             basemapFolderListBox = new ListBox();
             label10 = new Label();
-            radioButton512 = new RadioButton();
-            radioButton1024 = new RadioButton();
-            radioButton2048 = new RadioButton();
-            radioButton4096 = new RadioButton();
-            label2 = new Label();
-            textBoxBasemapDate = new TextBox();
-            label14 = new Label();
-            comboBoxMapType = new ComboBox();
-            label15 = new Label();
-            groupBox4Download = new GroupBox();
+            groupBox5Download = new GroupBox();
             buttonCancel = new Button();
             buttonStartDownload = new Button();
             labelProgress = new Label();
             progressBar1 = new ProgressBar();
-            statusStrip1 = new StatusStrip();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
-            groupBox1Selection.SuspendLayout();
-            groupBox2CoordSystem.SuspendLayout();
+            groupBox3BasemapParams = new GroupBox();
+            comboBoxMapType = new ComboBox();
+            label2 = new Label();
+            textBoxBasemapDate = new TextBox();
+            label14 = new Label();
+            comboBoxResolution = new ComboBox();
+            label15 = new Label();
+            groupBox2Selection.SuspendLayout();
+            groupBox1CoordSystem.SuspendLayout();
             groupBoxMap.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)webView21).BeginInit();
-            groupBox3Config.SuspendLayout();
+            groupBox4Configurator.SuspendLayout();
             panelTrainzFiles.SuspendLayout();
-            groupBox4Download.SuspendLayout();
-            statusStrip1.SuspendLayout();
+            groupBox5Download.SuspendLayout();
+            groupBox3BasemapParams.SuspendLayout();
             SuspendLayout();
             // 
-            // groupBox1Selection
+            // groupBox2Selection
             // 
-            groupBox1Selection.Controls.Add(labelArea);
-            groupBox1Selection.Controls.Add(labelTileCount);
-            groupBox1Selection.Controls.Add(buttonResetAnchor);
-            groupBox1Selection.Controls.Add(buttonClearSelection);
-            groupBox1Selection.Controls.Add(radioButtonModeBox);
-            groupBox1Selection.Controls.Add(radioButtonModeClick);
-            groupBox1Selection.Location = new Point(12, 12);
-            groupBox1Selection.Name = "groupBox1Selection";
-            groupBox1Selection.Size = new Size(200, 215);
-            groupBox1Selection.TabIndex = 0;
-            groupBox1Selection.TabStop = false;
-            groupBox1Selection.Text = "1. Zaznaczanie na siatce";
+            groupBox2Selection.Controls.Add(labelArea);
+            groupBox2Selection.Controls.Add(labelTileCount);
+            groupBox2Selection.Controls.Add(buttonResetAnchor);
+            groupBox2Selection.Controls.Add(buttonClearSelection);
+            groupBox2Selection.Controls.Add(radioButtonModeBox);
+            groupBox2Selection.Controls.Add(radioButtonModeClick);
+            groupBox2Selection.Location = new Point(12, 75);
+            groupBox2Selection.Name = "groupBox2Selection";
+            groupBox2Selection.Size = new Size(214, 215);
+            groupBox2Selection.TabIndex = 0;
+            groupBox2Selection.TabStop = false;
+            groupBox2Selection.Text = "2. Zaznaczanie obszaru";
             // 
             // labelArea
             // 
@@ -121,7 +116,7 @@ namespace TrainzBasemapMaker
             // 
             buttonResetAnchor.Location = new Point(6, 125);
             buttonResetAnchor.Name = "buttonResetAnchor";
-            buttonResetAnchor.Size = new Size(188, 26);
+            buttonResetAnchor.Size = new Size(202, 26);
             buttonResetAnchor.TabIndex = 3;
             buttonResetAnchor.Text = "Resetuj punkt bazowy";
             buttonResetAnchor.UseVisualStyleBackColor = true;
@@ -131,7 +126,7 @@ namespace TrainzBasemapMaker
             // 
             buttonClearSelection.Location = new Point(6, 93);
             buttonClearSelection.Name = "buttonClearSelection";
-            buttonClearSelection.Size = new Size(188, 26);
+            buttonClearSelection.Size = new Size(202, 26);
             buttonClearSelection.TabIndex = 2;
             buttonClearSelection.Text = "Wyczyść zaznaczenie";
             buttonClearSelection.UseVisualStyleBackColor = true;
@@ -161,49 +156,35 @@ namespace TrainzBasemapMaker
             radioButtonModeClick.UseVisualStyleBackColor = true;
             radioButtonModeClick.CheckedChanged += RadioButtonMode_CheckedChanged;
             // 
-            // groupBox2CoordSystem
+            // groupBox1CoordSystem
             // 
-            groupBox2CoordSystem.Controls.Add(radioButtonEpsg3857);
-            groupBox2CoordSystem.Controls.Add(radioButtonEpsg2180);
-            groupBox2CoordSystem.Location = new Point(12, 233);
-            groupBox2CoordSystem.Name = "groupBox2CoordSystem";
-            groupBox2CoordSystem.Size = new Size(200, 85);
-            groupBox2CoordSystem.TabIndex = 1;
-            groupBox2CoordSystem.TabStop = false;
-            groupBox2CoordSystem.Text = "2. Układ współrzędnych";
+            groupBox1CoordSystem.Controls.Add(comboBoxEpsg);
+            groupBox1CoordSystem.Location = new Point(12, 12);
+            groupBox1CoordSystem.Name = "groupBox1CoordSystem";
+            groupBox1CoordSystem.Size = new Size(214, 57);
+            groupBox1CoordSystem.TabIndex = 1;
+            groupBox1CoordSystem.TabStop = false;
+            groupBox1CoordSystem.Text = "1. Układ współrzędnych";
             // 
-            // radioButtonEpsg3857
+            // comboBoxEpsg
             // 
-            radioButtonEpsg3857.AutoSize = true;
-            radioButtonEpsg3857.Location = new Point(6, 51);
-            radioButtonEpsg3857.Name = "radioButtonEpsg3857";
-            radioButtonEpsg3857.Size = new Size(137, 19);
-            radioButtonEpsg3857.TabIndex = 1;
-            radioButtonEpsg3857.Text = "EPSG:3857 (Globalny)";
-            radioButtonEpsg3857.UseVisualStyleBackColor = true;
-            radioButtonEpsg3857.CheckedChanged += RadioButtonEpsg_CheckedChanged;
-            // 
-            // radioButtonEpsg2180
-            // 
-            radioButtonEpsg2180.AutoSize = true;
-            radioButtonEpsg2180.Checked = true;
-            radioButtonEpsg2180.Location = new Point(6, 26);
-            radioButtonEpsg2180.Name = "radioButtonEpsg2180";
-            radioButtonEpsg2180.Size = new Size(124, 19);
-            radioButtonEpsg2180.TabIndex = 0;
-            radioButtonEpsg2180.TabStop = true;
-            radioButtonEpsg2180.Text = "EPSG:2180 (Polska)";
-            radioButtonEpsg2180.UseVisualStyleBackColor = true;
-            radioButtonEpsg2180.CheckedChanged += RadioButtonEpsg_CheckedChanged;
+            comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxEpsg.FormattingEnabled = true;
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Location = new Point(6, 26);
+            comboBoxEpsg.Name = "comboBoxEpsg";
+            comboBoxEpsg.Size = new Size(202, 23);
+            comboBoxEpsg.TabIndex = 0;
+            comboBoxEpsg.SelectedIndexChanged += ComboBoxEpsg_SelectedIndexChanged;
             // 
             // groupBoxMap
             // 
             groupBoxMap.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxMap.Controls.Add(webView21);
             groupBoxMap.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 238);
-            groupBoxMap.Location = new Point(218, 9);
+            groupBoxMap.Location = new Point(232, 103);
             groupBoxMap.Name = "groupBoxMap";
-            groupBoxMap.Size = new Size(738, 763);
+            groupBoxMap.Size = new Size(580, 580);
             groupBoxMap.TabIndex = 2;
             groupBoxMap.TabStop = false;
             groupBoxMap.Text = "Wybór kafli na mapie (siatka lokalna):";
@@ -216,29 +197,20 @@ namespace TrainzBasemapMaker
             webView21.DefaultBackgroundColor = Color.White;
             webView21.Location = new Point(6, 28);
             webView21.Name = "webView21";
-            webView21.Size = new Size(726, 729);
+            webView21.Size = new Size(568, 546);
             webView21.TabIndex = 0;
             webView21.ZoomFactor = 1D;
             // 
-            // groupBox3Config
+            // groupBox4Configurator
             // 
-            groupBox3Config.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox3Config.Controls.Add(panelTrainzFiles);
-            groupBox3Config.Controls.Add(radioButton512);
-            groupBox3Config.Controls.Add(radioButton1024);
-            groupBox3Config.Controls.Add(radioButton2048);
-            groupBox3Config.Controls.Add(radioButton4096);
-            groupBox3Config.Controls.Add(label2);
-            groupBox3Config.Controls.Add(textBoxBasemapDate);
-            groupBox3Config.Controls.Add(label14);
-            groupBox3Config.Controls.Add(comboBoxMapType);
-            groupBox3Config.Controls.Add(label15);
-            groupBox3Config.Location = new Point(962, 12);
-            groupBox3Config.Name = "groupBox3Config";
-            groupBox3Config.Size = new Size(217, 575);
-            groupBox3Config.TabIndex = 3;
-            groupBox3Config.TabStop = false;
-            groupBox3Config.Text = "3. Konfiguracja";
+            groupBox4Configurator.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox4Configurator.Controls.Add(panelTrainzFiles);
+            groupBox4Configurator.Location = new Point(818, 12);
+            groupBox4Configurator.Name = "groupBox4Configurator";
+            groupBox4Configurator.Size = new Size(217, 414);
+            groupBox4Configurator.TabIndex = 3;
+            groupBox4Configurator.TabStop = false;
+            groupBox4Configurator.Text = "4. Konfiguracja pobieranych i tworzonych podkładów";
             // 
             // panelTrainzFiles
             // 
@@ -255,9 +227,9 @@ namespace TrainzBasemapMaker
             panelTrainzFiles.Controls.Add(label4);
             panelTrainzFiles.Controls.Add(basemapFolderListBox);
             panelTrainzFiles.Controls.Add(label10);
-            panelTrainzFiles.Location = new Point(6, 175);
+            panelTrainzFiles.Location = new Point(6, 39);
             panelTrainzFiles.Name = "panelTrainzFiles";
-            panelTrainzFiles.Size = new Size(205, 394);
+            panelTrainzFiles.Size = new Size(205, 370);
             panelTrainzFiles.TabIndex = 9;
             // 
             // buttonLoadFolder
@@ -375,108 +347,19 @@ namespace TrainzBasemapMaker
             label10.TabIndex = 0;
             label10.Text = "Twoje foldery:";
             // 
-            // radioButton512
+            // groupBox5Download
             // 
-            radioButton512.AutoSize = true;
-            radioButton512.Location = new Point(109, 147);
-            radioButton512.Name = "radioButton512";
-            radioButton512.Size = new Size(73, 19);
-            radioButton512.TabIndex = 8;
-            radioButton512.Text = "512 x 512";
-            radioButton512.UseVisualStyleBackColor = true;
-            // 
-            // radioButton1024
-            // 
-            radioButton1024.AutoSize = true;
-            radioButton1024.Location = new Point(9, 147);
-            radioButton1024.Name = "radioButton1024";
-            radioButton1024.Size = new Size(85, 19);
-            radioButton1024.TabIndex = 7;
-            radioButton1024.Text = "1024 x 1024";
-            radioButton1024.UseVisualStyleBackColor = true;
-            // 
-            // radioButton2048
-            // 
-            radioButton2048.AutoSize = true;
-            radioButton2048.Checked = true;
-            radioButton2048.Location = new Point(109, 122);
-            radioButton2048.Name = "radioButton2048";
-            radioButton2048.Size = new Size(85, 19);
-            radioButton2048.TabIndex = 6;
-            radioButton2048.TabStop = true;
-            radioButton2048.Text = "2048 x 2048";
-            radioButton2048.UseVisualStyleBackColor = true;
-            // 
-            // radioButton4096
-            // 
-            radioButton4096.AutoSize = true;
-            radioButton4096.Location = new Point(9, 122);
-            radioButton4096.Name = "radioButton4096";
-            radioButton4096.Size = new Size(85, 19);
-            radioButton4096.TabIndex = 5;
-            radioButton4096.Text = "4096 x 4096";
-            radioButton4096.UseVisualStyleBackColor = true;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(6, 102);
-            label2.Name = "label2";
-            label2.Size = new Size(135, 15);
-            label2.TabIndex = 4;
-            label2.Text = "Rozdzielczość podkładu:";
-            // 
-            // textBoxBasemapDate
-            // 
-            textBoxBasemapDate.Location = new Point(136, 68);
-            textBoxBasemapDate.MaxLength = 4;
-            textBoxBasemapDate.Name = "textBoxBasemapDate";
-            textBoxBasemapDate.Size = new Size(72, 23);
-            textBoxBasemapDate.TabIndex = 3;
-            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
-            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
-            // 
-            // label14
-            // 
-            label14.AutoSize = true;
-            label14.Location = new Point(136, 50);
-            label14.Name = "label14";
-            label14.Size = new Size(30, 15);
-            label14.TabIndex = 2;
-            label14.Text = "Rok:";
-            // 
-            // comboBoxMapType
-            // 
-            comboBoxMapType.DropDownWidth = 280;
-            comboBoxMapType.FormattingEnabled = true;
-            comboBoxMapType.Location = new Point(6, 68);
-            comboBoxMapType.Name = "comboBoxMapType";
-            comboBoxMapType.Size = new Size(124, 23);
-            comboBoxMapType.TabIndex = 1;
-            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
-            // 
-            // label15
-            // 
-            label15.AutoSize = true;
-            label15.Location = new Point(6, 50);
-            label15.Name = "label15";
-            label15.Size = new Size(107, 15);
-            label15.TabIndex = 0;
-            label15.Text = "Rodzaj podkładów:";
-            // 
-            // groupBox4Download
-            // 
-            groupBox4Download.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            groupBox4Download.Controls.Add(buttonCancel);
-            groupBox4Download.Controls.Add(buttonStartDownload);
-            groupBox4Download.Controls.Add(labelProgress);
-            groupBox4Download.Controls.Add(progressBar1);
-            groupBox4Download.Location = new Point(962, 593);
-            groupBox4Download.Name = "groupBox4Download";
-            groupBox4Download.Size = new Size(217, 179);
-            groupBox4Download.TabIndex = 4;
-            groupBox4Download.TabStop = false;
-            groupBox4Download.Text = "4. Pobieranie";
+            groupBox5Download.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox5Download.Controls.Add(buttonCancel);
+            groupBox5Download.Controls.Add(buttonStartDownload);
+            groupBox5Download.Controls.Add(labelProgress);
+            groupBox5Download.Controls.Add(progressBar1);
+            groupBox5Download.Location = new Point(818, 432);
+            groupBox5Download.Name = "groupBox5Download";
+            groupBox5Download.Size = new Size(217, 179);
+            groupBox5Download.TabIndex = 4;
+            groupBox5Download.TabStop = false;
+            groupBox5Download.Text = "5. Pobieranie";
             // 
             // buttonCancel
             // 
@@ -515,83 +398,130 @@ namespace TrainzBasemapMaker
             progressBar1.Size = new Size(205, 23);
             progressBar1.TabIndex = 0;
             // 
-            // statusStrip1
+            // groupBox3BasemapParams
             // 
-            statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
-            statusStrip1.Location = new Point(0, 787);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1193, 22);
-            statusStrip1.TabIndex = 5;
-            statusStrip1.Text = "statusStrip1";
+            groupBox3BasemapParams.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox3BasemapParams.Controls.Add(comboBoxMapType);
+            groupBox3BasemapParams.Controls.Add(label2);
+            groupBox3BasemapParams.Controls.Add(textBoxBasemapDate);
+            groupBox3BasemapParams.Controls.Add(label14);
+            groupBox3BasemapParams.Controls.Add(comboBoxResolution);
+            groupBox3BasemapParams.Controls.Add(label15);
+            groupBox3BasemapParams.Location = new Point(232, 12);
+            groupBox3BasemapParams.Name = "groupBox3BasemapParams";
+            groupBox3BasemapParams.Size = new Size(580, 85);
+            groupBox3BasemapParams.TabIndex = 6;
+            groupBox3BasemapParams.TabStop = false;
+            groupBox3BasemapParams.Text = "3. Parametry podkładów satelitarnych (basemap-ów)";
             // 
-            // toolStripStatusLabel1
+            // comboBoxMapType
             // 
-            toolStripStatusLabel1.Margin = new Padding(10, 3, 0, 2);
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(0, 17);
+            comboBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxMapType.DropDownWidth = 310;
+            comboBoxMapType.FormattingEnabled = true;
+            comboBoxMapType.Location = new Point(125, 50);
+            comboBoxMapType.Name = "comboBoxMapType";
+            comboBoxMapType.Size = new Size(307, 23);
+            comboBoxMapType.TabIndex = 38;
+            comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(3, 25);
+            label2.Name = "label2";
+            label2.Size = new Size(106, 15);
+            label2.TabIndex = 33;
+            label2.Text = "Rozdzielczość [px]:";
+            // 
+            // textBoxBasemapDate
+            // 
+            textBoxBasemapDate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            textBoxBasemapDate.Location = new Point(448, 50);
+            textBoxBasemapDate.MaxLength = 4;
+            textBoxBasemapDate.Name = "textBoxBasemapDate";
+            textBoxBasemapDate.Size = new Size(67, 23);
+            textBoxBasemapDate.TabIndex = 36;
+            textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
+            textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
+            // 
+            // label14
+            // 
+            label14.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label14.AutoSize = true;
+            label14.Location = new Point(448, 29);
+            label14.Name = "label14";
+            label14.Size = new Size(92, 15);
+            label14.TabIndex = 35;
+            label14.Text = "Rok podkładów:";
+            // 
+            // comboBoxResolution
+            // 
+            comboBoxResolution.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxResolution.FormattingEnabled = true;
+            comboBoxResolution.Location = new Point(6, 50);
+            comboBoxResolution.Name = "comboBoxResolution";
+            comboBoxResolution.Size = new Size(103, 23);
+            comboBoxResolution.TabIndex = 34;
+            comboBoxResolution.SelectedIndexChanged += comboBoxResolution_SelectedIndexChanged;
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Location = new Point(125, 25);
+            label15.Name = "label15";
+            label15.Size = new Size(107, 15);
+            label15.TabIndex = 37;
+            label15.Text = "Rodzaj podkładów:";
             // 
             // GridToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1193, 809);
-            Controls.Add(statusStrip1);
-            Controls.Add(groupBox4Download);
-            Controls.Add(groupBox3Config);
+            ClientSize = new Size(1047, 688);
+            Controls.Add(groupBox3BasemapParams);
+            Controls.Add(groupBox5Download);
+            Controls.Add(groupBox4Configurator);
             Controls.Add(groupBoxMap);
-            Controls.Add(groupBox2CoordSystem);
-            Controls.Add(groupBox1Selection);
+            Controls.Add(groupBox1CoordSystem);
+            Controls.Add(groupBox2Selection);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimumSize = new Size(1209, 848);
+            MinimumSize = new Size(1063, 727);
             Name = "GridToolForm";
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "Pobieranie obszarowe (siatka)";
             FormClosing += GridToolForm_FormClosing;
             Load += GridToolForm_Load;
-            groupBox1Selection.ResumeLayout(false);
-            groupBox1Selection.PerformLayout();
-            groupBox2CoordSystem.ResumeLayout(false);
-            groupBox2CoordSystem.PerformLayout();
+            groupBox2Selection.ResumeLayout(false);
+            groupBox2Selection.PerformLayout();
+            groupBox1CoordSystem.ResumeLayout(false);
             groupBoxMap.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)webView21).EndInit();
-            groupBox3Config.ResumeLayout(false);
-            groupBox3Config.PerformLayout();
+            groupBox4Configurator.ResumeLayout(false);
             panelTrainzFiles.ResumeLayout(false);
             panelTrainzFiles.PerformLayout();
-            groupBox4Download.ResumeLayout(false);
-            groupBox4Download.PerformLayout();
-            statusStrip1.ResumeLayout(false);
-            statusStrip1.PerformLayout();
+            groupBox5Download.ResumeLayout(false);
+            groupBox5Download.PerformLayout();
+            groupBox3BasemapParams.ResumeLayout(false);
+            groupBox3BasemapParams.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
 
-        private GroupBox groupBox1Selection;
+        private GroupBox groupBox2Selection;
         private RadioButton radioButtonModeBox;
         private RadioButton radioButtonModeClick;
         private Button buttonClearSelection;
         private Button buttonResetAnchor;
         private Label labelTileCount;
         private Label labelArea;
-        private GroupBox groupBox2CoordSystem;
-        private RadioButton radioButtonEpsg3857;
-        private RadioButton radioButtonEpsg2180;
+        private GroupBox groupBox1CoordSystem;
+        private ComboBox comboBoxEpsg;
         private GroupBox groupBoxMap;
         private Microsoft.Web.WebView2.WinForms.WebView2 webView21;
-        private GroupBox groupBox3Config;
-        private ComboBox comboBoxMapType;
-        private Label label15;
-        private TextBox textBoxBasemapDate;
-        private Label label14;
-        private RadioButton radioButton512;
-        private RadioButton radioButton1024;
-        private RadioButton radioButton2048;
-        private RadioButton radioButton4096;
-        private Label label2;
+        private GroupBox groupBox4Configurator;
         private Panel panelTrainzFiles;
         private ListBox basemapFolderListBox;
         private Button buttonLoadFolder;
@@ -606,12 +536,19 @@ namespace TrainzBasemapMaker
         private TextBox textBoxKuidPart2;
         private TextBox textBoxKuidPart1;
         private Label label12;
-        private GroupBox groupBox4Download;
+        private GroupBox groupBox5Download;
         private ProgressBar progressBar1;
         private Label labelProgress;
         private Button buttonStartDownload;
         private Button buttonCancel;
-        private StatusStrip statusStrip1;
-        private ToolStripStatusLabel toolStripStatusLabel1;
+        
+        
+        private GroupBox groupBox3BasemapParams;
+        private ComboBox comboBoxMapType;
+        private Label label2;
+        private TextBox textBoxBasemapDate;
+        private Label label14;
+        private ComboBox comboBoxResolution;
+        private Label label15;
     }
 }

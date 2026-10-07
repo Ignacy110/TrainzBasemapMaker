@@ -118,18 +118,19 @@ namespace TrainzBasemapMaker.Classes
 
                     downloadTasks.Add(Task.Run(async () =>
                     {
-                        byte[]? baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds, cancellationToken);
+                        byte[]? baseBytes = await FetchTileBytesWithRetryAsync(baseUrlFormatted, maxRetries, delaySeconds, cancellationToken).ConfigureAwait(false);
                         byte[]? overlayBytes = null;
                         if (!string.IsNullOrEmpty(overlayUrlFormatted))
                         {
-                            overlayBytes = await FetchTileBytesWithRetryAsync(overlayUrlFormatted, maxRetries, delaySeconds, cancellationToken);
+                            overlayBytes = await FetchTileBytesWithRetryAsync(overlayUrlFormatted, maxRetries, delaySeconds, cancellationToken).ConfigureAwait(false);
                         }
                         return (currentTx, currentTy, baseBytes, overlayBytes);
                     }, cancellationToken));
                 }
             }
 
-            var results = await Task.WhenAll(downloadTasks);
+            // ConfigureAwait(false): the CPU-heavy stitching/warping below must not run on the UI thread.
+            var results = await Task.WhenAll(downloadTasks).ConfigureAwait(false);
 
             if (results.All(r => r.baseBytes == null || r.baseBytes.Length == 0))
             {
@@ -139,7 +140,8 @@ namespace TrainzBasemapMaker.Classes
             int stitchedWidth = tilesNumX * Constants.XyzTilePixelSize;
             int stitchedHeight = tilesNumY * Constants.XyzTilePixelSize;
 
-            using Bitmap stitchedBitmap = new Bitmap(stitchedWidth, stitchedHeight);
+            // Overlay tiles (PNG with alpha) are composited onto this opaque canvas, so 24bpp is sufficient.
+            using Bitmap stitchedBitmap = ImageHelpers.CreateRgbBitmap(stitchedWidth, stitchedHeight);
             using (Graphics gStitch = Graphics.FromImage(stitchedBitmap))
             {
                 gStitch.Clear(Color.White);
@@ -169,7 +171,7 @@ namespace TrainzBasemapMaker.Classes
             PointF srcTR = new PointF((float)((trX - minTileX) * Constants.XyzTilePixelSize), (float)((trY - minTileY) * Constants.XyzTilePixelSize));
             PointF srcBL = new PointF((float)((blX - minTileX) * Constants.XyzTilePixelSize), (float)((blY - minTileY) * Constants.XyzTilePixelSize));
 
-            using Bitmap outputBitmap = new Bitmap(resolution, resolution);
+            using Bitmap outputBitmap = ImageHelpers.CreateRgbBitmap(resolution, resolution);
             using (Graphics gOut = Graphics.FromImage(outputBitmap))
             {
                 gOut.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -185,9 +187,7 @@ namespace TrainzBasemapMaker.Classes
                 gOut.DrawImage(stitchedBitmap, 0, 0);
             }
 
-            using MemoryStream outMs = new MemoryStream();
-            outputBitmap.Save(outMs, ImageFormat.Jpeg);
-            return outMs.ToArray();
+            return ImageHelpers.EncodeJpeg(outputBitmap);
         }
 
         private static (double tileX, double tileY) LatLonToTile(double lat, double lon, int zoom)

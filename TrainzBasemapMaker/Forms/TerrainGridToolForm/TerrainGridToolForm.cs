@@ -29,7 +29,7 @@ using TrainzBasemapMaker.Classes.TrainzTerrain;
 
 namespace TrainzBasemapMaker
 {
-    public partial class TerrainGridToolForm : Form
+    public partial class TerrainGridToolForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
     {
         private class SelectedTileModel
         {
@@ -52,6 +52,8 @@ namespace TrainzBasemapMaker
 
         private CheckBox _checkBoxGenerateBasemaps;
 
+        public event Action<string>? StatusUpdate;
+
         public TerrainGridToolForm()
         {
             InitializeComponent();
@@ -60,12 +62,20 @@ namespace TrainzBasemapMaker
             {
                 Text = "Wygeneruj także podkłady 3D (Ortofotomapa WMTS)",
                 AutoSize = true,
-                Location = new Point(10, 290), // Position appropriately within groupBox3Config
+                Location = new Point(10, 380), // Position appropriately within groupBox4Configurator
                 Checked = false
             };
-            groupBox3Config.Controls.Add(_checkBoxGenerateBasemaps);
+            groupBox4Configurator.Controls.Add(_checkBoxGenerateBasemaps);
 
             // Set initial control states
+                        // Initialize map providers
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
+            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += FormHelpers.ComboBoxMapType_DrawItem;
+            
+            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             textBoxKuidPart1.Text = Properties.Settings.Default.DefaultKuidFirstPart ?? "123456";
             textBoxKuidPart1.TextChanged += (s, e) =>
@@ -76,7 +86,7 @@ namespace TrainzBasemapMaker
                 }
             };
 
-            radioButtonEpsg2180.Checked = true;
+            comboBoxEpsg.SelectedIndex = 0;
             radioButtonModeClick.Checked = true;
             radioButtonElevationAbsolute.Checked = true;
 
@@ -84,7 +94,7 @@ namespace TrainzBasemapMaker
             buttonDeleteRoute.Enabled = false;
 
             UpdateNextFreeKuidPart2();
-            toolStripStatusLabel1.Text = "LPM: Kliknij lub przeciagnij pedzlem, aby zaznaczyc | PPM: Przesuwanie mapy";
+            StatusUpdate?.Invoke("LPM: Kliknij lub przeciagnij pedzlem, aby zaznaczyc | PPM: Przesuwanie mapy");
         }
 
         private async void TerrainGridToolForm_Load(object? sender, EventArgs e)
@@ -127,7 +137,7 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
-                toolStripStatusLabel1.Text = "Blad inicjalizacji mapy!";
+                StatusUpdate?.Invoke("Blad inicjalizacji mapy!");
                 MessageBox.Show("Wystapil blad podczas inicjalizacji mapy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -203,9 +213,9 @@ namespace TrainzBasemapMaker
                 textBoxKuidPart2.Text = selectedRoute.KuidPart2;
 
                 if (selectedRoute.Epsg == "EPSG:3857")
-                    radioButtonEpsg3857.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 1;
                 else
-                    radioButtonEpsg2180.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 0;
 
                 if (selectedRoute.IsRelative)
                     radioButtonElevationRelative.Checked = true;
@@ -235,11 +245,11 @@ namespace TrainzBasemapMaker
 
                     string json = JsonSerializer.Serialize(payload);
                     await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
-                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.";
+                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.");
                 }
                 else
                 {
-                    toolStripStatusLabel1.Text = $"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.";
+                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.");
                     MessageBox.Show($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów).\n\nTrasa ta nie zawierała danych geolokalizacji punktu bazowego (została wygenerowana we wcześniejszej wersji). Nie można jej wyświetlić na mapie.", "Wczytano trasę", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -271,7 +281,7 @@ namespace TrainzBasemapMaker
                     buttonResetAnchor_Click(sender, e);
                 }
                 RoutesListBoxRefresh();
-                toolStripStatusLabel1.Text = $"Usunięto trasę \"{route.RouteName}\".";
+                StatusUpdate?.Invoke($"Usunięto trasę \"{route.RouteName}\".");
             }
             catch (Exception ex)
             {
@@ -353,14 +363,14 @@ namespace TrainzBasemapMaker
                             : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów. Kliknij na mapie, aby dodać nowe." : "Zaznacz obszar trasy na mapie.");
 
                         labelProgress.Text = count > 0 ? $"Zaznaczono {count} baseboardów." : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów." : "Gotowy do zaznaczania.");
-                        toolStripStatusLabel1.Text = statusMsg;
+                        StatusUpdate?.Invoke(statusMsg);
                     }
                 }
             }
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
-                toolStripStatusLabel1.Text = "Blad!";
+                StatusUpdate?.Invoke("Blad!");
                 MessageBox.Show("Wystapil blad w komunikacji z mapa (szczegoly w error.log):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -373,11 +383,11 @@ namespace TrainzBasemapMaker
             await webView21.CoreWebView2.ExecuteScriptAsync($"setSelectionMode('{mode}')");
         }
 
-        private async void RadioButtonEpsg_CheckedChanged(object? sender, EventArgs e)
+        private async void ComboBoxEpsg_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (webView21.CoreWebView2 == null) return;
 
-            string epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+            string epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857";
             await webView21.CoreWebView2.ExecuteScriptAsync($"setCoordinateSystem('{epsg}')");
         }
 
@@ -395,12 +405,20 @@ namespace TrainzBasemapMaker
             _currentAnchorX = null;
             _currentAnchorY = null;
             buttonStartDownload.Text = "Generuj teren (map.gnd)";
+                        // Initialize map providers
+            comboBoxMapType.DataSource = MapSources.AvailableMaps;
+            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
+            comboBoxMapType.DrawItem += FormHelpers.ComboBoxMapType_DrawItem;
+            
+            comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
+            textBoxBasemapDate.Text = DateTime.Now.Year.ToString();
             textBoxDestinationFolder.Text = "Nowa_Trasa";
             UpdateNextFreeKuidPart2();
             labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
             labelArea.Text = "Powierzchnia: 0.00 km²";
             labelProgress.Text = "Zresetowano trasę. Gotowy do zaznaczania.";
-            toolStripStatusLabel1.Text = "Wybierz punkt początkowy na mapie.";
+            StatusUpdate?.Invoke("Wybierz punkt początkowy na mapie.");
 
             if (webView21.CoreWebView2 != null)
             {
@@ -442,12 +460,12 @@ namespace TrainzBasemapMaker
                 return;
             }
 
-            if (radioButtonEpsg3857.Checked)
+            if ((comboBoxEpsg.SelectedIndex == 1))
             {
                 var res = MessageBox.Show("Pobieranie wysokosci NMT z Geoportalu wymaga ukladu EPSG:2180 (obszar Polski).\nCzy chcesz automatycznie przelaczyc uklad na EPSG:2180?", "Uklad wspolrzednych", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                 {
-                    radioButtonEpsg2180.Checked = true;
+                    comboBoxEpsg.SelectedIndex = 0;
                 }
                 else
                 {
@@ -481,7 +499,7 @@ namespace TrainzBasemapMaker
             progressBar1.Maximum = total;
             progressBar1.Value = 0;
             labelProgress.Text = $"Pobieranie: 0/{total}";
-            toolStripStatusLabel1.Text = "Pobieranie danych wysokosciowych...";
+            StatusUpdate?.Invoke("Pobieranie danych wysokosciowych...");
 
             try
             {
@@ -507,7 +525,7 @@ namespace TrainzBasemapMaker
                                 {
                                     labelProgress.Text = $"Pobieranie: {c}/{total}";
                                     progressBar1.Value = Math.Min(c, progressBar1.Maximum);
-                                    toolStripStatusLabel1.Text = $"Pobrano baseboard ({tile.I}, {tile.J}) [{c}/{total}]";
+                                    StatusUpdate?.Invoke($"Pobrano baseboard ({tile.I}, {tile.J}) [{c}/{total}]");
                                 });
                             }
                         }
@@ -562,7 +580,7 @@ namespace TrainzBasemapMaker
                 }
 
                 labelProgress.Text = "Generowanie mapfile.gnd...";
-                toolStripStatusLabel1.Text = "Tworzenie struktury mapy Trainz...";
+                StatusUpdate?.Invoke("Tworzenie struktury mapy Trainz...");
 
                 foreach (var tile in _selectedTiles.OrderBy(t => t.Order))
                 {
@@ -584,7 +602,7 @@ namespace TrainzBasemapMaker
                 routeInfo.RouteName = routeName;
                 routeInfo.KuidPart1 = kuidPart1;
                 routeInfo.KuidPart2 = kuidPart2;
-                routeInfo.Epsg = radioButtonEpsg2180.Checked ? "EPSG:2180" : "EPSG:3857";
+                routeInfo.Epsg = (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857";
                 routeInfo.IsRelative = isRelative;
                 if (isRelative)
                 {
@@ -630,7 +648,7 @@ namespace TrainzBasemapMaker
                 if (_checkBoxGenerateBasemaps.Checked)
                 {
                     labelProgress.Text = "Pobieranie tekstur satelitarnych...";
-                    toolStripStatusLabel1.Text = "Tworzenie podkładów 3D...";
+                    StatusUpdate?.Invoke("Tworzenie podkładów 3D...");
 
                     IMapSource ortoSource = MapSources.AvailableMaps.FirstOrDefault(m => m.Name.Contains("Ortofotomapa WMTS") || m.Name.Contains("WMTS")) ?? MapSources.AvailableMaps.First();
                     int res = 2048; // Standard resolution for basemaps
@@ -667,8 +685,11 @@ namespace TrainzBasemapMaker
                             {
                                 KuidPart1 = int.Parse(kuidPart1),
                                 KuidPart2 = int.Parse(currentKuid2),
-                                X = (-tile.J) * 720f + 360f,
-                                Y = tile.I * 720f + 360f,
+                                LayerId = 0,
+                                SegX = (short)(-tile.J),
+                                SegY = (short)tile.I,
+                                X = 360f,
+                                Y = 360f,
                                 Z = baseHeight,
                                 RotZ = (float)(Math.PI / 2.0)
                             });
@@ -716,20 +737,20 @@ namespace TrainzBasemapMaker
                 _selectedTiles.Clear();
 
                 labelProgress.Text = "Gotowe!";
-                toolStripStatusLabel1.Text = $"Zapisano trasę ({blocks.Count} baseboardów)!";
+                StatusUpdate?.Invoke($"Zapisano trasę ({blocks.Count} baseboardów)!");
                 MessageBox.Show($"Pomyślnie zapisano mapę terenu ({blocks.Count} baseboardów) w folderze:\n{targetFolder}", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (OperationCanceledException)
             {
                 labelProgress.Text = "Anulowano.";
-                toolStripStatusLabel1.Text = "Pobieranie zostalo anulowane przez uzytkownika.";
+                StatusUpdate?.Invoke("Pobieranie zostalo anulowane przez uzytkownika.");
                 MessageBox.Show("Pobieranie zostalo przerwane.", "Anulowano", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 File.WriteAllText("error.log", ex.ToString());
                 labelProgress.Text = "Blad generowania!";
-                toolStripStatusLabel1.Text = "Wystapil blad podczas generowania mapy!";
+                StatusUpdate?.Invoke("Wystapil blad podczas generowania mapy!");
                 MessageBox.Show("Wystapil blad podczas generowania mapy (szczegoly w error.log):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
@@ -743,7 +764,7 @@ namespace TrainzBasemapMaker
             _cancellationTokenSource?.Cancel();
             buttonCancel.Enabled = false;
             labelProgress.Text = "Anulowanie...";
-            toolStripStatusLabel1.Text = "Anulowanie pobierania...";
+            StatusUpdate?.Invoke("Anulowanie pobierania...");
         }
 
         private void SetUiDownloadingState(bool downloading)
@@ -751,10 +772,11 @@ namespace TrainzBasemapMaker
             _isDownloading = downloading;
             buttonStartDownload.Enabled = !downloading;
             buttonCancel.Enabled = downloading;
-            groupBox1Selection.Enabled = !downloading;
-            groupBox2CoordSystem.Enabled = !downloading;
-            groupBox3Config.Enabled = !downloading;
-            groupBox4Download.Enabled = true;
+            groupBox2Selection.Enabled = !downloading;
+            groupBox1CoordSystem.Enabled = !downloading;
+            groupBox4Configurator.Enabled = !downloading;
+            groupBox3BasemapParams.Enabled = !downloading;
+            groupBox5Download.Enabled = true;
             Cursor = downloading ? Cursors.WaitCursor : Cursors.Default;
         }
 
@@ -797,6 +819,41 @@ namespace TrainzBasemapMaker
             }
             Properties.Settings.Default.Save();
         }
+            public void FindSmallestFreeBasemapNumber()
+        {
+            // Not applicable
+        }
+
+        public void FindFreeKuid()
+        {
+            UpdateNextFreeKuidPart2();
+            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
+        }
+
+        public void RefreshLists()
+        {
+            RoutesListBoxRefresh();
+            StatusUpdate?.Invoke("Odświeżono listę folderów");
+        }
+            private void comboBoxResolution_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Event handler required for designer
+        }
+
+        private int GetSelectedResolution()
+        {
+            return (comboBoxResolution.SelectedItem as ResolutionOption)?.Value ?? 2048;
+        }
+
+        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxMapType.SelectedItem is IMapSource selected)
+            {
+                textBoxBasemapDate.Enabled = selected.SupportsTime;
+                label14.Enabled = selected.SupportsTime;
+
+                FormHelpers.UpdateResolutionComboBox(comboBoxResolution, selected);
+            }
+        }
     }
 }
-
