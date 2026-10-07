@@ -82,17 +82,43 @@ namespace TrainzBasemapMaker.Classes
         {
             if (e.Index < 0 || sender is not ComboBox combo) return;
 
-            string text = combo.Items[e.Index] is IMapSource mapSource ? mapSource.Name : combo.Items[e.Index]?.ToString() ?? string.Empty;
-
-            e.DrawBackground();
-
-            Font font = e.Font ?? combo.Font;
-            using (Brush textBrush = new SolidBrush(e.ForeColor))
+            if (combo.Items[e.Index] is IMapSource mapSource)
             {
-                e.Graphics.DrawString(text, font, textBrush, e.Bounds);
-            }
+                bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+                bool isDarkMode = Properties.Settings.Default.DarkMode;
+                Color highlightColor = isDarkMode ? Color.FromArgb(120, 120, 0) : Color.FromArgb(255, 255, 204);
 
-            e.DrawFocusRectangle();
+                // Subtle highlight for XYZ tile sources (OpenStreetMap / OpenRailwayMap)
+                Color backColor = isSelected
+                    ? SystemColors.Highlight
+                    : (mapSource is XyzTileMapSource ? highlightColor : (isDarkMode ? Color.FromArgb(30, 30, 30) : combo.BackColor));
+
+                Color foreColor = isSelected ? SystemColors.HighlightText : (isDarkMode ? Color.White : combo.ForeColor);
+
+                using (var backBrush = new SolidBrush(backColor))
+                {
+                    e.Graphics.FillRectangle(backBrush, e.Bounds);
+                }
+
+                using (var textBrush = new SolidBrush(foreColor))
+                using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
+                {
+                    e.Graphics.DrawString(mapSource.Name, e.Font ?? combo.Font, textBrush, e.Bounds, sf);
+                }
+
+                e.DrawFocusRectangle();
+            }
+            else
+            {
+                e.DrawBackground();
+                Font font = e.Font ?? combo.Font;
+                using (Brush textBrush = new SolidBrush(e.ForeColor))
+                using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
+                {
+                    e.Graphics.DrawString(combo.Items[e.Index]?.ToString() ?? string.Empty, font, textBrush, e.Bounds, sf);
+                }
+                e.DrawFocusRectangle();
+            }
         }
 
         public static string RemoveDiacritics(string text)

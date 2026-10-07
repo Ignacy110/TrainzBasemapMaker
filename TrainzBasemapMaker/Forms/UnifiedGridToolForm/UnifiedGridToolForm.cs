@@ -144,6 +144,9 @@ namespace TrainzBasemapMaker
             {
                 await webView21.EnsureCoreWebView2Async(null);
                 webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.6.0 (https://github.com/Ignacy110/TrainzBasemapMaker)";
+                webView21.CoreWebView2.Profile.PreferredColorScheme = Properties.Settings.Default.DarkMode
+                    ? Microsoft.Web.WebView2.Core.CoreWebView2PreferredColorScheme.Dark
+                    : Microsoft.Web.WebView2.Core.CoreWebView2PreferredColorScheme.Light;
 
                 // Prefer TerrainGridToolForm web map (720m tiles), fall back to GridToolForm web map
                 string indexPath = Path.Combine(Application.StartupPath, "Forms", "TerrainGridToolForm", "Web", "grid_map.html");

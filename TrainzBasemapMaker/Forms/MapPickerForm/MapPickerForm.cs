@@ -73,6 +73,9 @@ namespace TrainzBasemapMaker
 
             // Set a custom User-Agent to comply with OpenStreetMap Tile Usage Policy
             webView21.CoreWebView2.Settings.UserAgent = "TrainzBasemapMaker/v0.5.0-alpha (https://github.com/Ignacy110/TrainzBasemapMaker)";
+            webView21.CoreWebView2.Profile.PreferredColorScheme = Properties.Settings.Default.DarkMode
+                ? CoreWebView2PreferredColorScheme.Dark
+                : CoreWebView2PreferredColorScheme.Light;
 
             // Build the absolute path to the HTML file within the project folder structure
             string indexPath = Path.Combine(Application.StartupPath, "Forms", "MapPickerForm", "Web", "map.html");

@@ -16,8 +16,8 @@ namespace TrainzBasemapMaker
         public MainForm()
         {
             InitializeComponent();
-            ThemeManager.ApplyTheme(this);
             LoadTools();
+            ThemeManager.ApplyTheme(this);
             
             this.Load += MainForm_Load;
             this.FormClosing += MainForm_FormClosing;

@@ -15,7 +15,7 @@ namespace TrainzBasemapMaker
 
         private void InitializeComponent()
         {
-            tabControl = new TabControl();
+            tabControl = new TrainzBasemapMaker.Classes.DarkTabControl();
             tabPageSingle = new TabPage();
             tabPageUnified = new TabPage();
             menuStrip1 = new MenuStrip();
@@ -49,23 +49,25 @@ namespace TrainzBasemapMaker
             // 
             // tabPageSingle
             // 
+            tabPageSingle.BackColor = Color.FromArgb(45, 45, 48);
             tabPageSingle.Location = new Point(4, 24);
             tabPageSingle.Name = "tabPageSingle";
-            tabPageSingle.Padding = new Padding(3);
+            tabPageSingle.Padding = new Padding(0);
             tabPageSingle.Size = new Size(1076, 737);
             tabPageSingle.TabIndex = 0;
             tabPageSingle.Text = "Pojedynczy podkład (2D)";
-            tabPageSingle.UseVisualStyleBackColor = true;
+            tabPageSingle.UseVisualStyleBackColor = false;
             // 
             // tabPageUnified
             // 
+            tabPageUnified.BackColor = Color.FromArgb(45, 45, 48);
             tabPageUnified.Location = new Point(4, 24);
             tabPageUnified.Name = "tabPageUnified";
-            tabPageUnified.Padding = new Padding(3);
+            tabPageUnified.Padding = new Padding(0);
             tabPageUnified.Size = new Size(1176, 737);
             tabPageUnified.TabIndex = 1;
             tabPageUnified.Text = "Pobieranie obszarowe i teren (3D)";
-            tabPageUnified.UseVisualStyleBackColor = true;
+            tabPageUnified.UseVisualStyleBackColor = false;
             // 
             // menuStrip1
             // 
@@ -181,7 +183,7 @@ namespace TrainzBasemapMaker
             PerformLayout();
         }
 
-        private System.Windows.Forms.TabControl tabControl;
+        private TrainzBasemapMaker.Classes.DarkTabControl tabControl;
         private System.Windows.Forms.TabPage tabPageSingle;
         private System.Windows.Forms.TabPage tabPageUnified;
         private System.Windows.Forms.MenuStrip menuStrip1;

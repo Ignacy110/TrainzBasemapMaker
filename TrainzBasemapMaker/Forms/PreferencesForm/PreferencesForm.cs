@@ -86,9 +86,11 @@ namespace TrainzBasemapMaker
             Properties.Settings.Default.DarkMode = checkBoxDarkMode.Checked;
             Properties.Settings.Default.Save();
             
-            foreach (Form f in Application.OpenForms)
+            foreach (Form f in Application.OpenForms.Cast<Form>().ToList())
             {
                 TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(f);
+                f.Invalidate(true);
+                f.Refresh();
             }
         }
 
