@@ -84,7 +84,7 @@ namespace TrainzBasemapMaker.Classes
 
                     return bytes;
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     throw;
                 }

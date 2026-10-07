@@ -427,7 +427,7 @@ namespace TrainzBasemapMaker
             _currentAnchorX = null;
             _currentAnchorY = null;
             textBoxDestinationFolder.Text = "Nowa_Trasa";
-            buttonStartDownload.Text = "Generuj / Pobierz";
+            buttonStartDownload.Text = "Pobierz";
             UpdateNextFreeKuidPart2();
             labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
             labelArea.Text = "Powierzchnia: 0.00 km²";
@@ -442,7 +442,7 @@ namespace TrainzBasemapMaker
         {
             _currentAnchorX = null;
             _currentAnchorY = null;
-            buttonStartDownload.Text = "Generuj / Pobierz";
+            buttonStartDownload.Text = "Pobierz";
             if (webView21.CoreWebView2 != null)
                 await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
         }
@@ -663,8 +663,19 @@ namespace TrainzBasemapMaker
             var token = _cancellationTokenSource.Token;
             SetUiDownloadingState(true);
 
+            int totalElevationTasks = (genTerrain || gen3D) ? total : 0;
+            int total2DTasks = (gen2D && selectedMaps.Count > 0) ? selectedMaps.Count * total : 0;
+            int total3DTasks = (gen3D && selectedMaps.Count > 0) ? selectedMaps.Count * total : 0;
+            int totalRouteTasks = needsRoute ? 1 : 0;
+            int totalOverallTasks = Math.Max(1, totalElevationTasks + total2DTasks + total3DTasks + totalRouteTasks);
+
+            int overallCompleted = 0;
+
             progressBar1.Minimum = 0;
             progressBar1.Value = 0;
+            progressBar2.Minimum = 0;
+            progressBar2.Maximum = totalOverallTasks;
+            progressBar2.Value = 0;
             labelProgress.Text = "Uruchamianie...";
 
             try
@@ -678,7 +689,8 @@ namespace TrainzBasemapMaker
                 {
                     StatusUpdate?.Invoke("Pobieranie danych wysokościowych...");
                     labelProgress.Text = "Pobieranie wysokości...";
-                    progressBar1.Maximum = total;
+                    progressBar1.Maximum = Math.Max(1, total);
+                    progressBar1.Value = 0;
 
                     downloadedGrids = new ConcurrentDictionary<(int I, int J), float[,]>();
                     int completed = 0;
@@ -696,13 +708,35 @@ namespace TrainzBasemapMaker
                                 downloadedGrids[(tile.I, tile.J)] = grid;
 
                                 int c = Interlocked.Increment(ref completed);
+                                int oc = Interlocked.Increment(ref overallCompleted);
                                 if (!IsDisposed && IsHandleCreated)
                                 {
                                     BeginInvoke(() =>
                                     {
                                         labelProgress.Text = $"Wysokości: {c}/{total}";
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                        progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                         StatusUpdate?.Invoke($"Pobrano wysokości ({tile.I},{tile.J}) [{c}/{total}]");
+                                    });
+                                }
+                            }
+                            catch (OperationCanceledException) when (token.IsCancellationRequested)
+                            {
+                                throw;
+                            }
+                            catch (Exception ex)
+                            {
+                                StatusUpdate?.Invoke($"[Ostrzeżenie] Nie udało się pobrać wysokości dla ({tile.I},{tile.J}): {ex.Message}. Użyto wysokości 0m.");
+                                downloadedGrids[(tile.I, tile.J)] = new float[76, 76];
+                                int c = Interlocked.Increment(ref completed);
+                                int oc = Interlocked.Increment(ref overallCompleted);
+                                if (!IsDisposed && IsHandleCreated)
+                                {
+                                    BeginInvoke(() =>
+                                    {
+                                        labelProgress.Text = $"Wysokości: {c}/{total}";
+                                        progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                        progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
                                 }
                             }
@@ -754,7 +788,6 @@ namespace TrainzBasemapMaker
 
                 if (gen2D && selectedMaps.Count > 0)
                 {
-                    int total2DTasks = selectedMaps.Count * total;
                     int current2DTask = 0;
                     progressBar1.Maximum = Math.Max(1, total2DTasks);
                     progressBar1.Value = 0;
@@ -793,7 +826,7 @@ namespace TrainzBasemapMaker
 
                                 return (job, created, error: (Exception?)null);
                             }
-                            catch (OperationCanceledException) { throw; }
+                            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"Błąd podkładu 2D {source.Name} tile ({job.Tile.I},{job.Tile.J}): {ex.Message}");
@@ -803,12 +836,14 @@ namespace TrainzBasemapMaker
                             {
                                 int c = Interlocked.Increment(ref current2DTask);
                                 int d = Interlocked.Increment(ref doneForSource);
+                                int oc = Interlocked.Increment(ref overallCompleted);
                                 if (!IsDisposed && IsHandleCreated)
                                 {
                                     BeginInvoke(() =>
                                     {
                                         labelProgress.Text = $"2D [{source.Name}]: {d}/{total}";
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                        progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
                                 }
                             }
@@ -840,7 +875,6 @@ namespace TrainzBasemapMaker
 
                 if (gen3D && selectedMaps.Count > 0)
                 {
-                    int total3DTasks = selectedMaps.Count * total;
                     int current3DTask = 0;
                     progressBar1.Maximum = Math.Max(1, total3DTasks);
                     progressBar1.Value = 0;
@@ -888,7 +922,7 @@ namespace TrainzBasemapMaker
 
                                 return (job, created, baseHeight, error: (Exception?)null);
                             }
-                            catch (OperationCanceledException) { throw; }
+                            catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"Błąd podkładu 3D {source.Name} tile ({job.Tile.I},{job.Tile.J}): {ex.Message}");
@@ -898,12 +932,14 @@ namespace TrainzBasemapMaker
                             {
                                 int c = Interlocked.Increment(ref current3DTask);
                                 int d = Interlocked.Increment(ref doneForSource);
+                                int oc = Interlocked.Increment(ref overallCompleted);
                                 if (!IsDisposed && IsHandleCreated)
                                 {
                                     BeginInvoke(() =>
                                     {
                                         labelProgress.Text = $"3D [{source.Name}]: {d}/{total}";
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
+                                        progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
                                 }
                             }
@@ -937,6 +973,8 @@ namespace TrainzBasemapMaker
                 if (needsRoute)
                 {
                     labelProgress.Text = "Generowanie mapfile.gnd...";
+                    progressBar1.Maximum = 1;
+                    progressBar1.Value = 0;
                     StatusUpdate?.Invoke("Tworzenie struktury mapy Trainz...");
 
                     if (genTerrain && downloadedGrids != null)
@@ -1101,6 +1139,15 @@ namespace TrainzBasemapMaker
                     _loadedRoute = routeInfo;
 
                     buttonStartDownload.Text = "Aktualizuj trasę";
+                    int oc = Interlocked.Increment(ref overallCompleted);
+                    if (!IsDisposed && IsHandleCreated)
+                    {
+                        BeginInvoke(() =>
+                        {
+                            progressBar1.Value = 1;
+                            progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
+                        });
+                    }
                     RoutesListBoxRefresh();
 
                     // Select the new/updated route in list
@@ -1135,6 +1182,8 @@ namespace TrainzBasemapMaker
                 }
 
                 _selectedTiles.Clear();
+                progressBar1.Value = progressBar1.Maximum;
+                progressBar2.Value = progressBar2.Maximum;
                 labelProgress.Text = "Gotowe!";
 
                 // ── Summary message ──
@@ -1154,7 +1203,7 @@ namespace TrainzBasemapMaker
                         "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }));
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
                 labelProgress.Text = "Anulowano.";
                 StatusUpdate?.Invoke("Operacja anulowana przez użytkownika.");
@@ -1220,7 +1269,7 @@ namespace TrainzBasemapMaker
                     }
                     return bytes;
                 }
-                catch (OperationCanceledException) { throw; }
+                catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
                 catch (Exception ex)
                 {
                     lastEx = ex;
@@ -1304,9 +1353,19 @@ namespace TrainzBasemapMaker
         {
             _isDownloading = downloading;
             buttonStartDownload.Enabled = !downloading;
-            buttonStartDownload.Visible = !downloading;
+            buttonStartDownload.Visible = true;
             buttonCancel.Enabled = downloading;
-            buttonCancel.Visible = downloading;
+            buttonCancel.Visible = true;
+
+            if (downloading)
+            {
+                // Prevent focus from jumping to buttonCancel (which could trigger cancellation on Space/Enter)
+                ActiveControl = null;
+            }
+            else
+            {
+                buttonStartDownload.Focus();
+            }
             groupBox2Selection.Enabled = !downloading;
             groupBox1CoordSystem.Enabled = !downloading;
             groupBox4Configurator.Enabled = !downloading;

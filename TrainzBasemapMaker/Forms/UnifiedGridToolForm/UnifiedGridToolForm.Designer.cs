@@ -60,12 +60,12 @@ namespace TrainzBasemapMaker
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3BasemapParams = new GroupBox();
+            buttonDeselectAllMaps = new Button();
+            buttonSelectAllMaps = new Button();
+            labelMapSelectionCount = new Label();
+            checkedListBoxMapType = new CheckedListBox();
             comboBoxResolution = new ComboBox();
             label2 = new Label();
-            checkedListBoxMapType = new CheckedListBox();
-            buttonSelectAllMaps = new Button();
-            buttonDeselectAllMaps = new Button();
-            labelMapSelectionCount = new Label();
             label15 = new Label();
             textBoxBasemapDate = new TextBox();
             label14 = new Label();
@@ -98,6 +98,7 @@ namespace TrainzBasemapMaker
             labelProgress = new Label();
             buttonStartDownload = new Button();
             buttonCancel = new Button();
+            progressBar2 = new ProgressBar();
             groupBox1CoordSystem.SuspendLayout();
             groupBox2Selection.SuspendLayout();
             groupBoxMap.SuspendLayout();
@@ -251,6 +252,46 @@ namespace TrainzBasemapMaker
             groupBox3BasemapParams.TabStop = false;
             groupBox3BasemapParams.Text = "3. Parametry podkładów";
             // 
+            // buttonDeselectAllMaps
+            // 
+            buttonDeselectAllMaps.Location = new Point(258, 116);
+            buttonDeselectAllMaps.Name = "buttonDeselectAllMaps";
+            buttonDeselectAllMaps.Size = new Size(110, 23);
+            buttonDeselectAllMaps.TabIndex = 40;
+            buttonDeselectAllMaps.Text = "Odznacz wszystkie";
+            buttonDeselectAllMaps.UseVisualStyleBackColor = true;
+            buttonDeselectAllMaps.Click += buttonDeselectAllMaps_Click;
+            // 
+            // buttonSelectAllMaps
+            // 
+            buttonSelectAllMaps.Location = new Point(142, 116);
+            buttonSelectAllMaps.Name = "buttonSelectAllMaps";
+            buttonSelectAllMaps.Size = new Size(110, 23);
+            buttonSelectAllMaps.TabIndex = 39;
+            buttonSelectAllMaps.Text = "Zaznacz wszystkie";
+            buttonSelectAllMaps.UseVisualStyleBackColor = true;
+            buttonSelectAllMaps.Click += buttonSelectAllMaps_Click;
+            // 
+            // labelMapSelectionCount
+            // 
+            labelMapSelectionCount.AutoSize = true;
+            labelMapSelectionCount.Location = new Point(378, 120);
+            labelMapSelectionCount.Name = "labelMapSelectionCount";
+            labelMapSelectionCount.Size = new Size(67, 15);
+            labelMapSelectionCount.TabIndex = 41;
+            labelMapSelectionCount.Text = "Wybrano: 1";
+            // 
+            // checkedListBoxMapType
+            // 
+            checkedListBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            checkedListBoxMapType.CheckOnClick = true;
+            checkedListBoxMapType.FormattingEnabled = true;
+            checkedListBoxMapType.Location = new Point(142, 42);
+            checkedListBoxMapType.Name = "checkedListBoxMapType";
+            checkedListBoxMapType.Size = new Size(428, 58);
+            checkedListBoxMapType.TabIndex = 38;
+            checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
+            // 
             // comboBoxResolution
             // 
             comboBoxResolution.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -266,18 +307,18 @@ namespace TrainzBasemapMaker
             label2.AutoSize = true;
             label2.Location = new Point(6, 22);
             label2.Name = "label2";
-            label2.Size = new Size(116, 15);
+            label2.Size = new Size(113, 15);
             label2.TabIndex = 33;
             label2.Text = "Maks. rozdzielczość:";
             // 
-            // label14
+            // label15
             // 
-            label14.AutoSize = true;
-            label14.Location = new Point(6, 75);
-            label14.Name = "label14";
-            label14.Size = new Size(117, 15);
-            label14.TabIndex = 35;
-            label14.Text = "Rok (jeśli dostępny):";
+            label15.AutoSize = true;
+            label15.Location = new Point(142, 22);
+            label15.Name = "label15";
+            label15.Size = new Size(332, 15);
+            label15.TabIndex = 37;
+            label15.Text = "Rodzaje podkładów (każdy utworzy osobną warstwę w Trainz):";
             // 
             // textBoxBasemapDate
             // 
@@ -289,54 +330,14 @@ namespace TrainzBasemapMaker
             textBoxBasemapDate.TextAlign = HorizontalAlignment.Center;
             textBoxBasemapDate.KeyPress += OnlyNumbers_KeyPress;
             // 
-            // label15
+            // label14
             // 
-            label15.AutoSize = true;
-            label15.Location = new Point(142, 22);
-            label15.Name = "label15";
-            label15.Size = new Size(335, 15);
-            label15.TabIndex = 37;
-            label15.Text = "Rodzaje podkładów (każdy utworzy osobną warstwę w Trainz):";
-            // 
-            // checkedListBoxMapType
-            // 
-            checkedListBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            checkedListBoxMapType.CheckOnClick = true;
-            checkedListBoxMapType.FormattingEnabled = true;
-            checkedListBoxMapType.Location = new Point(142, 42);
-            checkedListBoxMapType.Name = "checkedListBoxMapType";
-            checkedListBoxMapType.Size = new Size(428, 70);
-            checkedListBoxMapType.TabIndex = 38;
-            checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
-            // 
-            // buttonSelectAllMaps
-            // 
-            buttonSelectAllMaps.Location = new Point(142, 116);
-            buttonSelectAllMaps.Name = "buttonSelectAllMaps";
-            buttonSelectAllMaps.Size = new Size(110, 23);
-            buttonSelectAllMaps.TabIndex = 39;
-            buttonSelectAllMaps.Text = "Zaznacz wszystkie";
-            buttonSelectAllMaps.UseVisualStyleBackColor = true;
-            buttonSelectAllMaps.Click += buttonSelectAllMaps_Click;
-            // 
-            // buttonDeselectAllMaps
-            // 
-            buttonDeselectAllMaps.Location = new Point(258, 116);
-            buttonDeselectAllMaps.Name = "buttonDeselectAllMaps";
-            buttonDeselectAllMaps.Size = new Size(110, 23);
-            buttonDeselectAllMaps.TabIndex = 40;
-            buttonDeselectAllMaps.Text = "Odznacz wszystkie";
-            buttonDeselectAllMaps.UseVisualStyleBackColor = true;
-            buttonDeselectAllMaps.Click += buttonDeselectAllMaps_Click;
-            // 
-            // labelMapSelectionCount
-            // 
-            labelMapSelectionCount.AutoSize = true;
-            labelMapSelectionCount.Location = new Point(378, 120);
-            labelMapSelectionCount.Name = "labelMapSelectionCount";
-            labelMapSelectionCount.Size = new Size(67, 15);
-            labelMapSelectionCount.TabIndex = 41;
-            labelMapSelectionCount.Text = "Wybrano: 1";
+            label14.AutoSize = true;
+            label14.Location = new Point(6, 75);
+            label14.Name = "label14";
+            label14.Size = new Size(113, 15);
+            label14.TabIndex = 35;
+            label14.Text = "Rok (jeśli dostępny):";
             // 
             // groupBox4Configurator
             // 
@@ -498,6 +499,7 @@ namespace TrainzBasemapMaker
             // groupBox5Download
             // 
             groupBox5Download.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            groupBox5Download.Controls.Add(progressBar2);
             groupBox5Download.Controls.Add(checkBoxGenerate2DBasemaps);
             groupBox5Download.Controls.Add(checkBoxPlace2DOnMap);
             groupBox5Download.Controls.Add(checkBoxGenerate3DBasemaps);
@@ -614,7 +616,7 @@ namespace TrainzBasemapMaker
             // labelProgress
             // 
             labelProgress.AutoSize = true;
-            labelProgress.Location = new Point(6, 238);
+            labelProgress.Location = new Point(6, 272);
             labelProgress.Name = "labelProgress";
             labelProgress.Size = new Size(127, 15);
             labelProgress.TabIndex = 7;
@@ -622,24 +624,31 @@ namespace TrainzBasemapMaker
             // 
             // buttonStartDownload
             // 
-            buttonStartDownload.Location = new Point(6, 254);
+            buttonStartDownload.Location = new Point(6, 294);
             buttonStartDownload.Name = "buttonStartDownload";
-            buttonStartDownload.Size = new Size(205, 25);
+            buttonStartDownload.Size = new Size(100, 25);
             buttonStartDownload.TabIndex = 8;
-            buttonStartDownload.Text = "Generuj / Pobierz";
+            buttonStartDownload.Text = "Pobierz";
             buttonStartDownload.UseVisualStyleBackColor = true;
             buttonStartDownload.Click += buttonStartDownload_Click;
             // 
             // buttonCancel
             // 
             buttonCancel.Enabled = false;
-            buttonCancel.Location = new Point(6, 254);
+            buttonCancel.Location = new Point(111, 294);
             buttonCancel.Name = "buttonCancel";
-            buttonCancel.Size = new Size(205, 14);
+            buttonCancel.Size = new Size(100, 25);
             buttonCancel.TabIndex = 9;
             buttonCancel.Text = "Anuluj";
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += buttonCancel_Click;
+            // 
+            // progressBar2
+            // 
+            progressBar2.Location = new Point(6, 241);
+            progressBar2.Name = "progressBar2";
+            progressBar2.Size = new Size(205, 23);
+            progressBar2.TabIndex = 10;
             // 
             // UnifiedGridToolForm
             // 
@@ -735,5 +744,6 @@ namespace TrainzBasemapMaker
         private Label labelProgress;
         private Button buttonStartDownload;
         private Button buttonCancel;
+        private ProgressBar progressBar2;
     }
 }

@@ -41,7 +41,7 @@ namespace TrainzBasemapMaker.Classes
 
             _httpClient = new HttpClient(handler)
             {
-                Timeout = TimeSpan.FromSeconds(30),
+                Timeout = TimeSpan.FromSeconds(60),
                 DefaultRequestVersion = new Version(1, 1)
             };
 
@@ -83,7 +83,7 @@ namespace TrainzBasemapMaker.Classes
                         break;
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
                     throw;
                 }
