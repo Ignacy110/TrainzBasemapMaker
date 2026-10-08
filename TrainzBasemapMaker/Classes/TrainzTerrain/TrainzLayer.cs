@@ -16,13 +16,24 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
-namespace TrainzBasemapMaker.Classes
+namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
-    public interface IMainMenuOperations
+    /// <summary>
+    /// Represents a layer definition in Trainz mapfile.lyr.
+    /// </summary>
+    public class TrainzLayer
     {
-        void FindSmallestFreeBasemapNumber();
-        void FindFreeKuid();
-        void RefreshLists();
-        event System.Action<string>? StatusUpdate;
+        public byte LayerId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public byte Flags { get; set; } = 0x01; // Default active/visible
+
+        public TrainzLayer() { }
+
+        public TrainzLayer(byte layerId, string name, byte flags = 0x01)
+        {
+            LayerId = layerId;
+            Name = name;
+            Flags = flags;
+        }
     }
 }

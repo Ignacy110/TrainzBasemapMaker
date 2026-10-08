@@ -23,7 +23,7 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
     internal class MapGridPart
     {
-        private const int DATASIZE = 76;
+        private const int DATASIZE = Constants.GridVertexCount;
         private const byte ROT_SETTING = 0x00;
 
         private float[,] _heights = new float[DATASIZE, DATASIZE];

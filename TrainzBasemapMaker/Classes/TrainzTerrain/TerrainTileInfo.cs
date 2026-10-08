@@ -16,13 +16,14 @@
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, see (http://www.gnu.org/licenses/).
 
-namespace TrainzBasemapMaker.Classes
+namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
-    public interface IMainMenuOperations
+    public class TerrainTileInfo
     {
-        void FindSmallestFreeBasemapNumber();
-        void FindFreeKuid();
-        void RefreshLists();
-        event System.Action<string>? StatusUpdate;
+        public int Order { get; set; }
+        public int I { get; set; }
+        public int J { get; set; }
+        public long X { get; set; }
+        public long Y { get; set; }
     }
 }

@@ -17,18 +17,6 @@
     <Setting Name="MainFormState" Type="System.Windows.Forms.FormWindowState" Scope="User">
       <Value Profile="(Default)">Normal</Value>
     </Setting>
-    <Setting Name="GridToolFormSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">1209, 848</Value>
-    </Setting>
-    <Setting Name="GridToolFormState" Type="System.Windows.Forms.FormWindowState" Scope="User">
-      <Value Profile="(Default)">Normal</Value>
-    </Setting>
-    <Setting Name="TerrainGridToolFormSize" Type="System.Drawing.Size" Scope="User">
-      <Value Profile="(Default)">1209, 848</Value>
-    </Setting>
-    <Setting Name="TerrainGridToolFormState" Type="System.Windows.Forms.FormWindowState" Scope="User">
-      <Value Profile="(Default)">Normal</Value>
-    </Setting>
     <Setting Name="UnifiedGridToolFormSize" Type="System.Drawing.Size" Scope="User">
       <Value Profile="(Default)">1209, 848</Value>
     </Setting>

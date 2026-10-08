@@ -18,11 +18,10 @@
 
 namespace TrainzBasemapMaker.Classes
 {
-    public interface IMainMenuOperations
+    public class ResolutionOption
     {
-        void FindSmallestFreeBasemapNumber();
-        void FindFreeKuid();
-        void RefreshLists();
-        event System.Action<string>? StatusUpdate;
+        public int Value { get; set; }
+        public string DisplayText => $"{Value} x {Value}";
+        public override string ToString() => DisplayText;
     }
 }

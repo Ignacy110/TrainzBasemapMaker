@@ -82,54 +82,7 @@ namespace TrainzBasemapMaker.Properties {
                 this["MainFormState"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1209, 848")]
-        public global::System.Drawing.Size GridToolFormSize {
-            get {
-                return ((global::System.Drawing.Size)(this["GridToolFormSize"]));
-            }
-            set {
-                this["GridToolFormSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
-        public global::System.Windows.Forms.FormWindowState GridToolFormState {
-            get {
-                return ((global::System.Windows.Forms.FormWindowState)(this["GridToolFormState"]));
-            }
-            set {
-                this["GridToolFormState"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1209, 848")]
-        public global::System.Drawing.Size TerrainGridToolFormSize {
-            get {
-                return ((global::System.Drawing.Size)(this["TerrainGridToolFormSize"]));
-            }
-            set {
-                this["TerrainGridToolFormSize"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
-        public global::System.Windows.Forms.FormWindowState TerrainGridToolFormState {
-            get {
-                return ((global::System.Windows.Forms.FormWindowState)(this["TerrainGridToolFormState"]));
-            }
-            set {
-                this["TerrainGridToolFormState"] = value;
-            }
-        }
+
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]

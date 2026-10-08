@@ -148,10 +148,7 @@ namespace TrainzBasemapMaker
                     ? Microsoft.Web.WebView2.Core.CoreWebView2PreferredColorScheme.Dark
                     : Microsoft.Web.WebView2.Core.CoreWebView2PreferredColorScheme.Light;
 
-                // Prefer TerrainGridToolForm web map (720m tiles), fall back to GridToolForm web map
-                string indexPath = Path.Combine(Application.StartupPath, "Forms", "TerrainGridToolForm", "Web", "grid_map.html");
-                if (!File.Exists(indexPath))
-                    indexPath = Path.Combine(Application.StartupPath, "Forms", "GridToolForm", "Web", "grid_map.html");
+                string indexPath = Path.Combine(Application.StartupPath, "Forms", "UnifiedGridToolForm", "Web", "grid_map.html");
 
                 webView21.CoreWebView2.NavigationCompleted += async (s, args) =>
                 {
@@ -730,7 +727,7 @@ namespace TrainzBasemapMaker
                             catch (Exception ex)
                             {
                                 StatusUpdate?.Invoke($"[Ostrzeżenie] Nie udało się pobrać wysokości dla ({tile.I},{tile.J}): {ex.Message}. Użyto wysokości 0m.");
-                                downloadedGrids[(tile.I, tile.J)] = new float[76, 76];
+                                downloadedGrids[(tile.I, tile.J)] = new float[Constants.GridVertexCount, Constants.GridVertexCount];
                                 int c = Interlocked.Increment(ref completed);
                                 int oc = Interlocked.Increment(ref overallCompleted);
                                 if (!IsDisposed && IsHandleCreated)
@@ -775,8 +772,8 @@ namespace TrainzBasemapMaker
                         foreach (var kvp in downloadedGrids)
                         {
                             var grid = kvp.Value;
-                            for (int x = 0; x < 76; x++)
-                                for (int y = 0; y < 76; y++)
+                            for (int x = 0; x < Constants.GridVertexCount; x++)
+                                for (int y = 0; y < Constants.GridVertexCount; y++)
                                     grid[x, y] -= anchorElevation;
                         }
                     }
@@ -1004,7 +1001,7 @@ namespace TrainzBasemapMaker
                             // Only add if not already in the loaded blocks
                             if (!_loadedGndBlocks.ContainsKey((segX, segY)))
                             {
-                                var flatGrid = new float[76, 76]; // all zeros = sea level
+                                var flatGrid = new float[Constants.GridVertexCount, Constants.GridVertexCount]; // all zeros = sea level
                                 var part = new MapGridPart(segX, segY, flatGrid);
                                 _loadedGndBlocks[(segX, segY)] = part;
                             }

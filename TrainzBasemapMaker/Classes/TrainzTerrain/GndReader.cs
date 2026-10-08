@@ -24,7 +24,7 @@ namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
     internal class GndReader
     {
-        private const int DATASIZE = 76;
+        private const int DATASIZE = Constants.GridVertexCount;
 
         public static List<MapGridPart> ReadGndFile(byte[] gndData)
         {

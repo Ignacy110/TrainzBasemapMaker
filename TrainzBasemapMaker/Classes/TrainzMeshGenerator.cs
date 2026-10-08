@@ -1,3 +1,21 @@
+// Trainz Basemap Maker
+// https://github.com/Ignacy110/TrainzBasemapMaker
+//
+// Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, see (http://www.gnu.org/licenses/).
+
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -10,7 +28,7 @@ namespace TrainzBasemapMaker.Classes
     {
         public static bool Generate3DBasemap(float[,] elevationGrid, string outputImPath, int size, string tmiPath, float zOffset = 0f, float baseHeight = 0f)
         {
-            if (elevationGrid.GetLength(0) != 76 || elevationGrid.GetLength(1) != 76)
+            if (elevationGrid.GetLength(0) != Constants.GridVertexCount || elevationGrid.GetLength(1) != Constants.GridVertexCount)
                 return false;
 
             // We need a mesh of size x size. 

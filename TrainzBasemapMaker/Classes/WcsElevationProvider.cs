@@ -67,7 +67,7 @@ namespace TrainzBasemapMaker.Classes
             double minY = centerY - 375.0;
             double maxY = centerY + 385.0;
 
-            string url = $"https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WCS/DigitalTerrainModel?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&COVERAGE=DTM_PL-EVRF2007-NH&FORMAT=image/x-aaigrid&BBOX={minX.ToString(CultureInfo.InvariantCulture)},{minY.ToString(CultureInfo.InvariantCulture)},{maxX.ToString(CultureInfo.InvariantCulture)},{maxY.ToString(CultureInfo.InvariantCulture)}&CRS=EPSG:2180&WIDTH=76&HEIGHT=76";
+            string url = $"https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/GRID1/WCS/DigitalTerrainModel?SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&COVERAGE=DTM_PL-EVRF2007-NH&FORMAT=image/x-aaigrid&BBOX={minX.ToString(CultureInfo.InvariantCulture)},{minY.ToString(CultureInfo.InvariantCulture)},{maxX.ToString(CultureInfo.InvariantCulture)},{maxY.ToString(CultureInfo.InvariantCulture)}&CRS=EPSG:2180&WIDTH={Constants.GridVertexCount}&HEIGHT={Constants.GridVertexCount}";
 
             string asciiGrid = string.Empty;
             Exception? lastEx = null;
@@ -135,7 +135,7 @@ namespace TrainzBasemapMaker.Classes
 
         private float[,] ParseAsciiGrid(string gridText)
         {
-            float[,] grid = new float[76, 76];
+            float[,] grid = new float[Constants.GridVertexCount, Constants.GridVertexCount];
             float noDataVal = -9999f;
 
             using (StringReader reader = new StringReader(gridText))
@@ -178,9 +178,9 @@ namespace TrainzBasemapMaker.Classes
                     line = reader.ReadLine();
                 }
 
-                if (ncols != 76 || nrows != 76)
+                if (ncols != Constants.GridVertexCount || nrows != Constants.GridVertexCount)
                 {
-                    throw new InvalidDataException($"Pobrano grid o nieprawidlowym rozmiarze: {ncols}x{nrows}. Oczekiwano 76x76.");
+                    throw new InvalidDataException($"Pobrano grid o nieprawidlowym rozmiarze: {ncols}x{nrows}. Oczekiwano {Constants.GridVertexCount}x{Constants.GridVertexCount}.");
                 }
 
                 // Wczytywanie wierszy z danymi (y = 0: Polnoc, y = 75: Poludnie)
@@ -221,9 +221,9 @@ namespace TrainzBasemapMaker.Classes
             float validSum = 0;
             int validCount = 0;
 
-            for (int y = 0; y < 76; y++)
+            for (int y = 0; y < Constants.GridVertexCount; y++)
             {
-                for (int x = 0; x < 76; x++)
+                for (int x = 0; x < Constants.GridVertexCount; x++)
                 {
                     float v = grid[x, y];
                     if (Math.Abs(v - noDataVal) > 0.01f && v > -1000f)
@@ -236,9 +236,9 @@ namespace TrainzBasemapMaker.Classes
 
             float fallback = validCount > 0 ? (validSum / validCount) : 0f;
 
-            for (int y = 0; y < 76; y++)
+            for (int y = 0; y < Constants.GridVertexCount; y++)
             {
-                for (int x = 0; x < 76; x++)
+                for (int x = 0; x < Constants.GridVertexCount; x++)
                 {
                     float v = grid[x, y];
                     if (Math.Abs(v - noDataVal) <= 0.01f || v <= -1000f)
@@ -251,7 +251,7 @@ namespace TrainzBasemapMaker.Classes
                             {
                                 int nx = x + dx;
                                 int ny = y + dy;
-                                if (nx >= 0 && nx < 76 && ny >= 0 && ny < 76)
+                                if (nx >= 0 && nx < Constants.GridVertexCount && ny >= 0 && ny < Constants.GridVertexCount)
                                 {
                                     float nv = grid[nx, ny];
                                     if (Math.Abs(nv - noDataVal) > 0.01f && nv > -1000f)

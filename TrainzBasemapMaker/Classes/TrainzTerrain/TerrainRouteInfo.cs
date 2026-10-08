@@ -21,15 +21,6 @@ using System.Text.Json.Serialization;
 
 namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
-    public class TerrainTileInfo
-    {
-        public int Order { get; set; }
-        public int I { get; set; }
-        public int J { get; set; }
-        public long X { get; set; }
-        public long Y { get; set; }
-    }
-
     public class TerrainRouteInfo
     {
         public string RouteName { get; set; } = string.Empty;

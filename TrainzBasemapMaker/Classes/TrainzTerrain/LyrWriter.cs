@@ -23,24 +23,6 @@ using System.Text;
 
 namespace TrainzBasemapMaker.Classes.TrainzTerrain
 {
-    /// <summary>
-    /// Represents a layer definition in Trainz mapfile.lyr.
-    /// </summary>
-    public class TrainzLayer
-    {
-        public byte LayerId { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public byte Flags { get; set; } = 0x01; // Default active/visible
-
-        public TrainzLayer() { }
-
-        public TrainzLayer(byte layerId, string name, byte flags = 0x01)
-        {
-            LayerId = layerId;
-            Name = name;
-            Flags = flags;
-        }
-    }
 
     /// <summary>
     /// Binary writer for Trainz route layers definition file (mapfile.lyr).
