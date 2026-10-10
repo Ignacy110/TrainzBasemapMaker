@@ -38,7 +38,7 @@ using System.Text.Json;
 
 namespace TrainzBasemapMaker
 {
-    public partial class MapPickerForm : Form
+    public partial class MapPickerForm : Form, Classes.ILocalizableForm
     {
         // Public properties to store and retrieve the selected coordinates from MainForm
         public double SelectedLat { get; private set; }
@@ -50,6 +50,7 @@ namespace TrainzBasemapMaker
         public MapPickerForm(double? initialLat = null, double? initialLon = null)
         {
             InitializeComponent();
+            ApplyLocalization();
 
             _initialLat = initialLat;
             _initialLon = initialLon;
@@ -60,6 +61,21 @@ namespace TrainzBasemapMaker
                 SelectedLon = _initialLon.Value;
                 textBoxLat.Text = _initialLat.Value.ToString("F7", CultureInfo.InvariantCulture);
                 textBoxLon.Text = _initialLon.Value.ToString("F7", CultureInfo.InvariantCulture);
+            }
+        }
+
+        public void ApplyLocalization()
+        {
+            this.Text = Localization.Strings.MapPicker_Title;
+            label1.Text = Localization.Strings.MapPicker_GeoCoords;
+            label5.Text = Localization.Strings.MapPicker_Lat;
+            label6.Text = Localization.Strings.MapPicker_Lon;
+            buttonConfirm.Text = Localization.Strings.Common_Confirm;
+            buttonCancel.Text = Localization.Strings.Common_Cancel;
+
+            if (webView21 != null && webView21.CoreWebView2 != null)
+            {
+                _ = webView21.CoreWebView2.ExecuteScriptAsync($"window.appLanguage = '{Classes.LocalizationManager.CurrentLanguage}'; if (window.setGeoSearchLanguage) window.setGeoSearchLanguage('{Classes.LocalizationManager.CurrentLanguage}');");
             }
         }
 
@@ -90,11 +106,11 @@ namespace TrainzBasemapMaker
                 {
                     string latStr = _initialLat.Value.ToString(CultureInfo.InvariantCulture);
                     string lonStr = _initialLon.Value.ToString(CultureInfo.InvariantCulture);
-                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize}; setInitialLocation({latStr}, {lonStr}, 15)");
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.appLanguage = '{Classes.LocalizationManager.CurrentLanguage}'; window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize}; setInitialLocation({latStr}, {lonStr}, 15); if (window.setGeoSearchLanguage) window.setGeoSearchLanguage('{Classes.LocalizationManager.CurrentLanguage}');");
                 }
                 else
                 {
-                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize};");
+                    await webView21.CoreWebView2.ExecuteScriptAsync($"window.appLanguage = '{Classes.LocalizationManager.CurrentLanguage}'; window.tileSize = {TrainzBasemapMaker.Classes.MapSourceBase.TileSize}; if (window.setGeoSearchLanguage) window.setGeoSearchLanguage('{Classes.LocalizationManager.CurrentLanguage}');");
                 }
             };
 
@@ -151,7 +167,7 @@ namespace TrainzBasemapMaker
             }
             else
             {
-                MessageBox.Show("Współrzędne mają nieprawidłowy format!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Strings.MapPicker_InvalidCoords, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

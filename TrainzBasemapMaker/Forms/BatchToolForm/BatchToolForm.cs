@@ -22,13 +22,13 @@ using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
-    public partial class BatchToolForm : Form
+    public partial class BatchToolForm : Form, Classes.ILocalizableForm
     {
         // Handles file and directory operations for Trainz assets
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
         // ToolTip used to provide visual feedback for input validation errors
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true };
 
         public BatchToolForm()
         {
@@ -40,14 +40,51 @@ namespace TrainzBasemapMaker
 
             // Bind available map sources to the dropdown list
             comboBoxMapType.DataSource = MapSources.AvailableMaps;
-            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DisplayMember = "DisplayName";
             comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
             comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
             comboBoxMapType_SelectedIndexChanged(comboBoxMapType, EventArgs.Empty);
             BasemapFolderListBoxRefresh();
             
+            ApplyLocalization();
+
             TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
+        }
+
+        public void ApplyLocalization()
+        {
+            this.Text = Localization.Strings.Batch_Title;
+            label1.Text = Localization.Strings.Batch_Header;
+            groupBox1.Text = Localization.Strings.Batch_Group1;
+            label10.Text = Localization.Strings.Batch_YourFolders;
+            groupBox3.Text = Localization.Strings.Batch_Group2;
+            groupBox2.Text = Localization.Strings.Batch_Group3;
+            label15.Text = Localization.Strings.Batch_MapType;
+            label14.Text = Localization.Strings.Batch_MapYear;
+            label2.Text = Localization.Strings.Batch_Resolution;
+            label13.Text = Localization.Strings.Batch_BasemapDesignation;
+            label4.Text = Localization.Strings.Batch_DestFolder;
+            buttonConfAndDownload.Text = Localization.Strings.Batch_ButtonProcess;
+            labelProgress.Text = Localization.Strings.Batch_Processed;
+            warningToolTip.ToolTipTitle = Localization.Strings.Common_InputError;
+
+            int currentEpsgIdx = comboBoxEpsg.SelectedIndex;
+            comboBoxEpsg.Items.Clear();
+            comboBoxEpsg.Items.AddRange(new object[] { Localization.Strings.Common_Epsg2180, Localization.Strings.Common_Epsg3857 });
+            comboBoxEpsg.SelectedIndex = currentEpsgIdx >= 0 ? currentEpsgIdx : 0;
+
+            if (comboBoxMapType.DataSource != null)
+            {
+                var selMap = comboBoxMapType.SelectedItem;
+                comboBoxMapType.SelectedIndexChanged -= comboBoxMapType_SelectedIndexChanged;
+                comboBoxMapType.DataSource = null;
+                comboBoxMapType.DataSource = MapSources.AvailableMaps;
+                comboBoxMapType.DisplayMember = "DisplayName";
+                if (selMap != null) comboBoxMapType.SelectedItem = selMap;
+                comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            }
+            comboBoxMapType.Invalidate();
         }
 
         /// <summary>
@@ -146,19 +183,19 @@ namespace TrainzBasemapMaker
             // 1. Input Validation
             if (basemapFolderListBox.SelectedItem == null)
             {
-                MessageBox.Show("Wybierz źródłową grupę podkładów!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Strings.Batch_Err_SelectSource, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(textBoxDestinationFolder.Text))
             {
-                MessageBox.Show("Wpisz nazwę folderu docelowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Strings.Batch_Err_EnterDestFolder, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(textBoxDesignation.Text))
             {
-                MessageBox.Show("Wpisz nazwę oznaczenia podkładów!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Strings.Batch_Err_EnterDesignation, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -173,7 +210,7 @@ namespace TrainzBasemapMaker
 
             if (sourceGroup == targetGroup)
             {
-                MessageBox.Show("Nazwa docelowego folderu musi być inna niż nazwa folderu źródłowego!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Localization.Strings.Batch_Err_DestSameAsSource, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -181,8 +218,8 @@ namespace TrainzBasemapMaker
             if (existingGroups.Contains(targetGroup))
             {
                 var dialogResult = MessageBox.Show(
-                    $"Folder docelowy \"{targetGroup}\" już istnieje. Czy na pewno chcesz go usunąć i nadpisać wszystkie znajdujące się w nim podkłady?",
-                    "Ostrzeżenie o nadpisaniu",
+                    string.Format(Localization.Strings.Batch_Confirm_Overwrite, targetGroup),
+                    Localization.Strings.Common_Warning,
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
 
@@ -211,7 +248,7 @@ namespace TrainzBasemapMaker
                 progressBar1.Maximum = total;
                 progressBar1.Value = 0;
 
-                labelProgress.Text = $"Przetworzono: {current} z {total}";
+                labelProgress.Text = string.Format(Localization.Strings.Batch_ProgressFormat, current, total);
                 labelProgress.Refresh();
                 labelProgress.Visible = true;
 
@@ -274,7 +311,7 @@ namespace TrainzBasemapMaker
                             }
                             else
                             {
-                                failureDetails.Add($"Kafel {folder}: Podkład o współrzędnych {targetX}, {targetY} już istnieje.");
+                                failureDetails.Add(string.Format(Localization.Strings.Batch_Err_TileAlreadyExists, folder, targetX, targetY));
                             }
                         }
                         catch (Exception ex)
@@ -285,12 +322,12 @@ namespace TrainzBasemapMaker
                     }
                     else
                     {
-                        failureDetails.Add($"Kafel {folder}: Nieprawidłowy format nazwy folderu podkładu.");
+                        failureDetails.Add(string.Format(Localization.Strings.Batch_Err_InvalidFolderFormat, folder));
                     }
 
                     // Update UI progress indicators
                     progressBar1.Value = current;
-                    labelProgress.Text = $"Przetworzono: {current} z {total}";
+                    labelProgress.Text = string.Format(Localization.Strings.Batch_ProgressFormat, current, total);
                 }
 
                 if (successCount > 0)
@@ -368,26 +405,26 @@ namespace TrainzBasemapMaker
 
                 if (failureDetails.Count == 0)
                 {
-                    MessageBox.Show($"Przetwarzanie seryjne zakończone pomyślnie!\n\nPomyślnie utworzono podkładów: {successCount} z {total}.", "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(string.Format(Localization.Strings.Batch_Success, successCount, total), Localization.Strings.Common_Success, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (successCount > 0)
                 {
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
-                    if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
+                    if (failureDetails.Count > 5) errorsPreview += $"\n... ({failureDetails.Count - 5})";
 
-                    MessageBox.Show($"Przetwarzanie seryjne zakończone z ostrzeżeniami.\n\nUtworzono podkładów: {successCount} z {total}.\nNiepowodzenia ({failureDetails.Count}):\n{errorsPreview}", "Ostrzeżenie", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(string.Format(Localization.Strings.Batch_Warnings, successCount, total, failureDetails.Count, errorsPreview), Localization.Strings.Common_Warning, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
                     string errorsPreview = string.Join("\n", failureDetails.Take(5));
-                    if (failureDetails.Count > 5) errorsPreview += $"\n... i {failureDetails.Count - 5} innych błędów.";
+                    if (failureDetails.Count > 5) errorsPreview += $"\n... ({failureDetails.Count - 5})";
 
-                    MessageBox.Show($"Przetwarzanie seryjne nie powiodło się dla żadnego podkładu (0 z {total}).\n\nSzczegóły błędów:\n{errorsPreview}", "Błąd przetwarzania", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format(Localization.Strings.Batch_Failed, total, errorsPreview), Localization.Strings.Batch_ProcessingError, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd krytyczny: " + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(string.Format(Localization.Strings.Batch_CriticalError, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -426,7 +463,7 @@ namespace TrainzBasemapMaker
         /// <summary>
         /// Adjusts available UI options dynamically based on the capabilities of the selected map source.
         /// </summary>
-        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxMapType_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (comboBoxMapType.SelectedItem is IMapSource selected)
             {
@@ -465,7 +502,7 @@ namespace TrainzBasemapMaker
                 using (var textBrush = new SolidBrush(foreColor))
                 using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
                 {
-                    e.Graphics.DrawString(mapSource.Name, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
+                    e.Graphics.DrawString(mapSource.DisplayName, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
                 }
 
                 e.DrawFocusRectangle();
@@ -485,7 +522,7 @@ namespace TrainzBasemapMaker
                 if (sender is TextBox textBox)
                 {
                     warningToolTip.Hide(textBox);
-                    warningToolTip.Show("Tutaj możesz wpisać tylko cyfry!", textBox, 50, -75, 2000);
+                    warningToolTip.Show(Localization.Strings.Common_OnlyDigitsTooltip, textBox, 50, -75, 2000);
                 }
             }
         }

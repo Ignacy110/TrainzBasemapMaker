@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="App_Title" xml:space="preserve">
+    <value>Trainz Basemap Maker</value>
+  </data>
+  <data name="Common_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Confirm" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common_CriticalError" xml:space="preserve">
+    <value>Critical Error</value>
+  </data>
+  <data name="Common_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Common_Information" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Common_Success" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="Common_InputError" xml:space="preserve">
+    <value>Input Error</value>
+  </data>
+  <data name="Common_OnlyDigitsTooltip" xml:space="preserve">
+    <value>Only numbers are allowed here!</value>
+  </data>
+  <data name="Common_Ready" xml:space="preserve">
+    <value>Ready.</value>
+  </data>
+  <data name="Common_CoordSystem" xml:space="preserve">
+    <value>Coordinate system</value>
+  </data>
+  <data name="Common_Epsg2180" xml:space="preserve">
+    <value>EPSG:2180 (Poland)</value>
+  </data>
+  <data name="Common_Epsg3857" xml:space="preserve">
+    <value>EPSG:3857 (World)</value>
+  </data>
+  <data name="Common_UnhandledAppError" xml:space="preserve">
+    <value>An unexpected application error occurred:
+
+{0}
+
+{1}</value>
+  </data>
+  <data name="Common_UiError" xml:space="preserve">
+    <value>User interface error:
+
+{0}
+
+{1}</value>
+  </data>
+  <data name="Main_Menu_Tools" xml:space="preserve">
+    <value>&amp;Tools</value>
+  </data>
+  <data name="Main_Menu_FindFreeKuid" xml:space="preserve">
+    <value>Find Free &amp;KUID Number</value>
+  </data>
+  <data name="Main_Menu_FindSmallestFreeBasemap" xml:space="preserve">
+    <value>Find Lowest Free &amp;Basemap Number</value>
+  </data>
+  <data name="Main_Menu_RefreshFolderList" xml:space="preserve">
+    <value>&amp;Refresh Folder List</value>
+  </data>
+  <data name="Main_Menu_BatchProcessing" xml:space="preserve">
+    <value>Batch &amp;Processing</value>
+  </data>
+  <data name="Main_Menu_Preferences" xml:space="preserve">
+    <value>P&amp;references</value>
+  </data>
+  <data name="Main_Menu_Help" xml:space="preserve">
+    <value>&amp;Help</value>
+  </data>
+  <data name="Main_Menu_GitHubWebsite" xml:space="preserve">
+    <value>&amp;Project Website - GitHub</value>
+  </data>
+  <data name="Main_Menu_About" xml:space="preserve">
+    <value>&amp;About</value>
+  </data>
+  <data name="Main_Tab_Single" xml:space="preserve">
+    <value>Single Basemap (2D)</value>
+  </data>
+  <data name="Main_Tab_Unified" xml:space="preserve">
+    <value>Area Download &amp; Terrain (3D)</value>
+  </data>
+  <data name="Pref_Title" xml:space="preserve">
+    <value>Preferences</value>
+  </data>
+  <data name="Pref_Header" xml:space="preserve">
+    <value>Preferences:</value>
+  </data>
+  <data name="Pref_AutoCounter" xml:space="preserve">
+    <value>Automatically increment basemap number</value>
+  </data>
+  <data name="Pref_AutoKuid" xml:space="preserve">
+    <value>Automatically set KUID part 2</value>
+  </data>
+  <data name="Pref_KuidPerPart1" xml:space="preserve">
+    <value>Find free KUID part 2 separately for each part 1</value>
+  </data>
+  <data name="Pref_DefaultKuidPart1" xml:space="preserve">
+    <value>Default KUID part 1</value>
+  </data>
+  <data name="Pref_MinKuidPart2" xml:space="preserve">
+    <value>Minimum value for KUID part 2</value>
+  </data>
+  <data name="Pref_DarkMode" xml:space="preserve">
+    <value>Dark mode</value>
+  </data>
+  <data name="Pref_BasemapSize" xml:space="preserve">
+    <value>Basemap size (m)</value>
+  </data>
+  <data name="Pref_Generate3D" xml:space="preserve">
+    <value>Generate 3D basemaps (requires Trainz Mesh Importer)</value>
+  </data>
+  <data name="Pref_TmiPath" xml:space="preserve">
+    <value>Path to TrainzMeshImporter.exe:</value>
+  </data>
+  <data name="Pref_Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Pref_Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Pref_Language_Polish" xml:space="preserve">
+    <value>Polski</value>
+  </data>
+  <data name="Pref_TmiFilter" xml:space="preserve">
+    <value>TrainzMeshImporter.exe|TrainzMeshImporter.exe|All files (*.*)|*.*</value>
+  </data>
+  <data name="About_Title" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version:</value>
+  </data>
+  <data name="About_ReleaseDate" xml:space="preserve">
+    <value>Release date:</value>
+  </data>
+  <data name="About_Author" xml:space="preserve">
+    <value>Author:</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>License:</value>
+  </data>
+  <data name="About_GitHub" xml:space="preserve">
+    <value>Project Website - GitHub:</value>
+  </data>
+  <data name="About_Libraries" xml:space="preserve">
+    <value>This program uses the following libraries:
+- Microsoft.Web.WebView2 - license: Microsoft
+- Leaflet - license: BSD 2-Clause License
+- ProjNET - license: LGPL v2.1</value>
+  </data>
+  <data name="About_OpenUrlError" xml:space="preserve">
+    <value>Error opening website:
+
+{0}</value>
+  </data>
+  <data name="MapPicker_Title" xml:space="preserve">
+    <value>Pick Location on Map</value>
+  </data>
+  <data name="MapPicker_GeoCoords" xml:space="preserve">
+    <value>Geographic coordinates:</value>
+  </data>
+  <data name="MapPicker_Lat" xml:space="preserve">
+    <value>latitude (lat)</value>
+  </data>
+  <data name="MapPicker_Lon" xml:space="preserve">
+    <value>longitude (lon)</value>
+  </data>
+  <data name="MapPicker_InvalidCoords" xml:space="preserve">
+    <value>Coordinates have an invalid format!</value>
+  </data>
+  <data name="Batch_Title" xml:space="preserve">
+    <value>Batch Processing</value>
+  </data>
+  <data name="Batch_Header" xml:space="preserve">
+    <value>Batch processing:</value>
+  </data>
+  <data name="Batch_Group1" xml:space="preserve">
+    <value>1. Select folder to process</value>
+  </data>
+  <data name="Batch_YourFolders" xml:space="preserve">
+    <value>Your folders:</value>
+  </data>
+  <data name="Batch_Group2" xml:space="preserve">
+    <value>2. Select coordinate system</value>
+  </data>
+  <data name="Batch_Group3" xml:space="preserve">
+    <value>3. Set target parameters</value>
+  </data>
+  <data name="Batch_MapType" xml:space="preserve">
+    <value>Basemap type:</value>
+  </data>
+  <data name="Batch_MapYear" xml:space="preserve">
+    <value>Basemap
+year:</value>
+  </data>
+  <data name="Batch_Resolution" xml:space="preserve">
+    <value>Basemap
+resolution [px]:</value>
+  </data>
+  <data name="Batch_BasemapDesignation" xml:space="preserve">
+    <value>Basemap name:</value>
+  </data>
+  <data name="Batch_DestFolder" xml:space="preserve">
+    <value>Destination folder name:</value>
+  </data>
+  <data name="Batch_ButtonProcess" xml:space="preserve">
+    <value>Batch Process</value>
+  </data>
+  <data name="Batch_Processed" xml:space="preserve">
+    <value>Processed:</value>
+  </data>
+  <data name="Batch_ProgressFormat" xml:space="preserve">
+    <value>Processed: {0} of {1}</value>
+  </data>
+  <data name="Batch_Err_SelectSource" xml:space="preserve">
+    <value>Select a source basemap group!</value>
+  </data>
+  <data name="Batch_Err_EnterDestFolder" xml:space="preserve">
+    <value>Enter the destination folder name!</value>
+  </data>
+  <data name="Batch_Err_EnterDesignation" xml:space="preserve">
+    <value>Enter the basemap designation!</value>
+  </data>
+  <data name="Batch_Err_DestSameAsSource" xml:space="preserve">
+    <value>The destination folder name must be different from the source folder name!</value>
+  </data>
+  <data name="Batch_Err_TileAlreadyExists" xml:space="preserve">
+    <value>Tile {0}: Basemap with coordinates {1}, {2} already exists.</value>
+  </data>
+  <data name="Batch_Err_InvalidFolderFormat" xml:space="preserve">
+    <value>Tile {0}: Invalid basemap folder name format.</value>
+  </data>
+  <data name="Batch_Confirm_Overwrite" xml:space="preserve">
+    <value>The folder "{0}" already exists. Continuing will overwrite existing files with the same names.
+
+Do you want to continue?</value>
+  </data>
+  <data name="Batch_Success" xml:space="preserve">
+    <value>Batch processing completed successfully!
+
+Successfully created basemaps: {0} of {1}.</value>
+  </data>
+  <data name="Batch_Warnings" xml:space="preserve">
+    <value>Batch processing finished with warnings.
+
+Created basemaps: {0} of {1}.
+Failures ({2}):
+{3}</value>
+  </data>
+  <data name="Batch_Failed" xml:space="preserve">
+    <value>Batch processing failed for all basemaps (0 of {0}).
+
+Error details:
+{1}</value>
+  </data>
+  <data name="Batch_ProcessingError" xml:space="preserve">
+    <value>Processing error</value>
+  </data>
+  <data name="Batch_CriticalError" xml:space="preserve">
+    <value>Critical error: {0}</value>
+  </data>
+  <data name="Batch_Status_Downloading" xml:space="preserve">
+    <value>Processing {0}/{1}...</value>
+  </data>
+  <data name="Batch_Status_Done" xml:space="preserve">
+    <value>Batch processing completed.</value>
+  </data>
+  <data name="Batch_Status_Cancelled" xml:space="preserve">
+    <value>Batch processing cancelled.</value>
+  </data>
+  <data name="Single_GroupGeoCoords" xml:space="preserve">
+    <value>1. Geographic coordinates (DD)</value>
+  </data>
+  <data name="Single_Lat" xml:space="preserve">
+    <value>latitude (lat)</value>
+  </data>
+  <data name="Single_Lon" xml:space="preserve">
+    <value>longitude (lon)</value>
+  </data>
+  <data name="Single_PickOnMap" xml:space="preserve">
+    <value>Pick on map</value>
+  </data>
+  <data name="Single_GroupTargetCoords" xml:space="preserve">
+    <value>2. Target coordinate format</value>
+  </data>
+  <data name="Single_CoordsLabelFormat" xml:space="preserve">
+    <value>Coordinates {0}</value>
+  </data>
+  <data name="Single_ConvertCoordsFormat" xml:space="preserve">
+    <value>Convert to {0}</value>
+  </data>
+  <data name="Single_GroupConfigurator" xml:space="preserve">
+    <value>3. Configuration of downloaded and generated basemaps</value>
+  </data>
+  <data name="Single_CreateTrainzFiles" xml:space="preserve">
+    <value>Create Trainz folders and files</value>
+  </data>
+  <data name="Single_DestFolder" xml:space="preserve">
+    <value>Destination folder name:</value>
+  </data>
+  <data name="Single_YourFolders" xml:space="preserve">
+    <value>Your folders:</value>
+  </data>
+  <data name="Single_BasemapNum" xml:space="preserve">
+    <value>Basemap #:</value>
+  </data>
+  <data name="Single_KuidPart1" xml:space="preserve">
+    <value>KUID designation:</value>
+  </data>
+  <data name="Single_BasemapDesignation" xml:space="preserve">
+    <value>Basemap name:</value>
+  </data>
+  <data name="Single_GroupBasemapParams" xml:space="preserve">
+    <value>4. Satellite basemap parameters</value>
+  </data>
+  <data name="Single_MapType" xml:space="preserve">
+    <value>Basemap type:</value>
+  </data>
+  <data name="Single_MapYear" xml:space="preserve">
+    <value>Basemap year:</value>
+  </data>
+  <data name="Single_Resolution" xml:space="preserve">
+    <value>Resolution [px]:</value>
+  </data>
+  <data name="Single_BtnConfigAndDownload" xml:space="preserve">
+    <value>Configure and download</value>
+  </data>
+  <data name="Single_BtnDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Single_BtnSaveAndDownload" xml:space="preserve">
+    <value>Save and download</value>
+  </data>
+  <data name="Single_GroupNavigator" xml:space="preserve">
+    <value>5. Navigation</value>
+  </data>
+  <data name="Single_NavAndDownload" xml:space="preserve">
+    <value>Navigate and download:</value>
+  </data>
+  <data name="Single_NavUp" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="Single_NavDown" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="Single_NavLeft" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Single_NavRight" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Single_GroupKuidList" xml:space="preserve">
+    <value>Trainz basemap list:</value>
+  </data>
+  <data name="Single_GroupPreview" xml:space="preserve">
+    <value>Downloaded basemap preview:</value>
+  </data>
+  <data name="Single_Status_Refreshing" xml:space="preserve">
+    <value>Refreshing basemap list...</value>
+  </data>
+  <data name="Single_Status_Refreshed" xml:space="preserve">
+    <value>Basemap list refreshed.</value>
+  </data>
+  <data name="Single_Status_Downloading" xml:space="preserve">
+    <value>Downloading map...</value>
+  </data>
+  <data name="Single_Status_FilesSaved" xml:space="preserve">
+    <value>Saved basemap: {0}</value>
+  </data>
+  <data name="Single_Status_DownloadedOnly" xml:space="preserve">
+    <value>Map downloaded to preview.</value>
+  </data>
+  <data name="Single_Status_AlreadyExists" xml:space="preserve">
+    <value>Basemap already exists – skipped.</value>
+  </data>
+  <data name="Single_Status_Converted" xml:space="preserve">
+    <value>Converted: {0}, {1} to {2}: {3}, {4}</value>
+  </data>
+  <data name="Single_Status_ConvertError" xml:space="preserve">
+    <value>Coordinate conversion error: {0}, {1}</value>
+  </data>
+  <data name="Single_Status_FindingKuid" xml:space="preserve">
+    <value>Finding free KUID...</value>
+  </data>
+  <data name="Single_Status_FoundKuid" xml:space="preserve">
+    <value>Found free KUID: &lt;kuid:{0}:{1}&gt;</value>
+  </data>
+  <data name="Single_Status_FindingBasemapNum" xml:space="preserve">
+    <value>Finding lowest free basemap number...</value>
+  </data>
+  <data name="Single_Status_FoundBasemapNum" xml:space="preserve">
+    <value>Found lowest free basemap number: {0}</value>
+  </data>
+  <data name="Single_Err_RefreshList" xml:space="preserve">
+    <value>Error refreshing basemap list:
+
+{0}</value>
+  </data>
+  <data name="Single_Err_AutoKuid" xml:space="preserve">
+    <value>Error automatically calculating KUID (part 2):
+
+{0}</value>
+  </data>
+  <data name="Single_Err_AutoBasemapNum" xml:space="preserve">
+    <value>Error automatically calculating basemap number:
+
+{0}</value>
+  </data>
+  <data name="Single_Err_SavingFiles" xml:space="preserve">
+    <value>Error saving files:
+
+{0}</value>
+  </data>
+  <data name="Single_Err_Download" xml:space="preserve">
+    <value>Error downloading map:
+
+{0}</value>
+  </data>
+  <data name="Single_Err_FormatData" xml:space="preserve">
+    <value>Invalid start data (configuration error). Ensure you are using only digits and optional dot.
+
+{0}</value>
+  </data>
+  <data name="Single_Err_FormatTitle" xml:space="preserve">
+    <value>Format error</value>
+  </data>
+  <data name="Single_Err_BasemapName" xml:space="preserve">
+    <value>Basemap name error.</value>
+  </data>
+  <data name="Single_Err_BasemapNameDetails" xml:space="preserve">
+    <value>Basemap name error:
+
+{0}</value>
+  </data>
+  <data name="Unified_GroupCoords" xml:space="preserve">
+    <value>1. Coordinate system</value>
+  </data>
+  <data name="Unified_GroupSelection" xml:space="preserve">
+    <value>2. Area selection</value>
+  </data>
+  <data name="Unified_AreaFormat" xml:space="preserve">
+    <value>Area: {0:F2} km²</value>
+  </data>
+  <data name="Unified_BaseboardsFormat" xml:space="preserve">
+    <value>Selected baseboards: {0}</value>
+  </data>
+  <data name="Unified_ResetBasePoint" xml:space="preserve">
+    <value>Reset base point</value>
+  </data>
+  <data name="Unified_ClearSelection" xml:space="preserve">
+    <value>Clear selection</value>
+  </data>
+  <data name="Unified_ModeBox" xml:space="preserve">
+    <value>Box selection</value>
+  </data>
+  <data name="Unified_ModeClick" xml:space="preserve">
+    <value>Brush / click</value>
+  </data>
+  <data name="Unified_GroupMap" xml:space="preserve">
+    <value>Tile selection on map (local grid):</value>
+  </data>
+  <data name="Unified_GroupBasemapParams" xml:space="preserve">
+    <value>3. Basemap parameters</value>
+  </data>
+  <data name="Unified_DeselectAll" xml:space="preserve">
+    <value>Deselect all</value>
+  </data>
+  <data name="Unified_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Unified_SelectedMapsFormat" xml:space="preserve">
+    <value>Selected: {0}</value>
+  </data>
+  <data name="Unified_MaxResolution" xml:space="preserve">
+    <value>Max resolution:</value>
+  </data>
+  <data name="Unified_BasemapTypes" xml:space="preserve">
+    <value>Basemap types (each creates a separate layer in Trainz):</value>
+  </data>
+  <data name="Unified_YearIfAvailable" xml:space="preserve">
+    <value>Year (if available):</value>
+  </data>
+  <data name="Unified_GroupConfigurator" xml:space="preserve">
+    <value>4. Configuration</value>
+  </data>
+  <data name="Unified_GeneratedRoutes" xml:space="preserve">
+    <value>Generated routes:</value>
+  </data>
+  <data name="Unified_BtnLoadRoute" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Unified_BtnDeleteRoute" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Unified_RouteName" xml:space="preserve">
+    <value>Route name:</value>
+  </data>
+  <data name="Unified_BasemapDesignation" xml:space="preserve">
+    <value>Basemap name:</value>
+  </data>
+  <data name="Unified_BasemapNum" xml:space="preserve">
+    <value>Basemap #:</value>
+  </data>
+  <data name="Unified_KuidPart1" xml:space="preserve">
+    <value>KUID designation:</value>
+  </data>
+  <data name="Unified_GroupDownload" xml:space="preserve">
+    <value>5. Download and generate map</value>
+  </data>
+  <data name="Unified_Gen2DBasemaps" xml:space="preserve">
+    <value>Generate 2D basemaps</value>
+  </data>
+  <data name="Unified_Place2DOnMap" xml:space="preserve">
+    <value>Place 2D basemaps on route</value>
+  </data>
+  <data name="Unified_Gen3DBasemaps" xml:space="preserve">
+    <value>Generate 3D basemaps</value>
+  </data>
+  <data name="Unified_Place3DOnMap" xml:space="preserve">
+    <value>Place 3D basemaps on route</value>
+  </data>
+  <data name="Unified_Gen3DTerrain" xml:space="preserve">
+    <value>Generate 3D terrain</value>
+  </data>
+  <data name="Unified_GroupElevation" xml:space="preserve">
+    <value>Elevation mode:</value>
+  </data>
+  <data name="Unified_ElevationAbsolute" xml:space="preserve">
+    <value>Actual AMSL (absolute)</value>
+  </data>
+  <data name="Unified_ElevationRelative" xml:space="preserve">
+    <value>Zero-aligned (relative)</value>
+  </data>
+  <data name="Unified_ReadyToDownload" xml:space="preserve">
+    <value>Ready to download.</value>
+  </data>
+  <data name="Unified_BtnDownload" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="Unified_BtnCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Unified_NoTilesSelected" xml:space="preserve">
+    <value>No tiles selected on the map!</value>
+  </data>
+  <data name="Unified_NoSelectionTitle" xml:space="preserve">
+    <value>No selection</value>
+  </data>
+  <data name="Unified_EnterRouteName" xml:space="preserve">
+    <value>Enter the route name!</value>
+  </data>
+  <data name="Unified_SelectAtLeastOneGenOption" xml:space="preserve">
+    <value>Select at least one option in section '5. Download and generate map'!</value>
+  </data>
+  <data name="Unified_EnterBasemapDesignation" xml:space="preserve">
+    <value>Enter the basemap designation!</value>
+  </data>
+  <data name="Unified_InvalidStartBasemapNum" xml:space="preserve">
+    <value>Invalid start basemap number!</value>
+  </data>
+  <data name="Unified_InvalidKuidPart2" xml:space="preserve">
+    <value>Invalid KUID number (part 2)!</value>
+  </data>
+  <data name="Unified_SelectAtLeastOneBasemapType" xml:space="preserve">
+    <value>Select at least one basemap type from the list!</value>
+  </data>
+  <data name="Unified_NoBasemapTypeTitle" xml:space="preserve">
+    <value>No basemap selected</value>
+  </data>
+  <data name="Unified_ConfirmRouteOverwrite" xml:space="preserve">
+    <value>Route "{0}" already exists.
+
+Continuing will overwrite existing files.
+Are you sure you want to proceed?</value>
+  </data>
+  <data name="Unified_ConfirmRouteOverwriteTitle" xml:space="preserve">
+    <value>Route already exists</value>
+  </data>
+  <data name="Unified_TmiNotFoundFor3D" xml:space="preserve">
+    <value>3D basemap generation was selected, but TrainzMeshImporter.exe path is not configured or does not exist.
+
+Only 2D basemaps will be generated.
+Do you want to continue?</value>
+  </data>
+  <data name="Unified_TmiMissingTitle" xml:space="preserve">
+    <value>Missing TrainzMeshImporter</value>
+  </data>
+  <data name="Unified_SelectRouteToLoad" xml:space="preserve">
+    <value>Select a route from the list to load.</value>
+  </data>
+  <data name="Unified_MapStillInitializing" xml:space="preserve">
+    <value>The map component is still initializing. Please try again in a moment.</value>
+  </data>
+  <data name="Unified_MapfileNotFound" xml:space="preserve">
+    <value>mapfile.gnd was not found in the route folder:
+{0}</value>
+  </data>
+  <data name="Unified_RouteNoGeodata" xml:space="preserve">
+    <value>Route "{0}" does not contain geolocation data (generated with an earlier version). It cannot be displayed on the map.</value>
+  </data>
+  <data name="Unified_RouteLoadError" xml:space="preserve">
+    <value>Error while loading route:
+
+{0}</value>
+  </data>
+  <data name="Unified_SelectRouteToDelete" xml:space="preserve">
+    <value>Select a route from the list to delete.</value>
+  </data>
+  <data name="Unified_ConfirmRouteDelete" xml:space="preserve">
+    <value>Are you sure you want to completely delete the route "{0}" and all its files?
+
+This operation cannot be undone.</value>
+  </data>
+  <data name="Unified_ConfirmRouteDeleteTitle" xml:space="preserve">
+    <value>Confirm route deletion</value>
+  </data>
+  <data name="Unified_RouteDeleteError" xml:space="preserve">
+    <value>Error while deleting route:
+
+{0}</value>
+  </data>
+  <data name="Unified_CompletedSuccess" xml:space="preserve">
+    <value>Operation completed successfully!
+
+Generated: {0}.</value>
+  </data>
+  <data name="Unified_OperationCancelled" xml:space="preserve">
+    <value>Operation cancelled.</value>
+  </data>
+  <data name="Unified_OperationCancelledTitle" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Unified_GenerationError" xml:space="preserve">
+    <value>Error during generation:
+
+{0}</value>
+  </data>
+  <data name="Unified_MapInitError" xml:space="preserve">
+    <value>Error initializing map component:
+
+{0}</value>
+  </data>
+  <data name="Unified_Status_Refreshing" xml:space="preserve">
+    <value>Refreshing folder list...</value>
+  </data>
+  <data name="Unified_Status_Refreshed" xml:space="preserve">
+    <value>Folder list refreshed.</value>
+  </data>
+  <data name="Unified_Status_FindingKuid" xml:space="preserve">
+    <value>Finding free KUID...</value>
+  </data>
+  <data name="Unified_Status_FoundKuid" xml:space="preserve">
+    <value>Found free KUID: &lt;kuid:{0}:{1}&gt;</value>
+  </data>
+  <data name="Unified_Status_FindingBasemapNum" xml:space="preserve">
+    <value>Finding lowest free basemap number...</value>
+  </data>
+  <data name="Unified_Status_FoundBasemapNum" xml:space="preserve">
+    <value>Found lowest free basemap number: {0}</value>
+  </data>
+  <data name="Unified_Status_Preparing" xml:space="preserve">
+    <value>Preparing...</value>
+  </data>
+  <data name="Unified_Status_Cancelling" xml:space="preserve">
+    <value>Cancelling...</value>
+  </data>
+  <data name="MapSource_OrtoWMTS" xml:space="preserve">
+    <value>Orthophotomap WMTS</value>
+  </data>
+  <data name="MapSource_OrtoWMS" xml:space="preserve">
+    <value>Orthophotomap WMS, year selection</value>
+  </data>
+  <data name="MapSource_OrtoHighResWMTS" xml:space="preserve">
+    <value>Orthophotomap high resolution WMTS</value>
+  </data>
+  <data name="MapSource_OrtoHighResWMS" xml:space="preserve">
+    <value>Orthophotomap high resolution WMS, year selection</value>
+  </data>
+  <data name="MapSource_ShadedWMTS" xml:space="preserve">
+    <value>Shaded relief WMTS</value>
+  </data>
+  <data name="MapSource_ShadedWMS" xml:space="preserve">
+    <value>Shaded relief WMS</value>
+  </data>
+  <data name="MapSource_TopoWMTS" xml:space="preserve">
+    <value>Topographic map WMTS</value>
+  </data>
+  <data name="GeoSearch_Placeholder" xml:space="preserve">
+    <value>Search location...</value>
+  </data>
+  <data name="GeoSearch_SearchTitle" xml:space="preserve">
+    <value>Search location</value>
+  </data>
+  <data name="GeoSearch_ClearTitle" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Unified_BtnUpdateRoute" xml:space="preserve">
+    <value>Update route</value>
+  </data>
+  <data name="Unified_Status_Help" xml:space="preserve">
+    <value>LMB: Click or drag brush to select | RMB: Pan map</value>
+  </data>
+  <data name="Unified_Status_SelectInitialPoint" xml:space="preserve">
+    <value>Select starting point on the map.</value>
+  </data>
+  <data name="Unified_NewBaseboardsFormat" xml:space="preserve">
+    <value>New baseboards: {0} (total: {1})</value>
+  </data>
+  <data name="Unified_Baseboards720Format" xml:space="preserve">
+    <value>Selected baseboards (720m): {0}</value>
+  </data>
+  <data name="Unified_Status_SelectedNew" xml:space="preserve">
+    <value>Selected {0} new baseboards.</value>
+  </data>
+  <data name="Unified_Status_LoadedAddMore" xml:space="preserve">
+    <value>Loaded {0} baseboards. Click on the map to add new ones.</value>
+  </data>
+  <data name="Unified_Status_SelectArea" xml:space="preserve">
+    <value>Select route area on the map.</value>
+  </data>
+  <data name="Unified_Status_LoadedCount" xml:space="preserve">
+    <value>Loaded {0} baseboards.</value>
+  </data>
+  <data name="Unified_Status_ReadyToSelect" xml:space="preserve">
+    <value>Ready to select.</value>
+  </data>
+  <data name="Unified_Status_ResetReady" xml:space="preserve">
+    <value>Reset. Ready to select.</value>
+  </data>
+  <data name="Unified_RouteLoadedStatus" xml:space="preserve">
+    <value>Loaded route "{0}" ({1} baseboards). You can select additional tiles and click Update.</value>
+  </data>
+  <data name="Unified_RouteLoadedNoGeoStatus" xml:space="preserve">
+    <value>Loaded route "{0}" ({1} baseboards) without geolocation.</value>
+  </data>
+  <data name="Unified_RouteLoadedTitle" xml:space="preserve">
+    <value>Route loaded</value>
+  </data>
+  <data name="Unified_RouteDeletedStatus" xml:space="preserve">
+    <value>Deleted route "{0}".</value>
+  </data>
+  <data name="Unified_PromptEpsg2180ForElevation" xml:space="preserve">
+    <value>Downloading DEM elevation from Geoportal requires EPSG:2180 (Poland area).
+Do you want to automatically switch coordinate system to EPSG:2180?</value>
+  </data>
+  <data name="Unified_OutOfPolandBounds" xml:space="preserve">
+    <value>Tile ({0}, {1}) at coordinates ({2}, {3}) is outside Poland!
+Geoportal DEM provides data only for Poland.</value>
+  </data>
+  <data name="Unified_OutOfAreaTitle" xml:space="preserve">
+    <value>Outside area</value>
+  </data>
+  <data name="Unified_OperationInProgressExitConfirm" xml:space="preserve">
+    <value>An operation is currently in progress. Are you sure you want to close the window and cancel it?</value>
+  </data>
+  <data name="Unified_OperationInProgressTitle" xml:space="preserve">
+    <value>Operation in progress</value>
+  </data>
+  <data name="Unified_Summary_2DBasemaps" xml:space="preserve">
+    <value>2D basemaps ({0})</value>
+  </data>
+  <data name="Unified_Summary_3DBasemaps" xml:space="preserve">
+    <value>3D basemaps ({0})</value>
+  </data>
+  <data name="Unified_Summary_3DTerrain" xml:space="preserve">
+    <value>3D terrain (map.gnd)</value>
+  </data>
+  <data name="Unified_Summary_Placed2D" xml:space="preserve">
+    <value>placed 2D on map</value>
+  </data>
+  <data name="Unified_Summary_Placed3D" xml:space="preserve">
+    <value>placed 3D on map</value>
+  </data>
+  <data name="Unified_Summary_Layers" xml:space="preserve">
+    <value>Trainz layers ({0})</value>
+  </data>
+  <data name="Unified_Status_AutoBasemapNum" xml:space="preserve">
+    <value>Automatically selected basemap number: {0}</value>
+  </data>
+  <data name="Unified_Status_AutoKuid" xml:space="preserve">
+    <value>Automatically selected KUID (part 2): {0}</value>
+  </data>
+  <data name="Unified_Status_RoutesRefreshed" xml:space="preserve">
+    <value>Route list refreshed</value>
+  </data>
+  <data name="Unified_Starting" xml:space="preserve">
+    <value>Starting...</value>
+  </data>
+  <data name="Unified_DownloadingElevation" xml:space="preserve">
+    <value>Downloading elevation data...</value>
+  </data>
+  <data name="Unified_ElevationProgress" xml:space="preserve">
+    <value>Elevation: {0}/{1}</value>
+  </data>
+  <data name="Unified_ElevationDownloaded" xml:space="preserve">
+    <value>Downloaded elevation ({0},{1}) [{2}/{3}]</value>
+  </data>
+  <data name="Unified_ElevationWarning" xml:space="preserve">
+    <value>[Warning] Failed to download elevation for ({0},{1}): {2}. Using height 0m.</value>
+  </data>
+  <data name="Unified_Downloading2D" xml:space="preserve">
+    <value>Downloading 2D ({0})...</value>
+  </data>
+  <data name="Unified_2DProgress" xml:space="preserve">
+    <value>2D [{0}]: {1}/{2}</value>
+  </data>
+  <data name="Unified_2DFinishedSource" xml:space="preserve">
+    <value>2D basemaps ({0}): created {1}, errors {2}.</value>
+  </data>
+  <data name="Unified_Downloading3D" xml:space="preserve">
+    <value>Downloading 3D ({0})...</value>
+  </data>
+  <data name="Unified_3DProgress" xml:space="preserve">
+    <value>3D [{0}]: {1}/{2}</value>
+  </data>
+  <data name="Unified_3DFinishedSource" xml:space="preserve">
+    <value>3D basemaps ({0}): created {1}, errors {2}.</value>
+  </data>
+  <data name="Unified_GeneratingGnd" xml:space="preserve">
+    <value>Generating mapfile.gnd...</value>
+  </data>
+  <data name="Unified_CreatingTrainzStructure" xml:space="preserve">
+    <value>Creating Trainz map structure...</value>
+  </data>
+  <data name="Unified_Layers2D" xml:space="preserve">
+    <value>2D Basemaps</value>
+  </data>
+  <data name="Unified_Layers3D" xml:space="preserve">
+    <value>3D Basemaps</value>
+  </data>
+  <data name="Unified_Done" xml:space="preserve">
+    <value>Done!</value>
+  </data>
+  <data name="Unified_CompletedStatus" xml:space="preserve">
+    <value>Completed: {0}.</value>
+  </data>
+  <data name="Unified_CancelledByUser" xml:space="preserve">
+    <value>Operation cancelled by user.</value>
+  </data>
+  <data name="Unified_CancelledDialog" xml:space="preserve">
+    <value>Operation has been interrupted.</value>
+  </data>
+  <data name="Unified_ErrorOccurred" xml:space="preserve">
+    <value>An error occurred!</value>
+  </data>
+  <data name="Unified_FallbackResolutionFailed" xml:space="preserve">
+    <value>Failed to download basemap for ({0},{1}) in any available resolution.</value>
+  </data>
+</root>

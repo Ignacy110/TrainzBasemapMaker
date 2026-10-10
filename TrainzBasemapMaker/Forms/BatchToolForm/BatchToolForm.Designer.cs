@@ -220,7 +220,7 @@ namespace TrainzBasemapMaker
             // 
             comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxEpsg.FormattingEnabled = true;
-            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Poland)", "EPSG:3857 (World)" });
             comboBoxEpsg.Location = new Point(13, 21);
             comboBoxEpsg.Name = "comboBoxEpsg";
             comboBoxEpsg.Size = new Size(188, 23);

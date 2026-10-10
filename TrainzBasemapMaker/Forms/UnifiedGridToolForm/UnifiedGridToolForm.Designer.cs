@@ -1,4 +1,4 @@
-﻿// Trainz Basemap Maker
+// Trainz Basemap Maker
 // https://github.com/Ignacy110/TrainzBasemapMaker
 //
 // Copyright (C) 2026 Ignacy110 (http://github.com/Ignacy110)
@@ -124,7 +124,7 @@ namespace TrainzBasemapMaker
             // 
             comboBoxEpsg.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxEpsg.FormattingEnabled = true;
-            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Polska)", "EPSG:3857 (Świat)" });
+            comboBoxEpsg.Items.AddRange(new object[] { "EPSG:2180 (Poland)", "EPSG:3857 (World)" });
             comboBoxEpsg.Location = new Point(6, 26);
             comboBoxEpsg.Name = "comboBoxEpsg";
             comboBoxEpsg.Size = new Size(202, 23);

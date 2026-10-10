@@ -24,6 +24,7 @@ using System.Globalization;
 using System.Text.Json;
 using TrainzBasemapMaker.Classes;
 using TrainzBasemapMaker.Classes.TrainzTerrain;
+using TrainzBasemapMaker.Localization;
 
 namespace TrainzBasemapMaker
 {
@@ -32,7 +33,7 @@ namespace TrainzBasemapMaker
     /// Allows selecting any combination of: generating 2D basemaps, placing 2D on map, generating 3D basemaps,
     /// placing 3D on map, and generating 3D terrain (map.gnd).
     /// </summary>
-    public partial class UnifiedGridToolForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
+    public partial class UnifiedGridToolForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations, ILocalizableForm
     {
         // ── Inner models ──────────────────────────────────────────────────────────
         private class SelectedTileModel
@@ -55,13 +56,15 @@ namespace TrainzBasemapMaker
         // ── Fields ────────────────────────────────────────────────────────────────
         private const int MaxParallelBasemaps = 4;
         private readonly TrainzFileManager _fileManager = new TrainzFileManager();
-        private readonly ToolTip _warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
+        private readonly ToolTip _warningToolTip = new ToolTip { IsBalloon = true };
         private readonly List<SelectedTileModel> _selectedTiles = new List<SelectedTileModel>();
         private readonly System.Windows.Forms.Timer _kuidCounterDebounceTimer = new System.Windows.Forms.Timer { Interval = 300 };
         private CancellationTokenSource? _cancellationTokenSource;
         private bool _isDownloading = false;
         private long? _currentAnchorX;
         private long? _currentAnchorY;
+        private int _lastTileCount = 0;
+        private int _lastExistingTileCount = 0;
 
         // Terrain route state (from TerrainGridToolForm)
         private TerrainRouteInfo? _loadedRoute;
@@ -90,7 +93,7 @@ namespace TrainzBasemapMaker
 
             // Bind map providers
             checkedListBoxMapType.ItemCheck -= checkedListBoxMapType_ItemCheck;
-            checkedListBoxMapType.DisplayMember = "Name";
+            checkedListBoxMapType.DisplayMember = "DisplayName";
             checkedListBoxMapType.Items.Clear();
             foreach (var map in MapSources.AvailableMaps)
             {
@@ -128,14 +131,104 @@ namespace TrainzBasemapMaker
             UpdateNextFreeCounter();
             UpdateNextFreeKuidPart2();
 
-            StatusUpdate?.Invoke("LPM: Kliknij lub przeciągnij pędzlem, aby zaznaczyć | PPM: Przesuwanie mapy");
+            StatusUpdate?.Invoke(Strings.Unified_Status_Help);
         }
 
         // ── Load / Init ───────────────────────────────────────────────────────────
         private async void UnifiedGridToolForm_Load(object? sender, EventArgs e)
         {
             ThemeManager.ApplyTheme(this);
+            ApplyLocalization();
             await InitBrowser();
+        }
+
+        public void ApplyLocalization()
+        {
+            int currentEpsgIdx = comboBoxEpsg.SelectedIndex;
+            comboBoxEpsg.SelectedIndexChanged -= ComboBoxEpsg_SelectedIndexChanged;
+            comboBoxEpsg.Items.Clear();
+            comboBoxEpsg.Items.AddRange(new object[] { Strings.Common_Epsg2180, Strings.Common_Epsg3857 });
+            comboBoxEpsg.SelectedIndex = currentEpsgIdx >= 0 ? currentEpsgIdx : 0;
+            comboBoxEpsg.SelectedIndexChanged += ComboBoxEpsg_SelectedIndexChanged;
+
+            groupBox1CoordSystem.Text = Strings.Unified_GroupCoords;
+            groupBox2Selection.Text = Strings.Unified_GroupSelection;
+            buttonResetAnchor.Text = Strings.Unified_ResetBasePoint;
+            buttonClearSelection.Text = Strings.Unified_ClearSelection;
+            radioButtonModeBox.Text = Strings.Unified_ModeBox;
+            radioButtonModeClick.Text = Strings.Unified_ModeClick;
+            groupBoxMap.Text = Strings.Unified_GroupMap;
+            groupBox3BasemapParams.Text = Strings.Unified_GroupBasemapParams;
+            buttonDeselectAllMaps.Text = Strings.Unified_DeselectAll;
+            buttonSelectAllMaps.Text = Strings.Unified_SelectAll;
+            label2.Text = Strings.Unified_MaxResolution;
+            label15.Text = Strings.Unified_BasemapTypes;
+            label14.Text = Strings.Unified_YearIfAvailable;
+            groupBox4Configurator.Text = Strings.Unified_GroupConfigurator;
+            labelRoutes.Text = Strings.Unified_GeneratedRoutes;
+            buttonLoadRoute.Text = Strings.Unified_BtnLoadRoute;
+            buttonDeleteRoute.Text = Strings.Unified_BtnDeleteRoute;
+            label4.Text = Strings.Unified_RouteName;
+            labelDesignation.Text = Strings.Unified_BasemapDesignation;
+            labelCounter.Text = Strings.Unified_BasemapNum;
+            label12.Text = Strings.Unified_KuidPart1;
+            groupBox5Download.Text = Strings.Unified_GroupDownload;
+            checkBoxGenerate2DBasemaps.Text = Strings.Unified_Gen2DBasemaps;
+            checkBoxPlace2DOnMap.Text = Strings.Unified_Place2DOnMap;
+            checkBoxGenerate3DBasemaps.Text = Strings.Unified_Gen3DBasemaps;
+            checkBoxPlace3DOnMap.Text = Strings.Unified_Place3DOnMap;
+            checkBoxGenerate3DTerrain.Text = Strings.Unified_Gen3DTerrain;
+            groupBoxElevation.Text = Strings.Unified_GroupElevation;
+            radioButtonElevationAbsolute.Text = Strings.Unified_ElevationAbsolute;
+            radioButtonElevationRelative.Text = Strings.Unified_ElevationRelative;
+            buttonCancel.Text = Strings.Unified_BtnCancel;
+
+            if (!_isDownloading)
+            {
+                buttonStartDownload.Text = _loadedRoute != null ? Strings.Unified_BtnUpdateRoute : Strings.Unified_BtnDownload;
+                if (_selectedTiles.Count == 0 && _lastTileCount == 0 && _lastExistingTileCount == 0)
+                {
+                    labelProgress.Text = Strings.Unified_ReadyToDownload;
+                }
+            }
+
+            _warningToolTip.ToolTipTitle = Strings.Common_InputError;
+
+            // Refresh checkedListBoxMapType items to update display name
+            var checkedIndices = checkedListBoxMapType.CheckedIndices.Cast<int>().ToHashSet();
+            checkedListBoxMapType.ItemCheck -= checkedListBoxMapType_ItemCheck;
+            var items = checkedListBoxMapType.Items.Cast<IMapSource>().ToList();
+            checkedListBoxMapType.Items.Clear();
+            checkedListBoxMapType.DisplayMember = "DisplayName";
+            for (int i = 0; i < items.Count; i++)
+            {
+                checkedListBoxMapType.Items.Add(items[i], checkedIndices.Contains(i));
+            }
+            checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
+            UpdateBasemapParamsState();
+
+            UpdateSelectionLabels();
+
+            if (webView21 != null && webView21.CoreWebView2 != null)
+            {
+                _ = webView21.CoreWebView2.ExecuteScriptAsync($"window.appLanguage = '{LocalizationManager.CurrentLanguage}'; if (window.setGeoSearchLanguage) window.setGeoSearchLanguage('{LocalizationManager.CurrentLanguage}');");
+            }
+        }
+
+        private void UpdateSelectionLabels()
+        {
+            if (_lastTileCount == 0 && _lastExistingTileCount == 0)
+            {
+                labelTileCount.Text = string.Format(Strings.Unified_Baseboards720Format, 0);
+                labelArea.Text = string.Format(Strings.Unified_AreaFormat, 0.0);
+            }
+            else
+            {
+                labelTileCount.Text = _lastExistingTileCount > 0
+                    ? string.Format(Strings.Unified_NewBaseboardsFormat, _lastTileCount, _lastTileCount + _lastExistingTileCount)
+                    : string.Format(Strings.Unified_Baseboards720Format, _lastTileCount);
+                labelArea.Text = string.Format(Strings.Unified_AreaFormat, (_lastTileCount + _lastExistingTileCount) * 0.5184);
+            }
         }
 
         private async Task InitBrowser()
@@ -155,8 +248,7 @@ namespace TrainzBasemapMaker
                     if (args.IsSuccess)
                     {
                         // Trainz baseboard size = 720 m
-                        await webView21.CoreWebView2.ExecuteScriptAsync("setTileSize(720);");
-                        await webView21.CoreWebView2.ExecuteScriptAsync("setCoordinateSystem('EPSG:2180');");
+                        await webView21.CoreWebView2.ExecuteScriptAsync($"window.appLanguage = '{LocalizationManager.CurrentLanguage}'; setTileSize(720); setCoordinateSystem('EPSG:2180'); if (window.setGeoSearchLanguage) window.setGeoSearchLanguage('{LocalizationManager.CurrentLanguage}');");
                     }
                 };
 
@@ -169,8 +261,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd inicjalizacji komponentu mapy:\n\n" + ex.Message,
-                    "Błąd WebView2", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Strings.Unified_MapInitError, ex.Message),
+                    Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -211,14 +303,14 @@ namespace TrainzBasemapMaker
         {
             if (listBoxRoutes.SelectedItem is not TerrainRouteInfo selectedRoute)
             {
-                MessageBox.Show("Wybierz trasę z listy do wczytania.", "Informacja",
+                MessageBox.Show(Strings.Unified_SelectRouteToLoad, Strings.Common_Information,
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (webView21.CoreWebView2 == null)
             {
-                MessageBox.Show("Komponent mapy jeszcze się inicjalizuje. Spróbuj ponownie za chwilę.", "Informacja",
+                MessageBox.Show(Strings.Unified_MapStillInitializing, Strings.Common_Information,
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
@@ -226,8 +318,8 @@ namespace TrainzBasemapMaker
             string gndPath = Path.Combine(selectedRoute.FolderPath, "mapfile.gnd");
             if (!File.Exists(gndPath))
             {
-                MessageBox.Show($"W folderze trasy nie znaleziono pliku mapfile.gnd:\n{selectedRoute.FolderPath}",
-                    "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Strings.Unified_MapfileNotFound, selectedRoute.FolderPath),
+                    Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -253,7 +345,7 @@ namespace TrainzBasemapMaker
                 else
                     radioButtonElevationAbsolute.Checked = true;
 
-                buttonStartDownload.Text = "Aktualizuj trasę";
+                buttonStartDownload.Text = Strings.Unified_BtnUpdateRoute;
 
                 if (selectedRoute.AnchorX.HasValue && selectedRoute.AnchorY.HasValue && selectedRoute.Tiles.Count > 0)
                 {
@@ -269,19 +361,19 @@ namespace TrainzBasemapMaker
 
                     string json = JsonSerializer.Serialize(payload);
                     await webView21.CoreWebView2.ExecuteScriptAsync($"loadExistingFolderTiles({json})");
-                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów). Możesz zaznaczyć dodatkowe pola i kliknąć Aktualizuj.");
+                    StatusUpdate?.Invoke(string.Format(Strings.Unified_RouteLoadedStatus, selectedRoute.RouteName, parts.Count));
                 }
                 else
                 {
-                    StatusUpdate?.Invoke($"Wczytano trasę \"{selectedRoute.RouteName}\" ({parts.Count} baseboardów) bez geolokalizacji.");
-                    MessageBox.Show($"Trasa \"{selectedRoute.RouteName}\" nie zawiera danych geolokalizacji (wygenerowana we wcześniejszej wersji). Nie można jej wyświetlić na mapie.",
-                        "Wczytano trasę", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    StatusUpdate?.Invoke(string.Format(Strings.Unified_RouteLoadedNoGeoStatus, selectedRoute.RouteName, parts.Count));
+                    MessageBox.Show(string.Format(Strings.Unified_RouteNoGeodata, selectedRoute.RouteName),
+                        Strings.Unified_RouteLoadedTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd podczas wczytywania trasy:\n\n" + ex.Message,
-                    "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Strings.Unified_RouteLoadError, ex.Message),
+                    Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -289,14 +381,14 @@ namespace TrainzBasemapMaker
         {
             if (listBoxRoutes.SelectedItem is not TerrainRouteInfo route)
             {
-                MessageBox.Show("Wybierz trasę z listy do usunięcia.", "Informacja",
+                MessageBox.Show(Strings.Unified_SelectRouteToDelete, Strings.Common_Information,
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var confirm = MessageBox.Show(
-                $"Czy na pewno chcesz usunąć trasę \"{route.RouteName}\"?\nFolder: {route.FolderPath}\n\nOperacji nie można cofnąć!",
-                "Potwierdzenie usunięcia", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                string.Format(Strings.Unified_ConfirmRouteDelete, route.RouteName),
+                Strings.Unified_ConfirmRouteDeleteTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm != DialogResult.Yes) return;
 
             try
@@ -309,12 +401,12 @@ namespace TrainzBasemapMaker
                     await ResetAnchorAsync();
                 }
                 RoutesListBoxRefresh();
-                StatusUpdate?.Invoke($"Usunięto trasę \"{route.RouteName}\".");
+                StatusUpdate?.Invoke(string.Format(Strings.Unified_RouteDeletedStatus, route.RouteName));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd podczas usuwania trasy:\n\n" + ex.Message,
-                    "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Strings.Unified_RouteDeleteError, ex.Message),
+                    Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -374,20 +466,16 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        string tileText = existingCount > 0
-                            ? $"Nowe baseboardy: {count} (łącznie: {count + existingCount})"
-                            : $"Zaznaczono baseboardów (720m): {count}";
-
-                        labelTileCount.Text = tileText;
-                        // 720m x 720m = 0.5184 km²
-                        labelArea.Text = $"Powierzchnia: {((count + existingCount) * 0.5184):F2} km²";
+                        _lastTileCount = count;
+                        _lastExistingTileCount = existingCount;
+                        UpdateSelectionLabels();
 
                         string statusMsg = count > 0
-                            ? $"Zaznaczono {count} nowych baseboardów."
-                            : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów. Kliknij na mapie, aby dodać nowe." : "Zaznacz obszar trasy na mapie.");
+                            ? string.Format(Strings.Unified_Status_SelectedNew, count)
+                            : (existingCount > 0 ? string.Format(Strings.Unified_Status_LoadedAddMore, existingCount) : Strings.Unified_Status_SelectArea);
 
-                        labelProgress.Text = count > 0 ? $"Zaznaczono {count} baseboardów."
-                            : (existingCount > 0 ? $"Wczytano {existingCount} baseboardów." : "Gotowy do zaznaczania.");
+                        labelProgress.Text = count > 0 ? string.Format(Strings.Unified_Status_SelectedNew, count)
+                            : (existingCount > 0 ? string.Format(Strings.Unified_Status_LoadedCount, existingCount) : Strings.Unified_Status_ReadyToSelect);
                         StatusUpdate?.Invoke(statusMsg);
                     }
                 }
@@ -427,12 +515,13 @@ namespace TrainzBasemapMaker
             _currentAnchorX = null;
             _currentAnchorY = null;
             textBoxDestinationFolder.Text = "Nowa_Trasa";
-            buttonStartDownload.Text = "Pobierz";
+            buttonStartDownload.Text = Strings.Unified_BtnDownload;
             UpdateNextFreeKuidPart2();
-            labelTileCount.Text = "Zaznaczono baseboardów (720m): 0";
-            labelArea.Text = "Powierzchnia: 0.00 km²";
-            labelProgress.Text = "Zresetowano. Gotowy do zaznaczania.";
-            StatusUpdate?.Invoke("Wybierz punkt początkowy na mapie.");
+            _lastTileCount = 0;
+            _lastExistingTileCount = 0;
+            UpdateSelectionLabels();
+            labelProgress.Text = Strings.Unified_Status_ResetReady;
+            StatusUpdate?.Invoke(Strings.Unified_Status_SelectInitialPoint);
 
             if (webView21.CoreWebView2 != null)
                 await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
@@ -442,7 +531,7 @@ namespace TrainzBasemapMaker
         {
             _currentAnchorX = null;
             _currentAnchorY = null;
-            buttonStartDownload.Text = "Pobierz";
+            buttonStartDownload.Text = Strings.Unified_BtnDownload;
             if (webView21.CoreWebView2 != null)
                 await webView21.CoreWebView2.ExecuteScriptAsync("resetGridOrigin()");
         }
@@ -500,7 +589,7 @@ namespace TrainzBasemapMaker
             bool anySupportsTime = checkedSources.Any(s => s.SupportsTime);
             textBoxBasemapDate.Enabled = anySupportsTime;
             label14.Enabled = anySupportsTime;
-            labelMapSelectionCount.Text = $"Wybrano: {checkedSources.Count}";
+            labelMapSelectionCount.Text = string.Format(Strings.Unified_SelectedMapsFormat, checkedSources.Count);
 
             // Suggest coordinate system if only XYZ sources are checked
             if (checkedSources.Count > 0 && checkedSources.All(s => s is XyzTileMapSource))
@@ -557,20 +646,20 @@ namespace TrainzBasemapMaker
             }
         }
 
-        // ── Main generation / download ────────────────────────────────────────────
+        // ── Main generation / download ────────────────────────────────────
         private async void buttonStartDownload_Click(object sender, EventArgs e)
         {
             // ── Validation ──
             if (_selectedTiles.Count == 0)
             {
-                MessageBox.Show("Nie zaznaczono żadnych kafli na mapie!", "Brak zaznaczenia",
+                MessageBox.Show(Strings.Unified_NoTilesSelected, Strings.Unified_NoSelectionTitle,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(textBoxDestinationFolder.Text))
             {
-                MessageBox.Show("Wpisz nazwę trasy!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Unified_EnterRouteName, Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -584,33 +673,33 @@ namespace TrainzBasemapMaker
 
             if (!gen2D && !gen3D && !genTerrain)
             {
-                MessageBox.Show("Zaznacz co najmniej jedną opcję w sekcji '5. Pobieranie i generowanie mapy'!",
-                    "Brak wyboru", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Unified_SelectAtLeastOneGenOption,
+                    Strings.Unified_NoSelectionTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if ((gen2D || gen3D) && string.IsNullOrWhiteSpace(textBoxDesignation.Text))
             {
-                MessageBox.Show("Wpisz oznaczenie podkładów!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Unified_EnterBasemapDesignation, Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (!int.TryParse(textBoxCounter.Text, out int startCounter))
             {
-                MessageBox.Show("Niepoprawny numer początkowy podkładu!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Unified_InvalidStartBasemapNum, Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             if (!int.TryParse(textBoxKuidPart2.Text, out int startKuid2))
             {
-                MessageBox.Show("Niepoprawny numer KUID (część 2)!", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Strings.Unified_InvalidKuidPart2, Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var selectedMaps = checkedListBoxMapType.CheckedItems.Cast<IMapSource>().ToList();
             if ((gen2D || gen3D) && selectedMaps.Count == 0)
             {
-                MessageBox.Show("Zaznacz co najmniej jeden rodzaj podkładu na liście!", "Brak wyboru podkładu",
+                MessageBox.Show(Strings.Unified_SelectAtLeastOneBasemapType, Strings.Unified_NoBasemapTypeTitle,
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -619,8 +708,8 @@ namespace TrainzBasemapMaker
             if (genTerrain && comboBoxEpsg.SelectedIndex == 1)
             {
                 var res = MessageBox.Show(
-                    "Pobieranie wysokości NMT z Geoportalu wymaga układu EPSG:2180 (obszar Polski).\nCzy chcesz automatycznie przełączyć układ na EPSG:2180?",
-                    "Układ współrzędnych", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    Strings.Unified_PromptEpsg2180ForElevation,
+                    Strings.Common_CoordSystem, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                     comboBoxEpsg.SelectedIndex = 0;
                 else
@@ -634,8 +723,8 @@ namespace TrainzBasemapMaker
                     if (!GeoHelperEPSG2180.IsWithin2180Bounds(tile.X, tile.Y))
                     {
                         MessageBox.Show(
-                            $"Kafel ({tile.I}, {tile.J}) o współrzędnych ({tile.X}, {tile.Y}) znajduje się poza obszarem Polski!\nGeoportal NMT udostępnia dane tylko dla terytorium Polski.",
-                            "Poza obszarem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            string.Format(Strings.Unified_OutOfPolandBounds, tile.I, tile.J, tile.X, tile.Y),
+                            Strings.Unified_OutOfAreaTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
@@ -676,7 +765,7 @@ namespace TrainzBasemapMaker
             progressBar2.Minimum = 0;
             progressBar2.Maximum = totalOverallTasks;
             progressBar2.Value = 0;
-            labelProgress.Text = "Uruchamianie...";
+            labelProgress.Text = Strings.Unified_Starting;
 
             try
             {
@@ -687,8 +776,8 @@ namespace TrainzBasemapMaker
 
                 if (genTerrain || gen3D)
                 {
-                    StatusUpdate?.Invoke("Pobieranie danych wysokościowych...");
-                    labelProgress.Text = "Pobieranie wysokości...";
+                    StatusUpdate?.Invoke(Strings.Unified_DownloadingElevation);
+                    labelProgress.Text = Strings.Unified_DownloadingElevation;
                     progressBar1.Maximum = Math.Max(1, total);
                     progressBar1.Value = 0;
 
@@ -713,10 +802,10 @@ namespace TrainzBasemapMaker
                                 {
                                     BeginInvoke(() =>
                                     {
-                                        labelProgress.Text = $"Wysokości: {c}/{total}";
+                                        labelProgress.Text = string.Format(Strings.Unified_ElevationProgress, c, total);
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
                                         progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
-                                        StatusUpdate?.Invoke($"Pobrano wysokości ({tile.I},{tile.J}) [{c}/{total}]");
+                                        StatusUpdate?.Invoke(string.Format(Strings.Unified_ElevationDownloaded, tile.I, tile.J, c, total));
                                     });
                                 }
                             }
@@ -726,7 +815,7 @@ namespace TrainzBasemapMaker
                             }
                             catch (Exception ex)
                             {
-                                StatusUpdate?.Invoke($"[Ostrzeżenie] Nie udało się pobrać wysokości dla ({tile.I},{tile.J}): {ex.Message}. Użyto wysokości 0m.");
+                                StatusUpdate?.Invoke(string.Format(Strings.Unified_ElevationWarning, tile.I, tile.J, ex.Message));
                                 downloadedGrids[(tile.I, tile.J)] = new float[Constants.GridVertexCount, Constants.GridVertexCount];
                                 int c = Interlocked.Increment(ref completed);
                                 int oc = Interlocked.Increment(ref overallCompleted);
@@ -734,7 +823,7 @@ namespace TrainzBasemapMaker
                                 {
                                     BeginInvoke(() =>
                                     {
-                                        labelProgress.Text = $"Wysokości: {c}/{total}";
+                                        labelProgress.Text = string.Format(Strings.Unified_ElevationProgress, c, total);
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
                                         progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
@@ -806,7 +895,7 @@ namespace TrainzBasemapMaker
 
                         // Pre-assign counters/KUIDs so numbering is deterministic regardless of completion order.
                         var jobs = AssignBasemapNumbers(tilesToProcess, ref startCounter, ref startKuid2);
-                        StatusUpdate?.Invoke($"Pobieranie 2D ({source.Name})...");
+                        StatusUpdate?.Invoke(string.Format(Strings.Unified_Downloading2D, source.DisplayName));
 
                         var results = await RunThrottledAsync(jobs, MaxParallelBasemaps, async job =>
                         {
@@ -841,7 +930,7 @@ namespace TrainzBasemapMaker
                                 {
                                     BeginInvoke(() =>
                                     {
-                                        labelProgress.Text = $"2D [{source.Name}]: {d}/{total}";
+                                        labelProgress.Text = string.Format(Strings.Unified_2DProgress, source.DisplayName, d, total);
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
                                         progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
@@ -864,7 +953,7 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        StatusUpdate?.Invoke($"Podkłady 2D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
+                        StatusUpdate?.Invoke(string.Format(Strings.Unified_2DFinishedSource, source.DisplayName, successCount, failCount));
                     }
                 }
 
@@ -892,7 +981,7 @@ namespace TrainzBasemapMaker
                         int doneForSource = 0;
 
                         var jobs = AssignBasemapNumbers(tilesToProcess, ref startCounter, ref startKuid2);
-                        StatusUpdate?.Invoke($"Pobieranie 3D ({source.Name})...");
+                        StatusUpdate?.Invoke(string.Format(Strings.Unified_Downloading3D, source.DisplayName));
 
                         var results = await RunThrottledAsync(jobs, MaxParallelBasemaps, async job =>
                         {
@@ -937,7 +1026,7 @@ namespace TrainzBasemapMaker
                                 {
                                     BeginInvoke(() =>
                                     {
-                                        labelProgress.Text = $"3D [{source.Name}]: {d}/{total}";
+                                        labelProgress.Text = string.Format(Strings.Unified_3DProgress, source.DisplayName, d, total);
                                         progressBar1.Value = Math.Min(c, progressBar1.Maximum);
                                         progressBar2.Value = Math.Min(oc, progressBar2.Maximum);
                                     });
@@ -960,7 +1049,7 @@ namespace TrainzBasemapMaker
                             }
                         }
 
-                        StatusUpdate?.Invoke($"Podkłady 3D ({source.Name}): utworzono {successCount}, błędów {failCount}.");
+                        StatusUpdate?.Invoke(string.Format(Strings.Unified_3DFinishedSource, source.DisplayName, successCount, failCount));
                     }
                 }
 
@@ -972,10 +1061,10 @@ namespace TrainzBasemapMaker
 
                 if (needsRoute)
                 {
-                    labelProgress.Text = "Generowanie mapfile.gnd...";
+                    labelProgress.Text = Strings.Unified_GeneratingGnd;
                     progressBar1.Maximum = 1;
                     progressBar1.Value = 0;
-                    StatusUpdate?.Invoke("Tworzenie struktury mapy Trainz...");
+                    StatusUpdate?.Invoke(Strings.Unified_CreatingTrainzStructure);
 
                     if (genTerrain && downloadedGrids != null)
                     {
@@ -1065,8 +1154,8 @@ namespace TrainzBasemapMaker
                     {
                         byte layerId = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
-                            ? $"Podklady 2D - {group.Key.Name}"
-                            : "Podklady 2D";
+                            ? $"{Strings.Unified_Layers2D} - {group.Key.DisplayName}"
+                            : Strings.Unified_Layers2D;
                         layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2) in group.OrderBy(b => b.Tile.Order))
@@ -1104,8 +1193,8 @@ namespace TrainzBasemapMaker
                     {
                         byte layerId = (byte)layers.Count;
                         string layerName = selectedMaps.Count > 1
-                            ? $"Podklady 3D - {group.Key.Name}"
-                            : "Podklady 3D";
+                            ? $"{Strings.Unified_Layers3D} - {group.Key.DisplayName}"
+                            : Strings.Unified_Layers3D;
                         layers.Add(new TrainzLayer(layerId, layerName, 0x01));
 
                         foreach (var (_, tile, k1, k2, baseHeight) in group.OrderBy(b => b.Tile.Order))
@@ -1138,7 +1227,7 @@ namespace TrainzBasemapMaker
                     routeInfo.FolderPath = targetFolder;
                     _loadedRoute = routeInfo;
 
-                    buttonStartDownload.Text = "Aktualizuj trasę";
+                    buttonStartDownload.Text = Strings.Unified_BtnUpdateRoute;
                     int oc = Interlocked.Increment(ref overallCompleted);
                     if (!IsDisposed && IsHandleCreated)
                     {
@@ -1184,42 +1273,42 @@ namespace TrainzBasemapMaker
                 _selectedTiles.Clear();
                 progressBar1.Value = progressBar1.Maximum;
                 progressBar2.Value = progressBar2.Maximum;
-                labelProgress.Text = "Gotowe!";
+                labelProgress.Text = Strings.Unified_Done;
 
                 // ── Summary message ──
                 var summaryParts = new List<string>();
-                if (gen2D) summaryParts.Add($"podkłady 2D ({basemap2DInfo.Count})");
-                if (gen3D) summaryParts.Add($"podkłady 3D ({basemap3DInfo.Count})");
-                if (genTerrain) summaryParts.Add("teren 3D (map.gnd)");
-                if (place2D) summaryParts.Add("ułożono 2D na mapie");
-                if (place3D) summaryParts.Add("ułożono 3D na mapie");
-                if (layers.Count > 1) summaryParts.Add($"warstwy Trainz ({layers.Count})");
+                if (gen2D) summaryParts.Add(string.Format(Strings.Unified_Summary_2DBasemaps, basemap2DInfo.Count));
+                if (gen3D) summaryParts.Add(string.Format(Strings.Unified_Summary_3DBasemaps, basemap3DInfo.Count));
+                if (genTerrain) summaryParts.Add(Strings.Unified_Summary_3DTerrain);
+                if (place2D) summaryParts.Add(Strings.Unified_Summary_Placed2D);
+                if (place3D) summaryParts.Add(Strings.Unified_Summary_Placed3D);
+                if (layers.Count > 1) summaryParts.Add(string.Format(Strings.Unified_Summary_Layers, layers.Count));
 
                 string summary = string.Join(", ", summaryParts);
-                StatusUpdate?.Invoke($"Zakończono: {summary}.");
+                StatusUpdate?.Invoke(string.Format(Strings.Unified_CompletedStatus, summary));
                 BeginInvoke(new Action(() =>
                 {
-                    MessageBox.Show($"Pomyślnie zakończono operację!\n\nWygenerowano: {summary}.",
-                        "Sukces", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(string.Format(Strings.Unified_CompletedSuccess, summary),
+                        Strings.Common_Success, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }));
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
-                labelProgress.Text = "Anulowano.";
-                StatusUpdate?.Invoke("Operacja anulowana przez użytkownika.");
+                labelProgress.Text = Strings.Unified_OperationCancelled;
+                StatusUpdate?.Invoke(Strings.Unified_CancelledByUser);
                 BeginInvoke(new Action(() =>
                 {
-                    MessageBox.Show("Operacja została przerwana.", "Anulowano", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Strings.Unified_CancelledDialog, Strings.Unified_OperationCancelledTitle, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }));
             }
             catch (Exception ex)
             {
-                labelProgress.Text = "Błąd!";
-                StatusUpdate?.Invoke("Wystąpił błąd!");
+                labelProgress.Text = Strings.Common_Error + "!";
+                StatusUpdate?.Invoke(Strings.Unified_ErrorOccurred);
                 BeginInvoke(new Action(() =>
                 {
-                    MessageBox.Show("Błąd podczas generowania:\n\n" + ex.Message,
-                        "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format(Strings.Unified_GenerationError, ex.Message),
+                        Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }));
             }
             finally
@@ -1276,7 +1365,7 @@ namespace TrainzBasemapMaker
                     Debug.WriteLine($"Resolution {res} failed for {source.Name} ({x},{y}): {ex.Message}. Trying lower...");
                 }
             }
-            throw new Exception($"Nie udało się pobrać podkładu dla ({x},{y}) w żadnej dostępnej rozdzielczości.", lastEx);
+            throw new Exception(string.Format(Strings.Unified_FallbackResolutionFailed, x, y), lastEx);
         }
 
         private static List<BasemapJob> AssignBasemapNumbers(
@@ -1344,8 +1433,8 @@ namespace TrainzBasemapMaker
         {
             _cancellationTokenSource?.Cancel();
             buttonCancel.Enabled = false;
-            labelProgress.Text = "Anulowanie...";
-            StatusUpdate?.Invoke("Anulowanie operacji...");
+            labelProgress.Text = Strings.Unified_Status_Cancelling;
+            StatusUpdate?.Invoke(Strings.Unified_Status_Cancelling);
         }
 
         // ── UI state ──────────────────────────────────────────────────────────────
@@ -1390,7 +1479,7 @@ namespace TrainzBasemapMaker
                 if (sender is TextBox textBox)
                 {
                     _warningToolTip.Hide(textBox);
-                    _warningToolTip.Show("Tutaj możesz wpisać tylko cyfry!", textBox, 50, -75, 2000);
+                    _warningToolTip.Show(Strings.Common_OnlyDigitsTooltip, textBox, 50, -75, 2000);
                 }
             }
         }
@@ -1401,8 +1490,8 @@ namespace TrainzBasemapMaker
             if (_isDownloading)
             {
                 var res = MessageBox.Show(
-                    "Operacja jest w toku. Czy na pewno chcesz zamknąć okno i ją przerwać?",
-                    "Operacja w toku", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    Strings.Unified_OperationInProgressExitConfirm,
+                    Strings.Unified_OperationInProgressTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (res == DialogResult.No)
                 {
                     e.Cancel = true;
@@ -1418,19 +1507,19 @@ namespace TrainzBasemapMaker
         public void FindSmallestFreeBasemapNumber()
         {
             UpdateNextFreeCounter();
-            StatusUpdate?.Invoke("Automatycznie dobrano numer podkładu: " + textBoxCounter.Text);
+            StatusUpdate?.Invoke(string.Format(Strings.Unified_Status_AutoBasemapNum, textBoxCounter.Text));
         }
 
         public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
+            StatusUpdate?.Invoke(string.Format(Strings.Unified_Status_AutoKuid, textBoxKuidPart2.Text));
         }
 
         public void RefreshLists()
         {
             RoutesListBoxRefresh();
-            StatusUpdate?.Invoke("Odświeżono listę tras");
+            StatusUpdate?.Invoke(Strings.Unified_Status_RoutesRefreshed);
         }
     }
 }

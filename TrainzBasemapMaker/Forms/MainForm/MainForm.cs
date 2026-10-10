@@ -26,7 +26,7 @@ using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, ILocalizableForm
     {
         private SingleBasemapForm singleBasemapForm = null!;
         private UnifiedGridToolForm unifiedGridToolForm = null!;
@@ -34,11 +34,29 @@ namespace TrainzBasemapMaker
         public MainForm()
         {
             InitializeComponent();
+            ApplyLocalization();
             LoadTools();
             ThemeManager.ApplyTheme(this);
             
             this.Load += MainForm_Load;
             this.FormClosing += MainForm_FormClosing;
+        }
+
+        public void ApplyLocalization()
+        {
+            this.Text = Localization.Strings.App_Title;
+            toolsToolStripMenuItem.Text = Localization.Strings.Main_Menu_Tools;
+            findFreeKuidToolStripMenuItem.Text = Localization.Strings.Main_Menu_FindFreeKuid;
+            findSmallestFreeBasemapNumberToolStripMenuItem.Text = Localization.Strings.Main_Menu_FindSmallestFreeBasemap;
+            refreshFolderAndBasemapListToolStripMenuItem.Text = Localization.Strings.Main_Menu_RefreshFolderList;
+            batchProcessingToolStripMenuItem.Text = Localization.Strings.Main_Menu_BatchProcessing;
+            preferencesToolStripMenuItem.Text = Localization.Strings.Main_Menu_Preferences;
+            helpToolStripMenuItem.Text = Localization.Strings.Main_Menu_Help;
+            websiteToolStripMenuItem.Text = Localization.Strings.Main_Menu_GitHubWebsite;
+            aboutProgramToolStripMenuItem.Text = Localization.Strings.Main_Menu_About;
+            tabPageSingle.Text = Localization.Strings.Main_Tab_Single;
+            tabPageUnified.Text = Localization.Strings.Main_Tab_Unified;
+            toolStripStatusLabel1.Text = Localization.Strings.Common_Ready;
         }
 
         private void LoadTools()

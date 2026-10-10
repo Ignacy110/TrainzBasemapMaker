@@ -114,7 +114,7 @@ namespace TrainzBasemapMaker.Classes
                 using (var textBrush = new SolidBrush(foreColor))
                 using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
                 {
-                    e.Graphics.DrawString(mapSource.Name, e.Font ?? combo.Font, textBrush, e.Bounds, sf);
+                    e.Graphics.DrawString(mapSource.DisplayName, e.Font ?? combo.Font, textBrush, e.Bounds, sf);
                 }
 
                 e.DrawFocusRectangle();

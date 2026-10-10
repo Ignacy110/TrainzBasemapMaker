@@ -29,6 +29,11 @@ namespace TrainzBasemapMaker.Classes
         string Name { get; }
 
         /// <summary>
+        /// Localized display name of the map source in the user interface.
+        /// </summary>
+        string DisplayName { get; }
+
+        /// <summary>
         /// Indicates whether this map source supports historical/dated imagery.
         /// </summary>
         bool SupportsTime { get; }

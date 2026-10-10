@@ -52,6 +52,23 @@ namespace TrainzBasemapMaker.Classes
         }
 
         public string Name { get; protected set; }
+        public virtual string DisplayName
+        {
+            get
+            {
+                return Name switch
+                {
+                    "Ortofotomapa WMTS" => Localization.Strings.MapSource_OrtoWMTS,
+                    "Ortofotomapa WMS, wybór roku" => Localization.Strings.MapSource_OrtoWMS,
+                    "Ortofotomapa wysoka rozdzielczość WMTS" => Localization.Strings.MapSource_OrtoHighResWMTS,
+                    "Ortofotomapa wysoka rozdzielczość WMS, wybór roku" => Localization.Strings.MapSource_OrtoHighResWMS,
+                    "Cieniowanie WMTS" => Localization.Strings.MapSource_ShadedWMTS,
+                    "Cieniowanie WMS" => Localization.Strings.MapSource_ShadedWMS,
+                    "Mapa topograficzna WMTS" => Localization.Strings.MapSource_TopoWMTS,
+                    _ => Name
+                };
+            }
+        }
         public bool SupportsTime { get; protected set; }
         public virtual bool AllowsHighResolution => true;
 
@@ -61,7 +78,7 @@ namespace TrainzBasemapMaker.Classes
             SupportsTime = supportsTime;
         }
 
-        public override string ToString() => Name;
+        public override string ToString() => DisplayName;
 
         public abstract Task<byte[]> GetMapImageAsync(string year, double xCenter, double yCenter, int resolution, int maxRetries = 3, int delaySeconds = 3, CancellationToken cancellationToken = default);
 

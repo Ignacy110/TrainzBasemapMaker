@@ -22,10 +22,17 @@
 function initLeafletGeoSearch(mapInstance, options) {
     options = options || {};
 
+    var lang = options.language || window.appLanguage || 'en';
+    var defaultPlaceholder = lang === 'pl' ? 'Szukaj miejscowości...' : 'Search location...';
+    var defaultSearchTitle = lang === 'pl' ? 'Wyszukaj miejscowość' : 'Search location';
+    var defaultClearTitle = lang === 'pl' ? 'Wyczyść' : 'Clear';
+
     var GeoSearchControl = L.Control.extend({
         options: {
             position: options.position || 'topleft',
-            placeholder: options.placeholder || 'Szukaj miejscowości...'
+            placeholder: options.placeholder || defaultPlaceholder,
+            searchTitle: options.searchTitle || defaultSearchTitle,
+            clearTitle: options.clearTitle || defaultClearTitle
         },
 
         onAdd: function() {
@@ -36,12 +43,12 @@ function initLeafletGeoSearch(mapInstance, options) {
 
             container.innerHTML =
                 '<div class="geosearch-bar">' +
-                '  <span class="geosearch-icon" title="Wyszukaj miejscowość">' +
+                '  <span class="geosearch-icon" title="' + this.options.searchTitle + '">' +
                 '    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>' +
                 '  </span>' +
                 '  <input type="text" class="geosearch-input" placeholder="' + this.options.placeholder + '" autocomplete="off" spellcheck="false" />' +
                 '  <span class="geosearch-spinner" style="display:none;"></span>' +
-                '  <button type="button" class="geosearch-clear" title="Wyczyść" style="display:none;">' +
+                '  <button type="button" class="geosearch-clear" title="' + this.options.clearTitle + '" style="display:none;">' +
                 '    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
                 '  </button>' +
                 '</div>' +
@@ -255,3 +262,13 @@ function initLeafletGeoSearch(mapInstance, options) {
 
     new GeoSearchControl().addTo(mapInstance);
 }
+
+window.setGeoSearchLanguage = function(lang) {
+    var isPl = lang === 'pl';
+    var input = document.querySelector('.geosearch-input');
+    var icon = document.querySelector('.geosearch-icon');
+    var clear = document.querySelector('.geosearch-clear');
+    if (input) input.placeholder = isPl ? 'Szukaj miejscowości...' : 'Search location...';
+    if (icon) icon.title = isPl ? 'Wyszukaj miejscowość' : 'Search location';
+    if (clear) clear.title = isPl ? 'Wyczyść' : 'Clear';
+};

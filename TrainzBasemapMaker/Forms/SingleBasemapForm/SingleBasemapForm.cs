@@ -23,7 +23,7 @@ using TrainzBasemapMaker.Classes;
 
 namespace TrainzBasemapMaker
 {
-    public partial class SingleBasemapForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations
+    public partial class SingleBasemapForm : Form, TrainzBasemapMaker.Classes.IMainMenuOperations, TrainzBasemapMaker.Classes.ILocalizableForm
     {
         // --------------------------
         //  Declaration of variables
@@ -49,7 +49,7 @@ namespace TrainzBasemapMaker
         private TrainzFileManager _fileManager = new TrainzFileManager();
 
         // Custom tooltip for displaying input validation warnings
-        private ToolTip warningToolTip = new ToolTip { IsBalloon = true, ToolTipTitle = "Błąd wprowadzania" };
+        private ToolTip warningToolTip = new ToolTip { IsBalloon = true };
 
 
         // --------------------------
@@ -76,13 +76,12 @@ namespace TrainzBasemapMaker
 
             // Bind available map providers to the dropdown list
             comboBoxMapType.DataSource = MapSources.AvailableMaps;
-            comboBoxMapType.DisplayMember = "Name";
+            comboBoxMapType.DisplayMember = "DisplayName";
             comboBoxMapType.DrawMode = DrawMode.OwnerDrawFixed;
             comboBoxMapType.DrawItem += ComboBoxMapType_DrawItem;
 
             // Configure coordinate system radio buttons
             comboBoxEpsg.SelectedIndex = 0;
-            label7.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
             textBoxLat.TextChanged += TextBoxLatLon_TextChanged;
             textBoxLon.TextChanged += TextBoxLatLon_TextChanged;
             textBoxKuidPart1.TextChanged += TextBoxKuidPart1_TextChanged;
@@ -92,7 +91,62 @@ namespace TrainzBasemapMaker
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
 
+            ApplyLocalization();
+
             this.Load += SingleBasemapForm_Load;
+        }
+
+        public void ApplyLocalization()
+        {
+            int currentEpsgIdx = comboBoxEpsg.SelectedIndex;
+            comboBoxEpsg.SelectedIndexChanged -= ComboBoxEpsg_SelectedIndexChanged;
+            comboBoxEpsg.Items.Clear();
+            comboBoxEpsg.Items.AddRange(new object[] { Localization.Strings.Common_Epsg2180, Localization.Strings.Common_Epsg3857 });
+            comboBoxEpsg.SelectedIndex = currentEpsgIdx >= 0 ? currentEpsgIdx : 0;
+            comboBoxEpsg.SelectedIndexChanged += ComboBoxEpsg_SelectedIndexChanged;
+
+            if (comboBoxMapType.DataSource != null)
+            {
+                var selMap = comboBoxMapType.SelectedItem;
+                comboBoxMapType.SelectedIndexChanged -= comboBoxMapType_SelectedIndexChanged;
+                comboBoxMapType.DataSource = null;
+                comboBoxMapType.DataSource = MapSources.AvailableMaps;
+                comboBoxMapType.DisplayMember = "DisplayName";
+                if (selMap != null) comboBoxMapType.SelectedItem = selMap;
+                comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
+            }
+            comboBoxMapType.Invalidate();
+
+            groupBox1GeoCoords.Text = Localization.Strings.Single_GroupGeoCoords;
+            label5.Text = Localization.Strings.Single_Lat;
+            label6.Text = Localization.Strings.Single_Lon;
+            buttonMarkPointMap.Text = Localization.Strings.Single_PickOnMap;
+            groupBox2TargetCoords.Text = Localization.Strings.Single_GroupTargetCoords;
+            label7.Text = string.Format(Localization.Strings.Single_CoordsLabelFormat, (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857");
+            buttonConvert.Text = string.Format(Localization.Strings.Single_ConvertCoordsFormat, (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857");
+            label9.Text = Localization.Strings.Single_Lat;
+            label8.Text = Localization.Strings.Single_Lon;
+            groupBox3Configurator.Text = Localization.Strings.Single_GroupConfigurator;
+            checkBoxCreateFiles.Text = Localization.Strings.Single_CreateTrainzFiles;
+            label4.Text = Localization.Strings.Single_DestFolder;
+            label10.Text = Localization.Strings.Single_YourFolders;
+            label11.Text = Localization.Strings.Single_BasemapNum;
+            label12.Text = Localization.Strings.Single_KuidPart1;
+            label13.Text = Localization.Strings.Single_BasemapDesignation;
+            groupBox4BasemapParams.Text = Localization.Strings.Single_GroupBasemapParams;
+            label15.Text = Localization.Strings.Single_MapType;
+            label14.Text = Localization.Strings.Single_MapYear;
+            label2.Text = Localization.Strings.Single_Resolution;
+            buttonConfAndDownload.Text = Localization.Strings.Single_BtnConfigAndDownload;
+            groupBox5Navigator.Text = Localization.Strings.Single_GroupNavigator;
+            label3.Text = Localization.Strings.Single_NavAndDownload;
+            buttonUp.Text = Localization.Strings.Single_NavUp;
+            buttonDown.Text = Localization.Strings.Single_NavDown;
+            buttonLeft.Text = Localization.Strings.Single_NavLeft;
+            buttonRight.Text = Localization.Strings.Single_NavRight;
+            groupBox6KuidList.Text = Localization.Strings.Single_GroupKuidList;
+            groupBox7BasemapViewer.Text = Localization.Strings.Single_GroupPreview;
+            warningToolTip.ToolTipTitle = Localization.Strings.Common_InputError;
         }
 
         private void SingleBasemapForm_Load(object? sender, EventArgs e)
@@ -150,7 +204,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd odświeżania listy podkładów:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_RefreshList, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -180,8 +234,8 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
-                StatusUpdate?.Invoke("Błąd automatycznego wyznaczania oznaczenia kuidu (część 2)");
-                MessageBox.Show("Błąd automatycznego wyznaczania oznaczenia kuidu (część 2):\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Err_AutoKuid, ""));
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_AutoKuid, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -197,8 +251,8 @@ namespace TrainzBasemapMaker
             catch (Exception ex)
             {
                 textBoxCounter.Text = "1";
-                StatusUpdate?.Invoke("Błąd automatycznego wyznaczania numeru podkładu");
-                MessageBox.Show("Błąd automatycznego wyznaczania numeru podkładu:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Err_AutoBasemapNum, ""));
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_AutoBasemapNum, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -209,7 +263,7 @@ namespace TrainzBasemapMaker
 
             try
             {
-                StatusUpdate?.Invoke($"Pobieranie podkładu...");
+                StatusUpdate?.Invoke(Localization.Strings.Single_Status_Downloading);
 
                 if (comboBoxMapType.SelectedItem is not IMapSource selectedMap) return;
                 string year = selectedMap.SupportsTime ? textBoxBasemapDate.Text : "";
@@ -225,7 +279,7 @@ namespace TrainzBasemapMaker
                     oldImage?.Dispose();
                 }
 
-                StatusUpdate?.Invoke($"Pobrano podkład do pamięci: {currentX}_{currentY}");
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_DownloadedOnly, $"{currentX}_{currentY}"));
 
                 // Proceed with file creation if the user enabled this option
                 if (checkBoxCreateFiles.Checked)
@@ -296,17 +350,17 @@ namespace TrainzBasemapMaker
                                 UpdateNextFreeKuidPart2();
                             }
                             DataRefresh();
-                            StatusUpdate?.Invoke($"Pobrano podkład i utworzono pliki dla Trainz: {currentX}, {currentY}");
+                            StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_FilesSaved, $"{currentX}, {currentY}"));
                         }
                         else
                         {
-                            StatusUpdate?.Invoke("Podkład już istnieje – pominięto.");
+                            StatusUpdate?.Invoke(Localization.Strings.Single_Status_AlreadyExists);
                         }
                     }
                     catch (Exception ex)
                     {
-                        StatusUpdate?.Invoke("Błąd zapisu plików!");
-                        MessageBox.Show("Błąd zapisu plików:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Err_SavingFiles, ""));
+                        MessageBox.Show(string.Format(Localization.Strings.Single_Err_SavingFiles, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
 
                     KuidsInFolderListBoxRefresh();
@@ -315,8 +369,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                StatusUpdate?.Invoke($"Błąd pobierania mapy: {currentX}_{currentY}");
-                MessageBox.Show("Błąd pobierania mapy:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Err_Download, $"{currentX}_{currentY}"));
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_Download, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -372,8 +426,8 @@ namespace TrainzBasemapMaker
         // Converts standard geographic coordinates (Lat/Lon) to metric projection (EPSG:2180 or EPSG:3857)
         private void ComboBoxEpsg_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            buttonConvert.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Konwertuj na EPSG:2180" : "Konwertuj na EPSG:3857";
-            label7.Text = (comboBoxEpsg.SelectedIndex == 0) ? "Współrzędne EPSG:2180" : "Współrzędne EPSG:3857";
+            buttonConvert.Text = string.Format(Localization.Strings.Single_ConvertCoordsFormat, (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857");
+            label7.Text = string.Format(Localization.Strings.Single_CoordsLabelFormat, (comboBoxEpsg.SelectedIndex == 0) ? "EPSG:2180" : "EPSG:3857");
             PerformConversion();
         }
 
@@ -403,7 +457,7 @@ namespace TrainzBasemapMaker
                     _anchorCosLat = null;
 
                     DataRefresh();
-                    StatusUpdate?.Invoke($"Przekonwertowano: {latText}, {lonText} na EPSG:2180: {currentX}, {currentY}");
+                    StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_Converted, latText, lonText, "EPSG:2180", currentX, currentY));
                 }
                 else
                 {
@@ -413,13 +467,13 @@ namespace TrainzBasemapMaker
                     _anchorCosLat = null;
 
                     DataRefresh();
-                    string suffix = inPoland ? " (Polska)" : " (Global)";
-                    StatusUpdate?.Invoke($"Przekonwertowano: {latText}, {lonText} na EPSG:3857{suffix}: {currentX}, {currentY}");
+                    string suffix = inPoland ? (LocalizationManager.CurrentLanguage == LocalizationManager.LanguagePolish ? " (Polska)" : " (Poland)") : " (Global)";
+                    StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_Converted, latText, lonText, $"EPSG:3857{suffix}", currentX, currentY));
                 }
             }
             else
             {
-                StatusUpdate?.Invoke($"Błąd konwersji: {latText}, {lonText}");
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_ConvertError, latText, lonText));
             }
         }
 
@@ -448,8 +502,8 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                StatusUpdate?.Invoke($"Błąd danych startowych (błąd konfiguracji)");
-                MessageBox.Show("Błąd danych startowych (błąd konfiguracji). Upewnij się, że używasz tylko cyfr i ewentualnie kropki.\n\n" + ex.Message, "Błąd formatu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Err_FormatData, ""));
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_FormatData, ex.Message), Localization.Strings.Single_Err_FormatTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -551,14 +605,14 @@ namespace TrainzBasemapMaker
                     }
                     else
                     {
-                        StatusUpdate?.Invoke($"Błąd nazwy podkładu");
-                        MessageBox.Show("Błąd nazwy podkładu.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        StatusUpdate?.Invoke(Localization.Strings.Single_Err_BasemapName);
+                        MessageBox.Show(Localization.Strings.Single_Err_BasemapName, Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd nazwy podkładu:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(string.Format(Localization.Strings.Single_Err_BasemapNameDetails, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -609,31 +663,31 @@ namespace TrainzBasemapMaker
                 {
                     // Show a balloon tooltip to inform the user about invalid input
                     warningToolTip.Hide(textBox);
-                    warningToolTip.Show("Tutaj możesz wpisać tylko cyfry!", textBox, 50, -75, 2000);
+                    warningToolTip.Show(Localization.Strings.Common_OnlyDigitsTooltip, textBox, 50, -75, 2000);
                 }
             }
         }
 
-                public void FindSmallestFreeBasemapNumber()
+        public void FindSmallestFreeBasemapNumber()
         {
             UpdateNextFreeCounter();
-            StatusUpdate?.Invoke("Automatycznie dobrano numer podkładu: " + textBoxCounter.Text);
+            StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_FoundBasemapNum, textBoxCounter.Text));
         }
 
         public void FindFreeKuid()
         {
             UpdateNextFreeKuidPart2();
-            StatusUpdate?.Invoke("Automatycznie dobrano numer kuidu (część 2): " + textBoxKuidPart2.Text);
+            StatusUpdate?.Invoke(string.Format(Localization.Strings.Single_Status_FoundKuid, textBoxKuidPart1.Text, textBoxKuidPart2.Text));
         }
 
         public void RefreshLists()
         {
             KuidsInFolderListBoxRefresh();
             BasemapFolderListBoxRefresh();
-            StatusUpdate?.Invoke("Odświeżono listę folderów");
+            StatusUpdate?.Invoke(Localization.Strings.Single_Status_Refreshed);
         }
 
-        private void comboBoxMapType_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxMapType_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (comboBoxMapType.SelectedItem is IMapSource selected)
             {
@@ -695,7 +749,7 @@ namespace TrainzBasemapMaker
                 using (var textBrush = new SolidBrush(foreColor))
                 using (var sf = new StringFormat { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Near })
                 {
-                    e.Graphics.DrawString(mapSource.Name, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
+                    e.Graphics.DrawString(mapSource.DisplayName, e.Font ?? comboBox.Font, textBrush, e.Bounds, sf);
                 }
 
                 e.DrawFocusRectangle();

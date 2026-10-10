@@ -21,11 +21,12 @@ using System.Diagnostics;
 
 namespace TrainzBasemapMaker
 {
-    public partial class AboutProgramForm : Form
+    public partial class AboutProgramForm : Form, Classes.ILocalizableForm
     {
         public AboutProgramForm()
         {
             InitializeComponent();
+            ApplyLocalization();
 
             // Set build metadata info
             labelVersion.Text = "v0.5.2-alpha";
@@ -39,6 +40,17 @@ namespace TrainzBasemapMaker
             }
             
             TrainzBasemapMaker.Classes.ThemeManager.ApplyTheme(this);
+        }
+
+        public void ApplyLocalization()
+        {
+            this.Text = Localization.Strings.About_Title;
+            label2.Text = Localization.Strings.About_Version;
+            label3.Text = Localization.Strings.About_ReleaseDate;
+            label4.Text = Localization.Strings.About_Author;
+            label8.Text = Localization.Strings.About_License;
+            label11.Text = Localization.Strings.About_GitHub;
+            label5.Text = Localization.Strings.About_Libraries;
         }
 
         /// <summary>
@@ -65,7 +77,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd otwarcia strony:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(string.Format(Localization.Strings.About_OpenUrlError, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -78,7 +90,7 @@ namespace TrainzBasemapMaker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Błąd otwarcia strony:\n\n" + ex.Message, "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(string.Format(Localization.Strings.About_OpenUrlError, ex.Message), Localization.Strings.Common_Error, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }
