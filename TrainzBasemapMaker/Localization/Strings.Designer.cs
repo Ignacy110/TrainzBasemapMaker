@@ -143,6 +143,7 @@ namespace TrainzBasemapMaker.Localization {
         public static string Single_ConvertCoordsFormat => ResourceManager.GetString("Single_ConvertCoordsFormat", resourceCulture) ?? "Convert to {0}";
         public static string Single_GroupConfigurator => ResourceManager.GetString("Single_GroupConfigurator", resourceCulture) ?? "3. Configuration of downloaded and generated basemaps";
         public static string Single_CreateTrainzFiles => ResourceManager.GetString("Single_CreateTrainzFiles", resourceCulture) ?? "Create Trainz folders and files";
+        public static string Single_Gen3DBasemaps => ResourceManager.GetString("Single_Gen3DBasemaps", resourceCulture) ?? "Generate\r\n3D basemaps";
         public static string Single_DestFolder => ResourceManager.GetString("Single_DestFolder", resourceCulture) ?? "Destination folder name:";
         public static string Single_YourFolders => ResourceManager.GetString("Single_YourFolders", resourceCulture) ?? "Your folders:";
         public static string Single_BasemapNum => ResourceManager.GetString("Single_BasemapNum", resourceCulture) ?? "Basemap #:";
@@ -150,7 +151,7 @@ namespace TrainzBasemapMaker.Localization {
         public static string Single_BasemapDesignation => ResourceManager.GetString("Single_BasemapDesignation", resourceCulture) ?? "Basemap name:";
         public static string Single_GroupBasemapParams => ResourceManager.GetString("Single_GroupBasemapParams", resourceCulture) ?? "4. Satellite basemap parameters";
         public static string Single_MapType => ResourceManager.GetString("Single_MapType", resourceCulture) ?? "Basemap type:";
-        public static string Single_MapYear => ResourceManager.GetString("Single_MapYear", resourceCulture) ?? "Basemap year:";
+        public static string Single_MapYear => ResourceManager.GetString("Single_MapYear", resourceCulture) ?? "Basemap\r\nyear:";
         public static string Single_Resolution => ResourceManager.GetString("Single_Resolution", resourceCulture) ?? "Resolution [px]:";
         public static string Single_BtnConfigAndDownload => ResourceManager.GetString("Single_BtnConfigAndDownload", resourceCulture) ?? "Configure and download";
         public static string Single_BtnDownload => ResourceManager.GetString("Single_BtnDownload", resourceCulture) ?? "Download";

@@ -372,6 +372,9 @@ Szczegóły błędów:
   <data name="Single_CreateTrainzFiles" xml:space="preserve">
     <value>Twórz foldery i pliki Trainz</value>
   </data>
+  <data name="Single_Gen3DBasemaps" xml:space="preserve">
+    <value>Generuj&#xD;&#xA;podkłady 3D</value>
+  </data>
   <data name="Single_DestFolder" xml:space="preserve">
     <value>Nazwa docelowego folderu:</value>
   </data>
@@ -394,7 +397,7 @@ Szczegóły błędów:
     <value>Rodzaj podkładów:</value>
   </data>
   <data name="Single_MapYear" xml:space="preserve">
-    <value>Rok podkładów:</value>
+    <value>Rok&#xD;&#xA;podkładów:</value>
   </data>
   <data name="Single_Resolution" xml:space="preserve">
     <value>Rozdzielczość [px]:</value>

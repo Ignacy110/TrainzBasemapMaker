@@ -372,6 +372,9 @@ Error details:
   <data name="Single_CreateTrainzFiles" xml:space="preserve">
     <value>Create Trainz folders and files</value>
   </data>
+  <data name="Single_Gen3DBasemaps" xml:space="preserve">
+    <value>Generate&#xD;&#xA;3D basemaps</value>
+  </data>
   <data name="Single_DestFolder" xml:space="preserve">
     <value>Destination folder name:</value>
   </data>
@@ -394,7 +397,7 @@ Error details:
     <value>Basemap type:</value>
   </data>
   <data name="Single_MapYear" xml:space="preserve">
-    <value>Basemap year:</value>
+    <value>Basemap&#xD;&#xA;year:</value>
   </data>
   <data name="Single_Resolution" xml:space="preserve">
     <value>Resolution [px]:</value>

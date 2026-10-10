@@ -68,6 +68,7 @@ namespace TrainzBasemapMaker
 
             // Apply default UI settings
             checkBoxCreateFiles.Checked = true;
+            checkBoxGenerate3D.Checked = Properties.Settings.Default.Generate3DBasemaps;
             textBoxDestinationFolder.Text = basemapGroup;
             textBoxDesignation.Text = basemapGroupDesignation;
             textBoxCounter.Text = counter.ToString();
@@ -134,6 +135,7 @@ namespace TrainzBasemapMaker
             label12.Text = Localization.Strings.Single_KuidPart1;
             label13.Text = Localization.Strings.Single_BasemapDesignation;
             groupBox4BasemapParams.Text = Localization.Strings.Single_GroupBasemapParams;
+            checkBoxGenerate3D.Text = Localization.Strings.Single_Gen3DBasemaps;
             label15.Text = Localization.Strings.Single_MapType;
             label14.Text = Localization.Strings.Single_MapYear;
             label2.Text = Localization.Strings.Single_Resolution;
@@ -284,6 +286,20 @@ namespace TrainzBasemapMaker
                 // Proceed with file creation if the user enabled this option
                 if (checkBoxCreateFiles.Checked)
                 {
+                    if (checkBoxGenerate3D.Checked && comboBoxEpsg.SelectedIndex == 1)
+                    {
+                        var res = MessageBox.Show(
+                            Localization.Strings.Unified_PromptEpsg2180ForElevation,
+                            Localization.Strings.Common_CoordSystem,
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
+                        if (res == DialogResult.Yes)
+                        {
+                            comboBoxEpsg.SelectedIndex = 0;
+                            return;
+                        }
+                    }
+
                     try
                     {
                         string kuidPart1 = textBoxKuidPart1.Text;
@@ -296,7 +312,9 @@ namespace TrainzBasemapMaker
                             basemapGroupDesignation,
                             counter,
                             kuidPart1,
-                            kuidPart2
+                            kuidPart2,
+                            force2D: !checkBoxGenerate3D.Checked,
+                            generate3D: checkBoxGenerate3D.Checked
                         ));
 
                         if (success)
@@ -630,6 +648,38 @@ namespace TrainzBasemapMaker
         {
             BasemapFolderListBoxRefresh();
             panel1.Enabled = checkBoxCreateFiles.Checked;
+        }
+
+        private void checkBoxGenerate3D_CheckedChanged(object? sender, EventArgs e)
+        {
+            Properties.Settings.Default.Generate3DBasemaps = checkBoxGenerate3D.Checked;
+            Properties.Settings.Default.Save();
+
+            if (checkBoxGenerate3D.Checked)
+            {
+                if (string.IsNullOrWhiteSpace(Properties.Settings.Default.TrainzMeshImporterPath) ||
+                    !File.Exists(Properties.Settings.Default.TrainzMeshImporterPath))
+                {
+                    MessageBox.Show(
+                        Localization.Strings.Unified_TmiNotFoundFor3D,
+                        Localization.Strings.Unified_TmiMissingTitle,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+
+                if (comboBoxEpsg.SelectedIndex == 1)
+                {
+                    var res = MessageBox.Show(
+                        Localization.Strings.Unified_PromptEpsg2180ForElevation,
+                        Localization.Strings.Common_CoordSystem,
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+                    if (res == DialogResult.Yes)
+                    {
+                        comboBoxEpsg.SelectedIndex = 0;
+                    }
+                }
+            }
         }
 
         private void textBoxDestinationFolder_TextChanged(object sender, EventArgs e)

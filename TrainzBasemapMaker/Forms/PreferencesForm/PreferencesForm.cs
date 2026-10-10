@@ -30,13 +30,6 @@ namespace TrainzBasemapMaker
         // ToolTip used to provide visual feedback for input validation errors
         private ToolTip warningToolTip = new ToolTip { IsBalloon = true };
 
-        private CheckBox checkBoxGenerate3D = null!;
-        private Label labelTMI = null!;
-        private TextBox textBoxTMI = null!;
-        private Button buttonBrowseTMI = null!;
-        private Label labelLanguage = null!;
-        private ComboBox comboBoxLanguage = null!;
-
         public PreferencesForm()
         {
             InitializeComponent();
@@ -49,56 +42,8 @@ namespace TrainzBasemapMaker
             textBoxMinKuidPart2.Text = Math.Max(1, Properties.Settings.Default.MinKuidPart2).ToString();
             checkBoxDarkMode.Checked = Properties.Settings.Default.DarkMode;
             comboBoxBasemapSize.SelectedItem = Properties.Settings.Default.BasemapSize.ToString();
-            
-            // 3D basemaps settings UI
-            checkBoxGenerate3D = new CheckBox();
-            checkBoxGenerate3D.AutoSize = true;
-            checkBoxGenerate3D.Location = new Point(38, 265);
-            checkBoxGenerate3D.Size = new Size(350, 19);
-            checkBoxGenerate3D.Checked = Properties.Settings.Default.Generate3DBasemaps;
-            checkBoxGenerate3D.CheckedChanged += (s, e) => Properties.Settings.Default.Generate3DBasemaps = checkBoxGenerate3D.Checked;
-            this.Controls.Add(checkBoxGenerate3D);
-
-            labelTMI = new Label();
-            labelTMI.AutoSize = true;
-            labelTMI.Location = new Point(38, 290);
-            this.Controls.Add(labelTMI);
-
-            textBoxTMI = new TextBox();
-            textBoxTMI.Location = new Point(38, 310);
-            textBoxTMI.Width = 300;
             textBoxTMI.Text = Properties.Settings.Default.TrainzMeshImporterPath;
-            textBoxTMI.TextChanged += (s, e) => Properties.Settings.Default.TrainzMeshImporterPath = textBoxTMI.Text;
-            this.Controls.Add(textBoxTMI);
-
-            buttonBrowseTMI = new Button();
-            buttonBrowseTMI.Location = new Point(345, 309);
-            buttonBrowseTMI.Click += (s, e) => {
-                using (OpenFileDialog ofd = new OpenFileDialog()) {
-                    ofd.Filter = Strings.Pref_TmiFilter;
-                    if (ofd.ShowDialog() == DialogResult.OK) {
-                        textBoxTMI.Text = ofd.FileName;
-                    }
-                }
-            };
-            this.Controls.Add(buttonBrowseTMI);
-
-            // Language settings UI
-            labelLanguage = new Label();
-            labelLanguage.AutoSize = true;
-            labelLanguage.Location = new Point(38, 345);
-            this.Controls.Add(labelLanguage);
-
-            comboBoxLanguage = new ComboBox();
-            comboBoxLanguage.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBoxLanguage.Location = new Point(144, 342);
-            comboBoxLanguage.Width = 140;
-            comboBoxLanguage.Items.AddRange(new object[] { Strings.Pref_Language_English, Strings.Pref_Language_Polish });
             comboBoxLanguage.SelectedIndex = LocalizationManager.CurrentLanguage == LocalizationManager.LanguagePolish ? 1 : 0;
-            comboBoxLanguage.SelectedIndexChanged += ComboBoxLanguage_SelectedIndexChanged;
-            this.Controls.Add(comboBoxLanguage);
-
-            this.Height = Math.Max(this.Height, 430);
 
             ApplyLocalization();
             ThemeManager.ApplyTheme(this);
@@ -118,7 +63,6 @@ namespace TrainzBasemapMaker
             labelMinKuidPart2.Text = Strings.Pref_MinKuidPart2;
             checkBoxDarkMode.Text = Strings.Pref_DarkMode;
             label3.Text = Strings.Pref_BasemapSize;
-            checkBoxGenerate3D.Text = Strings.Pref_Generate3D;
             labelTMI.Text = Strings.Pref_TmiPath;
             buttonBrowseTMI.Text = Strings.Common_Browse;
             labelLanguage.Text = Strings.Pref_Language;
@@ -131,6 +75,23 @@ namespace TrainzBasemapMaker
             comboBoxLanguage.Items.AddRange(new object[] { Strings.Pref_Language_English, Strings.Pref_Language_Polish });
             comboBoxLanguage.SelectedIndex = currentIdx >= 0 ? currentIdx : (LocalizationManager.CurrentLanguage == LocalizationManager.LanguagePolish ? 1 : 0);
             comboBoxLanguage.SelectedIndexChanged += ComboBoxLanguage_SelectedIndexChanged;
+        }
+
+        private void textBoxTMI_TextChanged(object? sender, EventArgs e)
+        {
+            Properties.Settings.Default.TrainzMeshImporterPath = textBoxTMI.Text;
+        }
+
+        private void buttonBrowseTMI_Click(object? sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = Strings.Pref_TmiFilter;
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    textBoxTMI.Text = ofd.FileName;
+                }
+            }
         }
 
         private void ComboBoxLanguage_SelectedIndexChanged(object? sender, EventArgs e)
@@ -198,6 +159,7 @@ namespace TrainzBasemapMaker
             {
                 Properties.Settings.Default.BasemapSize = size;
             }
+            Properties.Settings.Default.TrainzMeshImporterPath = textBoxTMI.Text;
             
             Properties.Settings.Default.Save();
         }

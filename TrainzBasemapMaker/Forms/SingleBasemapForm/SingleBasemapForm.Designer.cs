@@ -76,6 +76,7 @@ namespace TrainzBasemapMaker
             groupBox6KuidList = new GroupBox();
             groupBox2TargetCoords = new GroupBox();
             groupBox4BasemapParams = new GroupBox();
+            checkBoxGenerate3D = new CheckBox();
             groupBox3Configurator.SuspendLayout();
             panel1.SuspendLayout();
             groupBox5Navigator.SuspendLayout();
@@ -93,7 +94,7 @@ namespace TrainzBasemapMaker
             comboBoxResolution.FormattingEnabled = true;
             comboBoxResolution.Location = new Point(6, 50);
             comboBoxResolution.Name = "comboBoxResolution";
-            comboBoxResolution.Size = new Size(103, 23);
+            comboBoxResolution.Size = new Size(100, 23);
             comboBoxResolution.TabIndex = 20;
             comboBoxResolution.SelectedIndexChanged += comboBoxResolution_SelectedIndexChanged;
             // 
@@ -304,7 +305,6 @@ namespace TrainzBasemapMaker
             // basemapFolderListBox
             // 
             basemapFolderListBox.FormattingEnabled = true;
-            basemapFolderListBox.ItemHeight = 15;
             basemapFolderListBox.Location = new Point(3, 18);
             basemapFolderListBox.Name = "basemapFolderListBox";
             basemapFolderListBox.Size = new Size(169, 94);
@@ -369,16 +369,16 @@ namespace TrainzBasemapMaker
             comboBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxMapType.DropDownWidth = 310;
             comboBoxMapType.FormattingEnabled = true;
-            comboBoxMapType.Location = new Point(125, 50);
+            comboBoxMapType.Location = new Point(122, 50);
             comboBoxMapType.Name = "comboBoxMapType";
-            comboBoxMapType.Size = new Size(307, 23);
+            comboBoxMapType.Size = new Size(270, 23);
             comboBoxMapType.TabIndex = 32;
             comboBoxMapType.SelectedIndexChanged += comboBoxMapType_SelectedIndexChanged;
             // 
             // label15
             // 
             label15.AutoSize = true;
-            label15.Location = new Point(125, 25);
+            label15.Location = new Point(122, 25);
             label15.Name = "label15";
             label15.Size = new Size(107, 15);
             label15.TabIndex = 31;
@@ -387,7 +387,7 @@ namespace TrainzBasemapMaker
             // textBoxBasemapDate
             // 
             textBoxBasemapDate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            textBoxBasemapDate.Location = new Point(448, 50);
+            textBoxBasemapDate.Location = new Point(408, 50);
             textBoxBasemapDate.MaxLength = 4;
             textBoxBasemapDate.Name = "textBoxBasemapDate";
             textBoxBasemapDate.Size = new Size(67, 23);
@@ -399,11 +399,13 @@ namespace TrainzBasemapMaker
             // 
             label14.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label14.AutoSize = true;
-            label14.Location = new Point(448, 29);
+            label14.Location = new Point(408, 14);
             label14.Name = "label14";
-            label14.Size = new Size(92, 15);
+            label14.RightToLeft = RightToLeft.No;
+            label14.Size = new Size(69, 30);
             label14.TabIndex = 21;
-            label14.Text = "Rok podkładów:";
+            label14.Text = "Rok\r\npodkładów:";
+            label14.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // buttonConvert
             // 
@@ -506,7 +508,6 @@ namespace TrainzBasemapMaker
             // 
             kuidsInFolderListBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             kuidsInFolderListBox.FormattingEnabled = true;
-            kuidsInFolderListBox.ItemHeight = 15;
             kuidsInFolderListBox.Location = new Point(6, 21);
             kuidsInFolderListBox.Name = "kuidsInFolderListBox";
             kuidsInFolderListBox.Size = new Size(205, 469);
@@ -551,6 +552,7 @@ namespace TrainzBasemapMaker
             // groupBox4BasemapParams
             // 
             groupBox4BasemapParams.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox4BasemapParams.Controls.Add(checkBoxGenerate3D);
             groupBox4BasemapParams.Controls.Add(comboBoxMapType);
             groupBox4BasemapParams.Controls.Add(textBoxBasemapDate);
             groupBox4BasemapParams.Controls.Add(comboBoxResolution);
@@ -563,6 +565,20 @@ namespace TrainzBasemapMaker
             groupBox4BasemapParams.TabIndex = 22;
             groupBox4BasemapParams.TabStop = false;
             groupBox4BasemapParams.Text = "4. Parametry podkładów satelitarnych (basemap-ów)";
+            // 
+            // checkBoxGenerate3D
+            // 
+            checkBoxGenerate3D.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            checkBoxGenerate3D.AutoSize = true;
+            checkBoxGenerate3D.CheckAlign = ContentAlignment.BottomCenter;
+            checkBoxGenerate3D.Location = new Point(497, 14);
+            checkBoxGenerate3D.Name = "checkBoxGenerate3D";
+            checkBoxGenerate3D.Size = new Size(77, 48);
+            checkBoxGenerate3D.TabIndex = 33;
+            checkBoxGenerate3D.Text = "Generuj\r\npodkłady 3D";
+            checkBoxGenerate3D.TextAlign = ContentAlignment.MiddleCenter;
+            checkBoxGenerate3D.UseVisualStyleBackColor = true;
+            checkBoxGenerate3D.CheckedChanged += checkBoxGenerate3D_CheckedChanged;
             // 
             // SingleBasemapForm
             // 
@@ -647,5 +663,6 @@ namespace TrainzBasemapMaker
         private ComboBox comboBoxEpsg;
         private GroupBox groupBox2TargetCoords;
         private GroupBox groupBox4BasemapParams;
+        private CheckBox checkBoxGenerate3D;
     }
 }
