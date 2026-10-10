@@ -153,6 +153,9 @@
   <data name="Main_Tab_Unified" xml:space="preserve">
     <value>Pobieranie obszarowe i teren (3D)</value>
   </data>
+  <data name="Main_Status_NewVersionAvailable" xml:space="preserve">
+    <value>Nowa wersja programu została wydana: {0}.</value>
+  </data>
   <data name="Pref_Title" xml:space="preserve">
     <value>Preferencje</value>
   </data>

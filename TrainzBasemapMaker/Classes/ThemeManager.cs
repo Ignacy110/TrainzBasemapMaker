@@ -71,6 +71,13 @@ namespace TrainzBasemapMaker.Classes
             item.BackColor = Color.FromArgb(45, 45, 48);
             item.ForeColor = Color.White;
 
+            if (item is ToolStripStatusLabel statusLabel && statusLabel.IsLink)
+            {
+                statusLabel.LinkColor = Color.FromArgb(100, 180, 246);
+                statusLabel.ActiveLinkColor = Color.FromArgb(144, 202, 249);
+                statusLabel.VisitedLinkColor = Color.FromArgb(180, 140, 230);
+            }
+
             if (item is ToolStripDropDownItem dropDownItem)
             {
                 dropDownItem.DropDown.BackColor = Color.FromArgb(45, 45, 48);
@@ -415,6 +422,13 @@ namespace TrainzBasemapMaker.Classes
         {
             item.BackColor = SystemColors.Control;
             item.ForeColor = SystemColors.ControlText;
+
+            if (item is ToolStripStatusLabel statusLabel && statusLabel.IsLink)
+            {
+                statusLabel.LinkColor = Color.FromArgb(0, 102, 204);
+                statusLabel.ActiveLinkColor = Color.Red;
+                statusLabel.VisitedLinkColor = Color.FromArgb(128, 0, 128);
+            }
 
             if (item is ToolStripDropDownItem dropDownItem)
             {

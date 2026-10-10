@@ -71,6 +71,7 @@ namespace TrainzBasemapMaker.Localization {
         public static string Main_Menu_About => ResourceManager.GetString("Main_Menu_About", resourceCulture) ?? "&About";
         public static string Main_Tab_Single => ResourceManager.GetString("Main_Tab_Single", resourceCulture) ?? "Single Basemap (2D)";
         public static string Main_Tab_Unified => ResourceManager.GetString("Main_Tab_Unified", resourceCulture) ?? "Area Download & Terrain (3D)";
+        public static string Main_Status_NewVersionAvailable => ResourceManager.GetString("Main_Status_NewVersionAvailable", resourceCulture) ?? "A new version of the program has been released: {0}.";
 
         public static string Pref_Title => ResourceManager.GetString("Pref_Title", resourceCulture) ?? "Preferences";
         public static string Pref_Header => ResourceManager.GetString("Pref_Header", resourceCulture) ?? "Preferences:";

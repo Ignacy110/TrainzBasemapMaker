@@ -29,7 +29,7 @@ namespace TrainzBasemapMaker
             ApplyLocalization();
 
             // Set build metadata info
-            labelVersion.Text = "v0.5.2-alpha";
+            labelVersion.Text = Classes.Constants.CurrentVersion;
             labelReleaseDate.Text = "13.09.2026";
 
             // Load the application icon from embedded resources using a memory stream

@@ -30,6 +30,8 @@ namespace TrainzBasemapMaker
     {
         private SingleBasemapForm singleBasemapForm = null!;
         private UnifiedGridToolForm unifiedGridToolForm = null!;
+        private string? latestReleaseUrl;
+        private string? latestReleaseTag;
 
         public MainForm()
         {
@@ -57,6 +59,11 @@ namespace TrainzBasemapMaker
             tabPageSingle.Text = Localization.Strings.Main_Tab_Single;
             tabPageUnified.Text = Localization.Strings.Main_Tab_Unified;
             toolStripStatusLabel1.Text = Localization.Strings.Common_Ready;
+
+            if (!string.IsNullOrEmpty(latestReleaseTag))
+            {
+                toolStripStatusUpdate.Text = string.Format(Localization.Strings.Main_Status_NewVersionAvailable, latestReleaseTag);
+            }
         }
 
         private void LoadTools()
@@ -89,10 +96,12 @@ namespace TrainzBasemapMaker
             form.Show();
         }
 
-        private void MainForm_Load(object? sender, EventArgs e)
+        private async void MainForm_Load(object? sender, EventArgs e)
         {
             this.Size = Properties.Settings.Default.MainFormSize;
             this.WindowState = Properties.Settings.Default.MainFormState;
+
+            await CheckForUpdatesAsync();
         }
 
         private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
@@ -180,6 +189,46 @@ namespace TrainzBasemapMaker
             using (AboutProgramForm info = new AboutProgramForm())
             {
                 info.ShowDialog();
+            }
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            var result = await UpdateChecker.CheckForUpdateAsync(Constants.CurrentVersion);
+            if (result != null && result.IsNewerAvailable && !this.IsDisposed)
+            {
+                latestReleaseUrl = result.HtmlUrl;
+                latestReleaseTag = result.LatestVersionTag;
+
+                toolStripStatusUpdate.Text = string.Format(Localization.Strings.Main_Status_NewVersionAvailable, latestReleaseTag);
+
+                // Set initial link color based on active theme
+                bool isDark = Properties.Settings.Default.DarkMode;
+                toolStripStatusUpdate.LinkColor = isDark 
+                    ? Color.FromArgb(100, 180, 246)
+                    : Color.FromArgb(0, 102, 204);
+
+                toolStripStatusUpdate.Visible = true;
+            }
+        }
+
+        private void toolStripStatusUpdate_Click(object? sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(latestReleaseUrl))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(latestReleaseUrl) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        string.Format(Localization.Strings.About_OpenUrlError, ex.Message),
+                        Localization.Strings.Common_Error,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                }
             }
         }
     }

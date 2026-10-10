@@ -31,6 +31,8 @@ namespace TrainzBasemapMaker
             aboutProgramToolStripMenuItem = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
+            toolStripStatusSpacer = new ToolStripStatusLabel();
+            toolStripStatusUpdate = new ToolStripStatusLabel();
             tabControl.SuspendLayout();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -149,7 +151,7 @@ namespace TrainzBasemapMaker
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusSpacer, toolStripStatusUpdate });
             statusStrip1.Location = new Point(0, 789);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(1084, 22);
@@ -161,6 +163,21 @@ namespace TrainzBasemapMaker
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(51, 17);
             toolStripStatusLabel1.Text = "Gotowy.";
+            // 
+            // toolStripStatusSpacer
+            // 
+            toolStripStatusSpacer.Name = "toolStripStatusSpacer";
+            toolStripStatusSpacer.Size = new Size(1018, 17);
+            toolStripStatusSpacer.Spring = true;
+            // 
+            // toolStripStatusUpdate
+            // 
+            toolStripStatusUpdate.IsLink = true;
+            toolStripStatusUpdate.LinkBehavior = LinkBehavior.HoverUnderline;
+            toolStripStatusUpdate.Name = "toolStripStatusUpdate";
+            toolStripStatusUpdate.Size = new Size(0, 17);
+            toolStripStatusUpdate.Visible = false;
+            toolStripStatusUpdate.Click += toolStripStatusUpdate_Click;
             // 
             // MainForm
             // 
@@ -199,5 +216,7 @@ namespace TrainzBasemapMaker
         private System.Windows.Forms.ToolStripMenuItem aboutProgramToolStripMenuItem;
         private System.Windows.Forms.StatusStrip statusStrip1;
         public System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusSpacer;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusUpdate;
     }
 }
