@@ -159,8 +159,6 @@ namespace TrainzBasemapMaker
             radioButtonModeClick.Text = Strings.Unified_ModeClick;
             groupBoxMap.Text = Strings.Unified_GroupMap;
             groupBox3BasemapParams.Text = Strings.Unified_GroupBasemapParams;
-            buttonDeselectAllMaps.Text = Strings.Unified_DeselectAll;
-            buttonSelectAllMaps.Text = Strings.Unified_SelectAll;
             label2.Text = Strings.Unified_MaxResolution;
             label15.Text = Strings.Unified_BasemapTypes;
             label14.Text = Strings.Unified_YearIfAvailable;
@@ -564,32 +562,12 @@ namespace TrainzBasemapMaker
                 BeginInvoke(new Action(UpdateBasemapParamsState));
             }
         }
-
-        private void buttonSelectAllMaps_Click(object? sender, EventArgs e)
-        {
-            for (int i = 0; i < checkedListBoxMapType.Items.Count; i++)
-            {
-                checkedListBoxMapType.SetItemChecked(i, true);
-            }
-            UpdateBasemapParamsState();
-        }
-
-        private void buttonDeselectAllMaps_Click(object? sender, EventArgs e)
-        {
-            for (int i = 0; i < checkedListBoxMapType.Items.Count; i++)
-            {
-                checkedListBoxMapType.SetItemChecked(i, false);
-            }
-            UpdateBasemapParamsState();
-        }
-
         private void UpdateBasemapParamsState()
         {
             var checkedSources = checkedListBoxMapType.CheckedItems.Cast<IMapSource>().ToList();
             bool anySupportsTime = checkedSources.Any(s => s.SupportsTime);
             textBoxBasemapDate.Enabled = anySupportsTime;
             label14.Enabled = anySupportsTime;
-            labelMapSelectionCount.Text = string.Format(Strings.Unified_SelectedMapsFormat, checkedSources.Count);
 
             // Suggest coordinate system if only XYZ sources are checked
             if (checkedSources.Count > 0 && checkedSources.All(s => s is XyzTileMapSource))

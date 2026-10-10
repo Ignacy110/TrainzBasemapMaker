@@ -28,8 +28,8 @@ namespace TrainzBasemapMaker
         /// </summary>
         private void InitializeComponent()
         {
-            this.comboBoxResolution = new System.Windows.Forms.ComboBox();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BatchToolForm));
+            comboBoxResolution = new ComboBox();
             basemapFolderListBox = new ListBox();
             label10 = new Label();
             progressBar1 = new ProgressBar();
@@ -51,14 +51,22 @@ namespace TrainzBasemapMaker
             groupBox3 = new GroupBox();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
-            groupBox2.Controls.Add(this.comboBoxResolution);
             groupBox3.SuspendLayout();
             SuspendLayout();
+            // 
+            // comboBoxResolution
+            // 
+            comboBoxResolution.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboBoxResolution.FormattingEnabled = true;
+            comboBoxResolution.Location = new Point(13, 58);
+            comboBoxResolution.Name = "comboBoxResolution";
+            comboBoxResolution.Size = new Size(86, 23);
+            comboBoxResolution.TabIndex = 20;
+            comboBoxResolution.SelectedIndexChanged += comboBoxResolution_SelectedIndexChanged;
             // 
             // basemapFolderListBox
             // 
             basemapFolderListBox.FormattingEnabled = true;
-            basemapFolderListBox.ItemHeight = 15;
             basemapFolderListBox.Location = new Point(6, 41);
             basemapFolderListBox.Name = "basemapFolderListBox";
             basemapFolderListBox.Size = new Size(169, 154);
@@ -117,14 +125,6 @@ namespace TrainzBasemapMaker
             label14.Size = new Size(69, 30);
             label14.TabIndex = 38;
             label14.Text = "Rok\r\npodkładów:";
-            // 
-            // 
-            // 
-            // 
-            // 
-            // 
-            // 
-            // 
             // 
             // label2
             // 
@@ -200,6 +200,7 @@ namespace TrainzBasemapMaker
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(comboBoxResolution);
             groupBox2.Controls.Add(label2);
             groupBox2.Controls.Add(label13);
             groupBox2.Controls.Add(textBoxDesignation);
@@ -267,20 +268,9 @@ namespace TrainzBasemapMaker
             Text = "Przetwarzanie seryjne";
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
-                        // 
-            // comboBoxResolution
-            // 
-            this.comboBoxResolution.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxResolution.FormattingEnabled = true;
-            this.comboBoxResolution.Location = new System.Drawing.Point(13, 56);
-            this.comboBoxResolution.Name = "comboBoxResolution";
-            this.comboBoxResolution.Size = new System.Drawing.Size(120, 23);
-            this.comboBoxResolution.TabIndex = 20;
-            this.comboBoxResolution.SelectedIndexChanged += new System.EventHandler(this.comboBoxResolution_SelectedIndexChanged);
             groupBox2.ResumeLayout(false);
             groupBox2.PerformLayout();
             groupBox3.ResumeLayout(false);
-            groupBox3.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }

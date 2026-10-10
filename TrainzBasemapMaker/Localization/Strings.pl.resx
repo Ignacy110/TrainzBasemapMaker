@@ -536,15 +536,6 @@ Szczegóły błędów:
   <data name="Unified_GroupBasemapParams" xml:space="preserve">
     <value>3. Parametry podkładów</value>
   </data>
-  <data name="Unified_DeselectAll" xml:space="preserve">
-    <value>Odznacz wszystkie</value>
-  </data>
-  <data name="Unified_SelectAll" xml:space="preserve">
-    <value>Zaznacz wszystkie</value>
-  </data>
-  <data name="Unified_SelectedMapsFormat" xml:space="preserve">
-    <value>Wybrano: {0}</value>
-  </data>
   <data name="Unified_MaxResolution" xml:space="preserve">
     <value>Maks. rozdzielczość:</value>
   </data>

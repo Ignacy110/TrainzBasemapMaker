@@ -194,9 +194,6 @@ namespace TrainzBasemapMaker.Localization {
         public static string Unified_ModeClick => ResourceManager.GetString("Unified_ModeClick", resourceCulture) ?? "Brush / click";
         public static string Unified_GroupMap => ResourceManager.GetString("Unified_GroupMap", resourceCulture) ?? "Tile selection on map (local grid):";
         public static string Unified_GroupBasemapParams => ResourceManager.GetString("Unified_GroupBasemapParams", resourceCulture) ?? "3. Basemap parameters";
-        public static string Unified_DeselectAll => ResourceManager.GetString("Unified_DeselectAll", resourceCulture) ?? "Deselect all";
-        public static string Unified_SelectAll => ResourceManager.GetString("Unified_SelectAll", resourceCulture) ?? "Select all";
-        public static string Unified_SelectedMapsFormat => ResourceManager.GetString("Unified_SelectedMapsFormat", resourceCulture) ?? "Selected: {0}";
         public static string Unified_MaxResolution => ResourceManager.GetString("Unified_MaxResolution", resourceCulture) ?? "Max resolution:";
         public static string Unified_BasemapTypes => ResourceManager.GetString("Unified_BasemapTypes", resourceCulture) ?? "Basemap types (each creates a separate layer in Trainz):";
         public static string Unified_YearIfAvailable => ResourceManager.GetString("Unified_YearIfAvailable", resourceCulture) ?? "Year (if available):";

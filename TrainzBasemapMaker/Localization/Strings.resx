@@ -536,15 +536,6 @@ Error details:
   <data name="Unified_GroupBasemapParams" xml:space="preserve">
     <value>3. Basemap parameters</value>
   </data>
-  <data name="Unified_DeselectAll" xml:space="preserve">
-    <value>Deselect all</value>
-  </data>
-  <data name="Unified_SelectAll" xml:space="preserve">
-    <value>Select all</value>
-  </data>
-  <data name="Unified_SelectedMapsFormat" xml:space="preserve">
-    <value>Selected: {0}</value>
-  </data>
   <data name="Unified_MaxResolution" xml:space="preserve">
     <value>Max resolution:</value>
   </data>

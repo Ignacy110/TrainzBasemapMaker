@@ -60,9 +60,6 @@ namespace TrainzBasemapMaker
             groupBoxMap = new GroupBox();
             webView21 = new Microsoft.Web.WebView2.WinForms.WebView2();
             groupBox3BasemapParams = new GroupBox();
-            buttonDeselectAllMaps = new Button();
-            buttonSelectAllMaps = new Button();
-            labelMapSelectionCount = new Label();
             checkedListBoxMapType = new CheckedListBox();
             comboBoxResolution = new ComboBox();
             label2 = new Label();
@@ -86,6 +83,7 @@ namespace TrainzBasemapMaker
             labelKuidSeparator = new Label();
             textBoxKuidPart2 = new TextBox();
             groupBox5Download = new GroupBox();
+            progressBar2 = new ProgressBar();
             checkBoxGenerate2DBasemaps = new CheckBox();
             checkBoxPlace2DOnMap = new CheckBox();
             checkBoxGenerate3DBasemaps = new CheckBox();
@@ -98,7 +96,6 @@ namespace TrainzBasemapMaker
             labelProgress = new Label();
             buttonStartDownload = new Button();
             buttonCancel = new Button();
-            progressBar2 = new ProgressBar();
             groupBox1CoordSystem.SuspendLayout();
             groupBox2Selection.SuspendLayout();
             groupBoxMap.SuspendLayout();
@@ -236,9 +233,6 @@ namespace TrainzBasemapMaker
             // groupBox3BasemapParams
             // 
             groupBox3BasemapParams.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBox3BasemapParams.Controls.Add(buttonDeselectAllMaps);
-            groupBox3BasemapParams.Controls.Add(buttonSelectAllMaps);
-            groupBox3BasemapParams.Controls.Add(labelMapSelectionCount);
             groupBox3BasemapParams.Controls.Add(checkedListBoxMapType);
             groupBox3BasemapParams.Controls.Add(comboBoxResolution);
             groupBox3BasemapParams.Controls.Add(label2);
@@ -252,35 +246,6 @@ namespace TrainzBasemapMaker
             groupBox3BasemapParams.TabStop = false;
             groupBox3BasemapParams.Text = "3. Parametry podkładów";
             // 
-            // buttonDeselectAllMaps
-            // 
-            buttonDeselectAllMaps.Location = new Point(258, 116);
-            buttonDeselectAllMaps.Name = "buttonDeselectAllMaps";
-            buttonDeselectAllMaps.Size = new Size(110, 23);
-            buttonDeselectAllMaps.TabIndex = 40;
-            buttonDeselectAllMaps.Text = "Odznacz wszystkie";
-            buttonDeselectAllMaps.UseVisualStyleBackColor = true;
-            buttonDeselectAllMaps.Click += buttonDeselectAllMaps_Click;
-            // 
-            // buttonSelectAllMaps
-            // 
-            buttonSelectAllMaps.Location = new Point(142, 116);
-            buttonSelectAllMaps.Name = "buttonSelectAllMaps";
-            buttonSelectAllMaps.Size = new Size(110, 23);
-            buttonSelectAllMaps.TabIndex = 39;
-            buttonSelectAllMaps.Text = "Zaznacz wszystkie";
-            buttonSelectAllMaps.UseVisualStyleBackColor = true;
-            buttonSelectAllMaps.Click += buttonSelectAllMaps_Click;
-            // 
-            // labelMapSelectionCount
-            // 
-            labelMapSelectionCount.AutoSize = true;
-            labelMapSelectionCount.Location = new Point(378, 120);
-            labelMapSelectionCount.Name = "labelMapSelectionCount";
-            labelMapSelectionCount.Size = new Size(67, 15);
-            labelMapSelectionCount.TabIndex = 41;
-            labelMapSelectionCount.Text = "Wybrano: 1";
-            // 
             // checkedListBoxMapType
             // 
             checkedListBoxMapType.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -288,7 +253,7 @@ namespace TrainzBasemapMaker
             checkedListBoxMapType.FormattingEnabled = true;
             checkedListBoxMapType.Location = new Point(142, 42);
             checkedListBoxMapType.Name = "checkedListBoxMapType";
-            checkedListBoxMapType.Size = new Size(428, 58);
+            checkedListBoxMapType.Size = new Size(428, 94);
             checkedListBoxMapType.TabIndex = 38;
             checkedListBoxMapType.ItemCheck += checkedListBoxMapType_ItemCheck;
             // 
@@ -366,7 +331,6 @@ namespace TrainzBasemapMaker
             // listBoxRoutes
             // 
             listBoxRoutes.FormattingEnabled = true;
-            listBoxRoutes.ItemHeight = 15;
             listBoxRoutes.Location = new Point(6, 38);
             listBoxRoutes.Name = "listBoxRoutes";
             listBoxRoutes.Size = new Size(205, 109);
@@ -517,6 +481,13 @@ namespace TrainzBasemapMaker
             groupBox5Download.TabStop = false;
             groupBox5Download.Text = "5. Pobieranie i generowanie mapy";
             // 
+            // progressBar2
+            // 
+            progressBar2.Location = new Point(6, 241);
+            progressBar2.Name = "progressBar2";
+            progressBar2.Size = new Size(205, 23);
+            progressBar2.TabIndex = 10;
+            // 
             // checkBoxGenerate2DBasemaps
             // 
             checkBoxGenerate2DBasemaps.AutoSize = true;
@@ -643,13 +614,6 @@ namespace TrainzBasemapMaker
             buttonCancel.UseVisualStyleBackColor = true;
             buttonCancel.Click += buttonCancel_Click;
             // 
-            // progressBar2
-            // 
-            progressBar2.Location = new Point(6, 241);
-            progressBar2.Name = "progressBar2";
-            progressBar2.Size = new Size(205, 23);
-            progressBar2.TabIndex = 10;
-            // 
             // UnifiedGridToolForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -708,9 +672,6 @@ namespace TrainzBasemapMaker
         private ComboBox comboBoxResolution;
         private Label label15;
         private CheckedListBox checkedListBoxMapType;
-        private Button buttonSelectAllMaps;
-        private Button buttonDeselectAllMaps;
-        private Label labelMapSelectionCount;
         private Label label14;
         private TextBox textBoxBasemapDate;
         // Right configurator
